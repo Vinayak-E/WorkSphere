@@ -1,0 +1,88 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency directories
+node_modules/
+.bower_components/
+
+# Production files
+build/
+dist/
+src/configs/serviceAccount.json
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.swn
+*.bak
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Editor-specific files
+.idea/
+.vscode/
+*.code-workspace
+
+# Test and coverage outputs
+coverage/
+.nyc_output/
+jest.config.js
+.vitest/
+
+# TypeScript
+*.tsbuildinfo
+
+# Parcel cache
+.cache/
+
+# Storybook files
+.storybook/
+*.stories.mdx
+*.stories.tsx
+*.stories.jsx
+
+# Miscellaneous
+*.pid
+*.seed
+*.sqlite
+
+# Vite
+.vite/
+
+# React-specific
+*.env
+public/*.hot-update.json
+
+# Backend-specific
+uploads/
+data/
+config/local.json
+# If using Sequelize:
+sequelize-config.js
+
+# Docker
+.dockerignore
+docker-compose.yml
+Dockerfile
+
+# Next.js specific (if used in frontend)
+.next/
+out/
+
+# Ignore local dependencies linked with npm link
+.npm/
+
+# Ignore macOS system files
+._*
