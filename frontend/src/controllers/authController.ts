@@ -2,6 +2,7 @@ import { FirebaseError } from 'firebase/app';
 import { auth, googleProvider, signInWithPopup } from '../config/firebase.config';
 import api from '../api/axios';
 import { signup } from "../services/authService";
+import { toast } from 'react-toastify';
 
 
 export const handleSignup = async (
@@ -21,9 +22,11 @@ export const handleSignup = async (
 
     if (response.registeredMail) {
       navigate(`/verifyOtp?email=${response.registeredMail}`);
+      return response;
     }
   } catch (error) {
-    setErrorMessage(error);
+    setErrorMessage(error instanceof Error ? error.message : 'Registration failed');
+    throw error;
   } finally {
     setIsSubmitting(false);
   }
@@ -31,23 +34,22 @@ export const handleSignup = async (
 
 
 export const authController = {
-    async handleGoogleLogin() {
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const idToken = await result.user.getIdToken();
-                console.log("result " ,result, "id",idToken);
-                
-            const response = await api.post('/auth/google-login', { idToken });
-            return response.data;
-        } catch (error) {
-    
-            if (error instanceof FirebaseError) {
-                console.error('Firebase error during Google login:', error.message);
-            } else {
-                console.error('Unexpected error during Google login:', error);
-            }
-            throw new Error('Google login failed. Please try again later.');
-        }
-    },
+  async handleGoogleLogin() {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      const response = await api.post('/auth/google-login', { idToken });
+      toast.success('Successfully logged in with Google!');
+      return response.data;
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        console.error('Firebase error during Google login:', error.message);
+        toast.error(error.message || 'Google login failed');
+      } else {
+        console.error('Unexpected error during Google login:', error);
+        toast.error('Google login failed. Please try again later.');
+      }
+      throw error;
+    }
+  },
 };
-

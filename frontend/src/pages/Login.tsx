@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import ForgotPasswordModal from "../components/ForgotPasswordModal";
-// import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { authController } from "../controllers/authController";
 import 'react-toastify/dist/ReactToastify.css';
 import { login } from "../redux/slices/authSlice";
@@ -127,16 +127,23 @@ const  Login = () => {
              console.log("response",response);
              
              if (response.status === 200) {
-              const { tenantId, success ,role} = response.data;
+              const { tenantId, success ,role ,forcePasswordChange} = response.data;
       
               if (success) {
              
                 localStorage.setItem("user", JSON.stringify(response.data));
                 localStorage.setItem('tenantId',tenantId)
 
+                if (forcePasswordChange) {
+                  toast.info('Please change your default password before continuing');
+                  navigate('/employee/passwordChange');
+                  return;
+                }
+      
+
                 console.log("User Role:", role);
       
-                if (role === "admin") navigate("/admin");
+                if (role === "ADMIN") navigate("/admin");
                 else if (role === "COMPANY") navigate("/company");
                 else if (role === "MANAGER") navigate("/manager");
                 else if (role === "EMPLOYEE") navigate("/employee");

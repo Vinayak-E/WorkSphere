@@ -71,7 +71,7 @@ export interface ICompanyUser {
 export interface ICompanyService {
  signup(data: ICompanySignup): Promise<string | boolean | null | { message: string }>
   verifyOtp(data: IVerifyOtpDto): Promise<boolean>; 
-  verifyLogin(email: string, password: string): Promise<{ user: ICompanyUser,refreshToken:string,accessToken:string, tenantId: string } | null> 
+  verifyLogin(email: string, password: string,userType:string): Promise<{ user: ICompanyUser,refreshToken:string,accessToken:string, tenantId: string ,forcePasswordChange?: boolean} | null> 
   resendOtp(email: string): Promise<boolean>
   generateOtp(email: string): Promise<any>
   generateAccessToken(userId: string): Promise<string>

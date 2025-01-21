@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast} from 'react-toastify';
 
 import IMAGES from '../assets/images/image';
 
@@ -83,7 +82,7 @@ const OtpVerification = () => {
     }
     try {
       await verifyOtpService(email, otp);
-      toast.success('Successfully verified your email, now you can login!');
+      toast.success('Your email has been successfully verified. Your account is pending administrative approval. You will receive an email once approved');
       navigate('/login');
     } catch (error: unknown) {
       setOtpMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
@@ -92,7 +91,6 @@ const OtpVerification = () => {
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-3 md:p-6 lg:p-8 relative">
-      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
       
       <div className="top-8 left-8">
         <img src={IMAGES.navBarLogoDark} alt="WorkSphere Logo" className="w-32 h-auto" />

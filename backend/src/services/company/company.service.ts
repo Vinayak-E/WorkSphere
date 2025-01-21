@@ -106,38 +106,77 @@ import { IJwtService } from "../../interfaces/IJwtService.types";
   
   
     
-  async verifyLogin(email: string, password: string): Promise<{ user: ICompanyUser,refreshToken: string;
-    accessToken: string; tenantId: string } | null> {
-    try {
-        const user = await this.userRepository.findByEmail(email);
-        if (!user) return null;
-
-       console.log(`user data verifylogin ${user}`);
-       
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return null;
-
-        // Generate tenantId from company name
-        const tenantId = slugify(user.companyName).toUpperCase()
-
+  async verifyLogin(email: string, password: string, userType: string): Promise<{
+    user: ICompanyUser;
+    refreshToken: string;
+    accessToken: string;
+    tenantId: string;
+    forcePasswordChange?: boolean;
+  } | null> {
+      try {
+          const user = await this.userRepository.findByEmail(email);
+          if (!user) return null;
+  
+          // Check for employee/manager with default password
+          const isDefaultPassword = (userType === 'EMPLOYEE' || userType === 'MANAGER') && 
+                                   password === 'helloemployee';
+          
+          if (isDefaultPassword) {
+              const isPasswordValid = password === 'helloemployee';
+              if (!isPasswordValid) return null;
+  
+              // Return with forcePasswordChange flag
+              const tenantId = slugify(user.companyName).toUpperCase();
+              const data = {
+                  tenantId,
+                  email: user.email,
+                  role: user.role,
+              };
+  
+              const [accessToken, refreshToken] = await Promise.all([
+                  this.jwtService.generateAccessToken(data),
+                  this.jwtService.generateRefreshToken(data)
+              ]);
+  
+              return {
+                  user: data,
+                  accessToken,
+                  refreshToken,
+                  tenantId,
+                  forcePasswordChange: true
+              };
+          }
+  
+          // Normal password validation for non-default cases
+          const isPasswordValid = await bcrypt.compare(password, user.password);
+          if (!isPasswordValid) return null;
+  
+          if (!user.isActive) {
+              throw new Error("You are blocked from this account");
+          }
+  
+          if (user.isApproved === 'Pending' || user.isApproved === 'Rejected') {
+              throw new Error("Your Request is still under pending you will get a confirmation email");
+          }
+  
+          const tenantId = slugify(user.companyName).toUpperCase();
           const data = {
-           tenantId,
-          email: user.email,
-          role: user.role,
-        };
+              tenantId,
+              email: user.email,
+              role: user.role,
+          };
   
-        const [accessToken, refreshToken] = await Promise.all([
-          this.jwtService.generateAccessToken(data),
-          this.jwtService.generateRefreshToken(data)
-        ]);
+          const [accessToken, refreshToken] = await Promise.all([
+              this.jwtService.generateAccessToken(data),
+              this.jwtService.generateRefreshToken(data)
+          ]);
   
-        return {user:data, accessToken, refreshToken,tenantId };
-    } catch (error) {
-        console.error('Error verifying login:', error);
-        throw new Error('Login failed');
-    }
-}
-
+          return { user: data, accessToken, refreshToken, tenantId };
+      } catch (error) {
+          console.error('Error verifying login:', error);
+          throw error;
+      }
+  }
 
 async verifyRefreshToken(refreshToken: string): Promise<string | null> {
     try {

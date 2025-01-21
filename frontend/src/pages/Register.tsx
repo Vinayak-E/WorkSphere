@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { handleSignup } from "../controllers/authController";
 import { validateForm } from "@/utils/validations";
 import { FormState,FieldState,FieldName } from "@/types/types";
-
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [formState, setFormState] = useState<FormState>({
@@ -40,9 +40,15 @@ const Register = () => {
     });
 
     setFormState(updatedFormState);
-
     if (isValid) {
-      await handleSignup(formState, navigate, setErrorMessage, setIsSubmitting);
+      try {
+        await handleSignup(formState, navigate, setErrorMessage, setIsSubmitting);
+        toast.success('Registration successful! Please check your email for OTP.');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Registration failed. Please try again.');
+      }
+    } else {
+      toast.error('Please fill the details correctly before submitting.');
     }
   };
 

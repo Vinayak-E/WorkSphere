@@ -69,17 +69,14 @@ export class CompanyAuthController {
     next: NextFunction
   ) => {
     try {
-      const { email, password } = req.body;
-    console.log(req.body)
+      const { email, password,userType } = req.body;
      
-      const response = await this.companyService.verifyLogin(email, password);
+      const response = await this.companyService.verifyLogin(email, password,userType);
 
       if (!response) {
         res.status(400).json({ message: "Invalid email or password!" });
         return;
       }
-
-
 
    if (response.refreshToken) {
             res.cookie("refreshToken", response.refreshToken, {
@@ -102,11 +99,11 @@ export class CompanyAuthController {
             success: true,
             accessToken: response.accessToken,
             tenantId: response.tenantId,
-            role: response.user.role, 
+            role: response.user.role,
+            forcePasswordChange: response.forcePasswordChange || false
           });
     } catch (error) {
-      console.error("Error logging in:", error);
-      res.status(500).json({ message: "Error logging in", error });
+      next(error)
     }
   };
 
@@ -114,7 +111,7 @@ export class CompanyAuthController {
     req: Request,
     res: Response,
     next: NextFunction
-  ) => {
+  ) => { 
     try {
       const { refreshToken } = req.body;
       if (!refreshToken) {

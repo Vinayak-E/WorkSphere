@@ -19,6 +19,7 @@ export interface IEmployee extends Document {
     email: string;
     mobile:string;
     position:string;
+    role:string;
     status :string;
     gender:string;
     department: mongoose.Schema.Types.ObjectId; 
@@ -32,6 +33,7 @@ export interface IEmployee extends Document {
     mobile?: string;
     position?:string;
     gender?: string;
+    role?:string;
     department?:mongoose.Schema.Types.ObjectId; 
     status?: string;
   }

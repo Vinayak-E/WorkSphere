@@ -3,7 +3,7 @@ import { RequestHandler } from "express-serve-static-core";
 import { ICreateEmployee, IUpdateEmployee } from "../../interfaces/company/IEmployee.types";
 import { EmployeeService } from "../../services/company/employee.service";
 
-export class EmployeeController {
+export class ManageEmployeeController {
     constructor(private readonly employeeService: EmployeeService) {}
 
 
@@ -34,16 +34,16 @@ export class EmployeeController {
     addEmployee: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const tenantConnection = req.tenantConnection;
-
-            if (!tenantConnection) {
+            const tenantId = req.tenantId
+            if (!tenantConnection || !tenantId) {
                  res.status(500).json({ 
                     success: false,
                     message: "Tenant connection not established" 
                 });
                 return
             }
-
-            const { name, email, mobile, department, position, gender, status } = req.body;
+           
+            const { name, email, mobile, department, position, gender,role, status } = req.body;
             
 
             const employeeData: ICreateEmployee = {
@@ -53,10 +53,11 @@ export class EmployeeController {
                 department,
                 position,
                 gender,
-                status
+                status,
+                role
             };
 
-            const newEmployee = await this.employeeService.addEmployee(employeeData, tenantConnection);
+            const newEmployee = await this.employeeService.addEmployee(employeeData, tenantConnection,tenantId);
 
              res.status(201).json({
                 success: true,

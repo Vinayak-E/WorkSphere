@@ -12,10 +12,11 @@ import Departments from "@/components/company/Departments";
 import Home from "@/components/company/Home";
 import HomePage from "../pages/Home";
 import CompanyRoutes from "./CompanyRoutes";
+import EmployeeRoutes from "./EmployeeRoutes";
 
 
 const AppRoutes: React.FC = () => {
-  return (
+  return ( 
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<Register />} />
@@ -43,15 +44,15 @@ const AppRoutes: React.FC = () => {
         />
 
 
-  {/* Employee Routes
+
   <Route
     path="/employee/*"
     element={
-      <ProtectedRoute allowedRoles={["employee"]}>
+      
         <EmployeeRoutes />
-      </ProtectedRoute>
+ 
     }
-  /> */}
+  />
 {/* 
   Unauthorized Route
   <Route path="/unauthorized" element={<NotFound />} /> */}

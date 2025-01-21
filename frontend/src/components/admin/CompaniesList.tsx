@@ -61,16 +61,7 @@ const CompanyListing = () => {
     }
   };
 
-  const handleApprovalChange = async (companyId: string, newApprovalStatus: boolean) => {
-    try {
-      await api.put(`/admin/companiesList/${companyId}/approve`, { isApproved: newApprovalStatus });
-      toast.success("Company approval status updated successfully");
-      fetchCompanies();
-    } catch (error) {
-      toast.error("Failed to update company approval status");
-      console.error("Error updating company approval status:", error);
-    }
-  };
+
 
   const filteredCompanies = companies.filter(company =>
     company.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -134,7 +125,6 @@ const CompanyListing = () => {
                     <TableHead>Email</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Approval</TableHead>
                     <TableHead>Joined Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -151,13 +141,6 @@ const CompanyListing = () => {
                             className={company.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
                           >
                             {company.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            className={company.isApproved ? "bg-blue-100 text-blue-800" : "bg-yellow-100 text-yellow-800"}
-                          >
-                            {company.isApproved ? "Approved" : "Pending"}
                           </Badge>
                         </TableCell>
                         <TableCell>{formatDate(company.createdAt)}</TableCell>

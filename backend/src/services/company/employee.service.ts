@@ -1,9 +1,10 @@
 import { IEmployee,ICreateEmployee, IUpdateEmployee } from "../../interfaces/company/IEmployee.types";
 import { sendEmail } from "../../utils/email";
-// import { DepartmentRepository } from "../../repositories/company/departmentRepository";
+import bcrypt from 'bcryptjs'
 import { Connection } from "mongoose";
 import { EmployeeRepository } from "../../repositories/company/employeeRepository";
 import { IUserRepository } from "../../interfaces/IUser.types";
+import { envConfig } from "../../configs/envConfig";
 
 export class EmployeeService {
   constructor(private readonly employeeRepository:EmployeeRepository,
@@ -20,24 +21,25 @@ export class EmployeeService {
   }
 
   async addEmployee( employeeData: ICreateEmployee, 
-    tenantConnection:Connection): Promise<IEmployee | boolean> {
+    tenantConnection:Connection,tenantId:string): Promise<IEmployee | boolean> {
     try {
       const existingUser = await this.userRepository.findByEmail(employeeData.email,);
       if(existingUser)
       throw new Error("This email is  already exists");
      
+      const defaultPassword = envConfig.DEFAULT_PASS ||'helloemployee123'
+      const hashPassword = await bcrypt.hash(defaultPassword, 10);
+
       const data={
-      email:employeeData.email,
-      companyName :tenantConnection.name,
-      role :'EMPLOYEE',
-      password : 'helloemployee',
+      email:employeeData.email, 
+      companyName :tenantId,
+      role : employeeData.role,
+      password : hashPassword,
       isActive:true
       }
-    
+
      const user =  await this.userRepository.createUser(data);
      await sendEmail( user.email,"Successfully Registered to the company ", `Your Password  is : ${data.password}`)
-
-
       const newEmployee = await this.employeeRepository.createEmployee( employeeData, 
         tenantConnection);
       console.log('newDepartmetdata',newEmployee)

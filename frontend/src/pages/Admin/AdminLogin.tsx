@@ -61,9 +61,9 @@ const AdminLogin: React.FC = () => {
             }
             if (response.data) {
                 toast.success('Login successfull');
-                setTimeout(() => {
+       
                     navigate('/admin/dashboard');
-                }, 2000);
+            
             }
         } catch (error: unknown) {
           if (error instanceof AxiosError) {

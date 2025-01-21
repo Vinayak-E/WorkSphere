@@ -25,6 +25,7 @@ interface Employee {
   position: string;
   gender: string;
   status: string;
+  role: string;
 }
 
 interface Department {
@@ -52,7 +53,8 @@ const MyTeam = () => {
     department: "",
     position: "",
     gender: "Male",
-    status: "Active"
+    status: "Active",
+    role : "EMPLOYEE"
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -117,6 +119,9 @@ const MyTeam = () => {
 
     if (!formData.position.trim()) {
       tempErrors.position = "Position is required";
+    }
+    if (!formData.role) {
+      tempErrors.role = "Role is required";
     }
 
     if (isEditMode && !formData.status) {
@@ -193,7 +198,8 @@ const MyTeam = () => {
       gender: employee.gender,
       mobile: employee.mobile,
       position: employee.position,
-      status: employee.status
+      status: employee.status,
+      role: employee.role
     });
     setErrors({});
     setIsEditMode(true);
@@ -211,7 +217,8 @@ const MyTeam = () => {
       department: "",
       position: "",
       gender: "Male",
-      status: "Active"
+      status: "Active",
+      role:"EMPLOYEE"
     });
     setErrors({});
   };
@@ -230,12 +237,6 @@ const MyTeam = () => {
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
-
-
-
-
-
-
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -308,6 +309,7 @@ const MyTeam = () => {
                   <TableHead>Department</TableHead>
                   <TableHead>Position</TableHead>
                   <TableHead>Gender</TableHead>
+                  <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -326,6 +328,7 @@ const MyTeam = () => {
                       <TableCell>{emp.department.name}</TableCell>
                       <TableCell>{emp.position}</TableCell>
                       <TableCell>{emp.gender}</TableCell>
+                      <TableCell>{emp.role}</TableCell>
                       <TableCell>
                         <Badge 
                           variant={emp.status === "Active" ? "success" : "destructive"}
@@ -483,6 +486,22 @@ const MyTeam = () => {
                   <SelectItem value="Female">Female</SelectItem>
                 </SelectContent>
               </Select>
+
+
+              <Select
+                value={formData.role}
+                onValueChange={(value) => handleChange(value, "role")}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                  <SelectItem value="MANAGER">Manager</SelectItem>
+                </SelectContent>
+              </Select>{errors.role && (
+                <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+              )}
 
 
               {isEditMode && (
