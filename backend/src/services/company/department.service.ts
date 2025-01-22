@@ -46,14 +46,12 @@ export class DepartmentService {
       throw new Error('Department ID and update data are required');
     }
 
- // Only check for name conflicts if name is being updated
  if (updateData.name) {
   const existingDepartment = await this.departmentRepository.findDepartmentByName(
     updateData.name,
     connection
   );
 
-  // If a department with this name exists and it's not the one we're updating
   if (existingDepartment && existingDepartment._id.toString() !== id) {
     throw new Error("Department with this name already exists");
   }

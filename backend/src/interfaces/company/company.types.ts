@@ -41,7 +41,6 @@ export interface ICompanyDocument extends Document {
  
   logo?: string;
   industry?: string;
-  description?: string;
   subscriptionPlan?: string;
   subscriptionStatus?: 'active' | 'inactive' | 'expired';
   subscriptionExpiry?: Date;

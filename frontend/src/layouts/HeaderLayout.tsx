@@ -37,13 +37,13 @@ export function Header() {
             <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full flex items-center justify-center bg-gray-200">
       {imageError ? (
-        <User className="h-5 w-5 text-gray-600" /> // ✅ Show icon on error
+        <User className="h-5 w-5 text-gray-600" />
       ) : (
         <img
           src="/api/placeholder/32/32"
           alt="Avatar"
           className="rounded-full"
-          onError={() => setImageError(true)} // ✅ Hide image on error
+          onError={() => setImageError(true)} 
         />
       )}
     </Button>

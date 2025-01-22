@@ -53,10 +53,7 @@ const companySchema = new Schema<ICompanyDocument>(
         'Other',
       ],
     },
-    description: {
-      required:false,
-      type: String,
-    },
+   
     subscriptionPlan: {
       type: String,
       enum: ['free', 'basic', 'premium', 'enterprise'],

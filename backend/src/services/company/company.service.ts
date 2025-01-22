@@ -102,10 +102,6 @@
   }
 
 
-  
-  
-  
-    
   async verifyLogin(email: string, password: string, userType: string): Promise<{
     user: ICompanyUser;
     refreshToken: string;

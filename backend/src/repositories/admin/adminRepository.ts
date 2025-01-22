@@ -4,9 +4,7 @@ import { UserModel } from "../../models/userModel";
 import { IAdminRepository } from "../../interfaces/admin/admin.types";
 import Company from "../../models/companyModel";
 
-interface CompanyFilter {
-  status?: string;
-}
+
 export class AdminRepository implements IAdminRepository {
   private readonly model: Model<IUser>; 
   constructor() {

@@ -17,13 +17,9 @@ export class CompanyRepository implements ICompanyRepository {
   }
   async createTenantCompany(tenantId: string, companyData: ICreateCompany) {
     try {
-      // Connect to tenant database
       const tenantDB: Connection = await connectTenantDB(tenantId);
-
-      // Define Tenant Company Model (using the schema)
       const TenantCompanyModel = tenantDB.model<ICompanyDocument>("Company", Company.schema);
-
-      // Save company in tenant database
+      
       const company = new TenantCompanyModel({
         companyName: companyData.companyName,
         email: companyData.email,

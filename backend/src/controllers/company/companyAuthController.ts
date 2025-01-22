@@ -7,7 +7,11 @@ import { firebaseAdmin } from "../../configs/firebase.config";
 export class CompanyAuthController {
   constructor(private readonly companyService: ICompanyService) {}
 
-  signup: RequestHandler = async ( req: Request, res: Response,next: NextFunction) => {
+  signup: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const data = req.body;
       const registeredMail = await this.companyService.signup(data);
@@ -52,10 +56,10 @@ export class CompanyAuthController {
     try {
       const { email } = req.body;
       if (!email) res.status(400).json({ message: "Email is required" });
-  
+
       const success = await this.companyService.resendOtp(email);
-      if (!success)  res.status(400).json({ message: "Failed to resend OTP" });
-  
+      if (!success) res.status(400).json({ message: "Failed to resend OTP" });
+
       res.json({ success: true, message: "OTP resent successfully" });
     } catch (error) {
       console.error("Error in resendOtpController:", error);
@@ -69,45 +73,47 @@ export class CompanyAuthController {
     next: NextFunction
   ) => {
     try {
-      const { email, password,userType } = req.body;
-     
-      const response = await this.companyService.verifyLogin(email, password,userType);
+      const { email, password, userType } = req.body;
+
+      const response = await this.companyService.verifyLogin(
+        email,
+        password,
+        userType
+      );
 
       if (!response) {
         res.status(400).json({ message: "Invalid email or password!" });
         return;
       }
 
-   if (response.refreshToken) {
-            res.cookie("refreshToken", response.refreshToken, {
-              httpOnly: true,
-              sameSite: "lax",
-              maxAge: 7 * 24 * 60 * 60 * 1000, 
-            });
-          }
-    
-          if (response.accessToken) {
-            res.cookie("accessToken", response.accessToken, {
-              httpOnly: true,
-              sameSite: "lax",
-              secure: process.env.NODE_ENV === "production",
-              maxAge: 15 * 60 * 1000,
-            });
-          }
-    
-          res.status(200).json({
-            success: true,
-            accessToken: response.accessToken,
-            tenantId: response.tenantId,
-            role: response.user.role,
-            forcePasswordChange: response.forcePasswordChange || false
-          });
+      if (response.refreshToken) {
+        res.cookie("refreshToken", response.refreshToken, {
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+      }
+
+      if (response.accessToken) {
+        res.cookie("accessToken", response.accessToken, {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 15 * 60 * 1000,
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        accessToken: response.accessToken,
+        tenantId: response.tenantId,
+        role: response.user.role,
+        forcePasswordChange: response.forcePasswordChange || false,
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
   };
-
- 
 
   forgotPassword: RequestHandler = async (
     req: Request,
@@ -127,10 +133,7 @@ export class CompanyAuthController {
       }
     } catch (error) {
       res.status(500).json({ message: "Something went wrong!" });
-      console.log(
-        "Something went wrong during resetting the forgot password",
-        error
-      );
+      console.log( "Something went wrong during resetting the forgot password",error );
     }
   };
 
@@ -158,38 +161,38 @@ export class CompanyAuthController {
     }
   };
 
-
-
-
-  verifyToken: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  verifyToken: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const token = req.cookies.accessToken;
-      
+
       if (!token) {
-          res.status(401).json({ 
-          success: false, 
-          message: "No authentication token provided" 
+        res.status(401).json({
+          success: false,
+          message: "No authentication token provided",
         });
-        return
+        return;
       }
-        const decoded = await this.companyService.verifyAccessToken(token);
-        
-        if (!decoded) {
-           res.status(401).json({ 
-            success: false, 
-            message: "Invalid token" 
-          });
-          return
-        }
-        console.log('decoded token',decoded)
+      const decoded = await this.companyService.verifyAccessToken(token);
 
-         res.status(200).json({
-          success: true,
-          email: decoded.email,
-          role: decoded.role,
-          tenantId: decoded.tenantId
+      if (!decoded) {
+        res.status(401).json({
+          success: false,
+          message: "Invalid token",
         });
+        return;
+      }
+      console.log("decoded token", decoded);
 
+      res.status(200).json({
+        success: true,
+        email: decoded.email,
+        role: decoded.role,
+        tenantId: decoded.tenantId,
+      });
     } catch (error) {
       next(error);
     }
@@ -202,6 +205,7 @@ export class CompanyAuthController {
   ) => {
     const { idToken } = req.body;
     try {
+      console.log('google login a',req.body)
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
       const user = await this.companyService.findOrCreateCompany(decodedToken);
       if (
@@ -243,7 +247,4 @@ export class CompanyAuthController {
       }
     }
   };
-
-
-  
 }

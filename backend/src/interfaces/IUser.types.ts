@@ -1,6 +1,5 @@
-import { FlattenMaps, ObjectId } from "mongoose";
 import { Document } from "mongoose";
-import { ICompanyDocument } from "./company/company.types";
+
 
 export interface IUser extends Document {
   _id :string 

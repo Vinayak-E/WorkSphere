@@ -21,10 +21,7 @@ function App() {
             draggable
             pauseOnHover
             theme="light"
-            // You can customize these options based on your needs:
-            // limit={5} // Limits the number of toasts displayed
-            // transition="bounce" // Changes the transition animation
-            // style={{ width: "400px" }} // Customizes the width
+     
           />
         </BrowserRouter>
       </ThemeProvider>

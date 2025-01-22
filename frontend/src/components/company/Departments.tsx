@@ -11,19 +11,35 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 const ITEMS_PER_PAGE = 10;
+interface Department {
+  _id: string;
+  name: string;
+  description?: string;
+  status: string;
+  createdAt:string;
+}
+interface ApiErrorResponse {
+  message?: string;
+  errors?: Record<string, string>;
+}
+interface FormErrors {
+  name?: string;
+  description?: string;
+}
 
 const Departments = () => {
-  const [departments, setDepartments] = useState([]);
-  const [filteredDepartments, setFilteredDepartments] = useState([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [filteredDepartments, setFilteredDepartments] =  useState<Department[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "", status: "Active" });
   const [formErrors, setFormErrors] = useState({});
   const [modalError, setModalError] = useState("");
@@ -48,10 +64,11 @@ const Departments = () => {
       const response = await api.get("/company/departments", {
         withCredentials: true,
       });
-      setDepartments(response.data.data);
-      setFilteredDepartments(response.data.data);
+      setDepartments(response.data.data || []);
+      setFilteredDepartments(response.data.data || []);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to fetch departments";
+      const err = error as AxiosError<ApiErrorResponse>; 
+      const errorMessage = err.response?.data?.message || "Failed to fetch departments";
       toast.error(errorMessage);
       console.error("Error fetching departments:", error);
     } finally {
@@ -60,7 +77,7 @@ const Departments = () => {
   };
 
   const validateForm = () => {
-    const errors = {};
+    const errors: FormErrors = {};
     if (!formData.name.trim()) {
       errors.name = "Department name is required";
     } else if (formData.name.trim().length < 2) {
@@ -83,7 +100,7 @@ const Departments = () => {
     
     setIsSubmitting(true);
     try {
-      if (isEditMode) {
+      if (isEditMode && selectedDepartment?._id) {
         const response = await api.put(
           `/company/departments/editDepartment/${selectedDepartment._id}`,
           formData,
@@ -107,11 +124,12 @@ const Departments = () => {
         handleCloseModal();
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 
+      const err = error as AxiosError<ApiErrorResponse>; 
+      const errorMessage = err.response?.data?.message || 
         (isEditMode ? "Failed to update department" : "Failed to add department");
       
-      if (error.response?.data?.errors) {
-        const backendErrors = error.response.data.errors;
+      if (err.response?.data?.errors) {
+        const backendErrors = err.response.data.errors;
         setFormErrors(backendErrors);
         setModalError("Please correct the errors below");
       } else {
@@ -123,10 +141,10 @@ const Departments = () => {
     }
   };
 
-  const handleEdit = (department) => {
+  const handleEdit = (department :Department) => {
     setSelectedDepartment(department);
     setFormData({
-      name: department.name,
+      name: department.name || "",
       description: department.description || "",
       status: department.status || "Active"
     });
@@ -145,7 +163,6 @@ const Departments = () => {
     setModalError("");
   };
 
-  // Pagination calculations
   const totalPages = Math.ceil(filteredDepartments.length / ITEMS_PER_PAGE);
   const paginatedDepartments = filteredDepartments.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
