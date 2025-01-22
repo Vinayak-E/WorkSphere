@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../../api/axios';
+import { RootState } from '@/redux/store';
+import { useSelector } from 'react-redux';
 
 interface FormState {
   newPassword: string;
@@ -15,7 +17,8 @@ const PasswordChange: React.FC = () => {
     newPassword: '',
     confirmPassword: ''
   });
-
+  const { user } = useSelector((state: RootState) => state.auth);
+  console.log('user details from ',user)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -31,18 +34,16 @@ const PasswordChange: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      console.log('userData',userData)
-      console.log('hellooooo')
+     
       const response = await api.post('/employee/changePassword', {
-        email: userData.email,
+        email: user.email,
         newPassword: formState.newPassword
       });
 
       if (response.status === 200) {
         toast.success('Password changed successfully!');
 
-        const role = userData.role;
+        const role = user.role;
         switch (role) {
           case "ADMIN":
             navigate("/admin");

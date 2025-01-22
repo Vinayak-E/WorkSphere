@@ -1,30 +1,66 @@
-import { Navigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { setUser, logout } from '@/redux/slices/authSlice';
+import api from '@/api/axios';
+import { ScaleLoader } from 'react-spinners';
 
 interface ProtectedRouteProps {
-  allowedRoles: string[];
-  children: JSX.Element;
+  children: React.ReactNode;
+  allowedRoles?: string[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children }) => {
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  console.log("User Data from Local Storage:", user);
-  console.log("Allowed Roles:", allowedRoles);
+  useEffect(() => {
+    const verifyToken = async () => {
+      try {
+        const response = await api.get('/auth/verify-token'); 
+        if (response.data.success) {
+          dispatch(setUser({
+            email: response.data.email,
+            role: response.data.role,
+            tenantId: response.data.tenantId,
+          }));
+        } else {
+          dispatch(logout());
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Token verification failed:', error);
+        dispatch(logout());
+        navigate('/login');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // If the user is not logged in or has no role, redirect to login
-  if (!user || !user.role) {
-    console.warn("User role is missing or user not found, redirecting to login...");
-    return <Navigate to="/login" />;
+    verifyToken();
+  }, [dispatch, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <ScaleLoader />
+      </div>
+    );
   }
 
-  // If the user's role is not allowed, redirect to unauthorized
-  if (!allowedRoles.includes(user.role)) {
-    console.warn(`User role '${user.role}' is not allowed, redirecting to unauthorized...`);
-    return <Navigate to="/unauthorized" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Render children if role is allowed
-  return children;
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

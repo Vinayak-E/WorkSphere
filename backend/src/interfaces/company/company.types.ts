@@ -68,14 +68,21 @@ export interface ICompanyUser {
  
 }
 
+
+export interface DecodedToken {
+  email: string;
+  role: string;
+  tenantId: string;
+}
+
 export interface ICompanyService {
  signup(data: ICompanySignup): Promise<string | boolean | null | { message: string }>
   verifyOtp(data: IVerifyOtpDto): Promise<boolean>; 
   verifyLogin(email: string, password: string,userType:string): Promise<{ user: ICompanyUser,refreshToken:string,accessToken:string, tenantId: string ,forcePasswordChange?: boolean} | null> 
   resendOtp(email: string): Promise<boolean>
   generateOtp(email: string): Promise<any>
+  verifyAccessToken(token: string): Promise<DecodedToken | null>
   generateAccessToken(userId: string): Promise<string>
-  verifyRefreshToken(refreshToken: string): Promise<string | null>
   sendResetLink(email: string): Promise<boolean | null>
   resetPassword(email: string, password: string): Promise<void>
   findOrCreateCompany(profile: any): Promise<any>

@@ -107,33 +107,7 @@ export class CompanyAuthController {
     }
   };
 
-  refreshToken: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => { 
-    try {
-      const { refreshToken } = req.body;
-      if (!refreshToken) {
-        res.status(401).json({ message: "Refresh token not found" });
-        return;
-      }
-
-      const userId = await this.companyService.verifyRefreshToken(refreshToken);
-      if (!userId) {
-        res.status(403).json({ message: "Invalid refresh token" });
-        return;
-      }
-
-      const newAccessToken = await this.companyService.generateAccessToken(
-        userId
-      );
-      res.status(200).json({ accessToken: newAccessToken });
-    } catch (error) {
-      console.error("Error refreshing token:", error);
-      res.status(500).json({ message: "Error refreshing token", error });
-    }
-  };
+ 
 
   forgotPassword: RequestHandler = async (
     req: Request,
@@ -181,6 +155,43 @@ export class CompanyAuthController {
       res.status(200).json({ message: "Token is valid", decoded });
     } catch (error) {
       res.status(400).json({ message: "Invalid or expired token" });
+    }
+  };
+
+
+
+
+  verifyToken: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req.cookies.accessToken;
+      
+      if (!token) {
+          res.status(401).json({ 
+          success: false, 
+          message: "No authentication token provided" 
+        });
+        return
+      }
+        const decoded = await this.companyService.verifyAccessToken(token);
+        
+        if (!decoded) {
+           res.status(401).json({ 
+            success: false, 
+            message: "Invalid token" 
+          });
+          return
+        }
+        console.log('decoded token',decoded)
+
+         res.status(200).json({
+          success: true,
+          email: decoded.email,
+          role: decoded.role,
+          tenantId: decoded.tenantId
+        });
+
+    } catch (error) {
+      next(error);
     }
   };
 
@@ -232,4 +243,7 @@ export class CompanyAuthController {
       }
     }
   };
+
+
+  
 }

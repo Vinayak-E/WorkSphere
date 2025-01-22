@@ -1,49 +1,38 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface User {
+  email: string;
+  role: string;
+  tenantId: string;
+}
+
 interface AuthState {
-    user: { email: string } | null;
-    isLoggedIn: boolean;
-    isAdmin: boolean;
-    accessToken: string | null;
-    refreshToken: string | null;
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
 }
 
 const initialState: AuthState = {
-    user: null,
-    isLoggedIn: false,
-    isAdmin: false,
-    accessToken: null,
-    refreshToken: null,
-}
+  user: null,
+  isAuthenticated: false,
+  loading: false
+};
 
 const authSlice = createSlice({
-    name: 'auth',
-    initialState,
-    reducers: {
-        login(state, action: PayloadAction<{ email: string, accessToken: string, refreshToken: string, isAdmin: boolean }>) {
-            state.user = { email: action.payload.email };
-            state.isLoggedIn = true;
-            state.isAdmin = action.payload.isAdmin;
-            state.accessToken = action.payload.accessToken;
-            state.refreshToken = action.payload.refreshToken;
-            
-            localStorage.setItem('accessToken', action.payload.accessToken);
-            localStorage.setItem('refreshToken', action.payload.refreshToken);
-        },
-        logout(state) {
-            state.user = null;
-            state.isLoggedIn = false;
-            state.accessToken = null;
-            state.refreshToken = null;
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-        },
-        refreshToken(state, action: PayloadAction<string>) {
-            state.accessToken = action.payload;
-            localStorage.setItem('accessToken', action.payload);
-        }
+  name: 'auth',
+  initialState,
+  reducers: {
+    setUser: (state, action: PayloadAction<User | null>) => {
+      state.user = action.payload;
+      state.isAuthenticated = !!action.payload;
     },
+
+    logout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+    }
+  }
 });
-export type { AuthState };
-export const { login, logout, refreshToken } = authSlice.actions;
+
+export const { setUser,logout } = authSlice.actions;
 export default authSlice.reducer;

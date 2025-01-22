@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 interface JwtPayload {
-  userId: string;
+  email: string;
   role: string;
   tenantId: string;
 }
@@ -46,7 +46,7 @@ export const verifyAuth = async (
         const refreshDecoded = jwt.verify(refreshToken, process.env.JWT_SECRETKEY!) as JwtPayload;
         const newAccessToken = jwt.sign(
           { 
-            userId: refreshDecoded.userId,
+            email: refreshDecoded.email,
             role: refreshDecoded.role,
             tenantId: refreshDecoded.tenantId 
           }, 

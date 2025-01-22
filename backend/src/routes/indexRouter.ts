@@ -22,6 +22,5 @@ router.post('/resetPassword', companyController.resetPassword);
 router.post('/google-login', companyController.googleLogin);
 
 
-
-router.post('/refreshToken', companyController.refreshToken);
+router.get('/verify-token',companyController.verifyToken)
 export default router;

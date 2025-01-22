@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import Layout from '@/components/company/CompanyLayout'
 import Departments from '@/components/company/Departments'
-import CompaniesList from '@/components/admin/CompaniesList'
 import MyTeam from '@/components/company/MyTeam'
 
 

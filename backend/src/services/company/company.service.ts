@@ -1,14 +1,14 @@
   import {redisClient } from "../../configs/redisClient";
-import { IJwtService } from "../../interfaces/IJwtService.types";
+  import { IJwtService } from "../../interfaces/IJwtService.types";
   import { IUserRepository } from "../../interfaces/IUser.types";
-  import {ICompanySignup,IVerifyOtpDto,ICompanyService,ICompanyRepository,ICompanyUser} from "../../interfaces/company/company.types";
+  import {ICompanySignup,IVerifyOtpDto,ICompanyService,ICompanyRepository,ICompanyUser,DecodedToken} from "../../interfaces/company/company.types";
   import { sendEmail,sendResetEmail} from "../../utils/email"; 
   import {generateOTP} from "../../utils/otp"
   import bcrypt from "bcryptjs"
   import jwt from "jsonwebtoken";
   import slugify from "slugify";  
 
-
+ 
   export class CompanyService implements ICompanyService {
 
     constructor(
@@ -117,7 +117,7 @@ import { IJwtService } from "../../interfaces/IJwtService.types";
           const user = await this.userRepository.findByEmail(email);
           if (!user) return null;
   
-          // Check for employee/manager with default password
+         
           const isDefaultPassword = (userType === 'EMPLOYEE' || userType === 'MANAGER') && 
                                    password === 'helloemployee';
           
@@ -125,7 +125,7 @@ import { IJwtService } from "../../interfaces/IJwtService.types";
               const isPasswordValid = password === 'helloemployee';
               if (!isPasswordValid) return null;
   
-              // Return with forcePasswordChange flag
+          
               const tenantId = slugify(user.companyName).toUpperCase();
               const data = {
                   tenantId,
@@ -147,16 +147,19 @@ import { IJwtService } from "../../interfaces/IJwtService.types";
               };
           }
   
-          // Normal password validation for non-default cases
+        
           const isPasswordValid = await bcrypt.compare(password, user.password);
           if (!isPasswordValid) return null;
   
           if (!user.isActive) {
               throw new Error("You are blocked from this account");
           }
-  
-          if (user.isApproved === 'Pending' || user.isApproved === 'Rejected') {
-              throw new Error("Your Request is still under pending you will get a confirmation email");
+          
+          if(user.role == 'COMPANY'){
+
+            if (user.isApproved === 'Pending' || user.isApproved === 'Rejected') {
+                throw new Error("Your Request is still under pending you will get a confirmation email");
+            }
           }
   
           const tenantId = slugify(user.companyName).toUpperCase();
@@ -178,15 +181,6 @@ import { IJwtService } from "../../interfaces/IJwtService.types";
       }
   }
 
-async verifyRefreshToken(refreshToken: string): Promise<string | null> {
-    try {
-        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!);
-        return (decoded as any).userId;
-    } catch (error) {
-        console.error('Error verifying refresh token:', error);
-        return null;
-    }
-}
 
 
 
@@ -248,6 +242,20 @@ async resetPassword (email: string, password :string) {
       throw new Error('Error reseting the password');
   }
 }
+
+
+async verifyAccessToken (token: string)  {
+
+  try {
+    return jwt.verify(token, process.env.JWT_SECRETKEY!) as DecodedToken;
+  } catch (error) {
+    console.error("Token verification failed:", error)
+    return null;
+  }
+  }
+
+
+
 
 async findOrCreateCompany(profile: any): Promise<any> {
 
