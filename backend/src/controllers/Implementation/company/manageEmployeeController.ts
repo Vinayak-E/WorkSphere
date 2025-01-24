@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { RequestHandler } from "express-serve-static-core";
-import { ICreateEmployee, IUpdateEmployee } from "../../interfaces/company/IEmployee.types";
-import { EmployeeService } from "../../services/company/employee.service";
+import { ICreateEmployee, IUpdateEmployee } from "../../../interfaces/company/IEmployee.types";
+import { EmployeeService } from "../../../services/company/employee.service";
 
 export class ManageEmployeeController {
     constructor(private readonly employeeService: EmployeeService) {}

@@ -1,59 +1,22 @@
 import mongoose, { Schema } from 'mongoose';
-import { IAddress, ICompanyDocument } from '../interfaces/company/company.types';
+import { ICompanyDocument } from '../interfaces/company/company.types';
 
-const addressSchema = new Schema<IAddress>(
-  {
-    street: { type: String, required: true, trim: true },
-    city: { type: String, required: true, trim: true },
-    state: { type: String, required: true, trim: true },
-    country: { type: String, required: true, trim: true },
-    zipCode: { type: String, required: true, match: [/^\d{5}(-\d{4})?$/, 'Invalid ZIP code'] },
-  },
-  { _id: false }
-);
 
 const companySchema = new Schema<ICompanyDocument>(
   {
-    companyName: {
-      type: String,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      unique: true,
-    },
-    password: {
-      type: String,
-    },
-    phone: {
-      type: String,
-   },
-    address: {
-      type: addressSchema,
-      required: false,
-    },
+    companyName: { type: String,},
+    email: { type: String,unique: true},
+    password: { type: String },
+    phone: { type: String },
     isActive: { type: Boolean, default: true },
-    logo: {
-      type: String,
-      default :false,
-      required: false,
- 
-    },
-    industry: {
-      type: String,
-      required:false,
-      enum: [
-        'Technology',
-        'Healthcare',
-        'Finance',
-        'Manufacturing',
-        'Retail',
-        'Education',
-        'Other',
-      ],
-    },
-   
+    industry: { type: String },
+    businessRegNo: { type :String },
+    city: { type :String},
+    state: { type :String},
+    country: { type :String},
+    zipcode: { type :String},
+
+    
     subscriptionPlan: {
       type: String,
       enum: ['free', 'basic', 'premium', 'enterprise'],

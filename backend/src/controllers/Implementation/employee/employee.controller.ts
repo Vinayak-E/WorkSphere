@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { ICompanyService } from "../../interfaces/company/company.types";
+import { ICompanyService } from "../../../interfaces/company/company.types";
 
 export class EmployeeController {
   constructor(private readonly companyService: ICompanyService) {}

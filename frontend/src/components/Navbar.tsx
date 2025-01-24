@@ -39,27 +39,11 @@ const Navbar = () => {
       { 
         y: 0, 
         opacity: 1, 
-        duration: 1.4
+        duration: 1.3
       }
     );
 
-    // Animate menu items
-    const menuItems = document.querySelectorAll('.menu-item');
-    gsap.fromTo(
-      menuItems,
-      { 
-        y: -30, 
-        opacity: 0 
-      },
-      { 
-        y: 0, 
-        opacity: 1, 
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "back.out(1.6)",
-        delay: 0.2
-      }
-    );
+  
   }, []);
 
   // Mobile menu animation
@@ -85,8 +69,8 @@ const Navbar = () => {
 
   return (
     
-    <nav ref={navRef} className={`fixed w-full z-50 transition-all duration-300 ${ isScrolled ? "bg-card"  : "bg-transparent" }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className={`fixed w-full z-50 transition-all duration-300 rounded-full ${ isScrolled ? "bg-card"  : "bg-transparent" }`}>
+      <div  ref={navRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="flex justify-between h-18 mt-2 mb-2 items-center">
           <div className="flex-shrink-0">
             <img
@@ -100,7 +84,7 @@ const Navbar = () => {
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className="menu-item text-foreground hover:text-primary transition-colors duration-300 font-medium"
+                className="menu-item text-lg text-foreground hover:text-primary  hover:scale-110 transition-colors duration-300 font-medium"
               >
                 {item}
               </a>
@@ -110,7 +94,7 @@ const Navbar = () => {
           <div className="hidden md:flex space-x-4">
             <Link
               to="/login" 
-              className="menu-item bg-secondary/50  hover:bg-secondary/90 text-secondary-foreground font-semibold py-2 px-4 rounded transition-colors duration-300"
+              className="menu-item bg-secondary/50  hover:bg-secondary/80 text-secondary-foreground font-semibold py-2 px-4 rounded transition-all duration-300  transform hover:scale-105"
             >
               Login
             </Link>

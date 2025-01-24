@@ -1,9 +1,9 @@
 import { Request,Response } from "express";
-import { IAdminService } from "../../interfaces/admin/admin.types";
+import { IAdminService } from "../../../interfaces/admin/admin.types";
 import { NextFunction, RequestHandler } from "express-serve-static-core";
 
 
-export class AdminAuthController {
+export class AdminAuthController  {
     constructor(private readonly adminService : IAdminService) {}
     
     adminLogin: RequestHandler = async (req, res, next) => {

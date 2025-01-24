@@ -7,6 +7,12 @@ export const validateForm = (formState: any): ValidationRules => {
     email: "",
     phone: "",
     password: "",
+    industry:"",
+    city:"",
+    state:"",
+    country:"", 
+    zipcode:"",
+    bussinessRegNum:"",
     confirmPassword: "",
   };
 
@@ -25,6 +31,29 @@ export const validateForm = (formState: any): ValidationRules => {
   } else if (!/^\d{10}$/.test(formState.phone.value)) {
     errors.phone = "Invalid phone number";
   }
+
+  if (!formState.industry.value.trim()) {
+    errors.industry = "Industry is required";
+  }
+
+  if (!formState.bussinessRegNum.value.trim()) {
+    errors.bussinessRegNum = "Bussiness Registration number is required";
+  }
+  if (!formState.city.value.trim()) {
+    errors.city = "City is required";
+  }
+  if (!formState.state.value.trim()) {
+    errors.state = "State is required";
+  }
+  if (!formState.country.value.trim()) {
+    errors.country = "Country is required";
+  }
+  if (!formState.zipcode.value.trim()) {
+    errors.zipcode= "Zip Code is required";
+  } else if (!/^\d{6}$/.test(formState.zipcode.value.trim())) {
+    errors.zipcode = "Enter a valid 6 digit Zip Code";
+  }
+
 
   if (!formState.password.value) {
     errors.password = "Password is required";

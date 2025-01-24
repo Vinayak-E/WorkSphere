@@ -3,10 +3,11 @@ import { auth, googleProvider, signInWithPopup } from '../config/firebase.config
 import api from '../api/axios';
 import { signup } from "../services/authService";
 import { toast } from 'react-toastify';
+import { FormState } from '@/types/types';
 
 
 export const handleSignup = async (
-  formState: any,
+  formState: FormState,
   navigate: any,
   setErrorMessage: any,
   setIsSubmitting:any
@@ -17,6 +18,12 @@ export const handleSignup = async (
       companyName: formState.companyName.value,
       email: formState.email.value,
       phone: formState.phone.value,
+      industry: formState.industry.value,
+      bussinessRegNum:formState.bussinessRegNum.value,
+      city:formState.city.value,
+      state:formState.state.value,
+      country:formState.country.value,
+      zipcode:formState.zipcode.value,
       password: formState.password.value,
     });
 

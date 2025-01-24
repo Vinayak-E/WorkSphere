@@ -1,5 +1,5 @@
 import expres from 'express'
-import { AdminAuthController } from '../../controllers/admin/admin.auth.controller'
+import { AdminAuthController } from '../../controllers/Implementation/admin/admin.auth.controller'
 import { AdminService } from '../../services/admin/admin.service'
 import { JwtService } from '../../services/jwt.service'
 import { AdminRepository } from '../../repositories/admin/adminRepository'

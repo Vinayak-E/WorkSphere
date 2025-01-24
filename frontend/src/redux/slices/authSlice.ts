@@ -6,7 +6,7 @@ interface User {
   tenantId: string;
 }
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;

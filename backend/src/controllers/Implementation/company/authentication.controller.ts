@@ -1,16 +1,16 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { ICompanyService } from "../../interfaces/company/company.types";
+import { ICompanyService } from "../../../interfaces/company/company.types";
 import jwt, { JwtPayload} from "jsonwebtoken";
-import { firebaseAdmin } from "../../configs/firebase.config";
+import { firebaseAdmin } from "../../../configs/firebase.config";
 
 
 export class CompanyAuthController {
   constructor(private readonly companyService: ICompanyService) {}
 
   signup: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+    req,
+    res,
+    next
   ) => {
     try {
       const data = req.body;

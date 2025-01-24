@@ -4,7 +4,7 @@ import Company  from "../../models/companyModel";
 import { UserModel } from "../../models/userModel";
 import { IUser } from "../../interfaces/IUser.types";
 import { connectTenantDB } from "../../configs/db.config";
-
+import CompanyRequest from "../../models/companyRequest";
 
 export class CompanyRepository implements ICompanyRepository {
   private readonly model: Model<ICompanyDocument>;
@@ -15,7 +15,7 @@ export class CompanyRepository implements ICompanyRepository {
   async findByCompanyName(companyName: string): Promise<ICompanyDocument | null> {
     return await this.model.findOne({ companyName });
   }
-  async createTenantCompany(tenantId: string, companyData: ICreateCompany) {
+  async createTenantCompany(tenantId: string, companyData: ICompanyDocument) {
     try {
       const tenantDB: Connection = await connectTenantDB(tenantId);
       const TenantCompanyModel = tenantDB.model<ICompanyDocument>("Company", Company.schema);
@@ -24,6 +24,13 @@ export class CompanyRepository implements ICompanyRepository {
         companyName: companyData.companyName,
         email: companyData.email,
         phone: companyData.phone,
+        industry: companyData.industry,
+        businessRegNo: companyData.businessRegNo,
+        city:companyData.city,
+        state: companyData.state,
+        country:companyData.country,
+        zipcode:companyData.zipcode,
+        
         isVerified: true,
       });
 
@@ -51,6 +58,11 @@ export class CompanyRepository implements ICompanyRepository {
     } catch (error) {
         console.error('Error storing the reset toekn:', error);
     }
+}
+
+async createTempCompany(userData : Partial<IUser>) {
+  const user = new CompanyRequest(userData);
+  return await user.save();
 }
 
   

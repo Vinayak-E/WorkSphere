@@ -3,7 +3,7 @@ import { CompanyRepository } from "../../repositories/company/companyRepository"
 import { CompanyService } from "../../services/company/company.service";
 import { UserRepository } from "../../repositories/user/userRepository";
 import { JwtService } from "../../services/jwt.service";
-import { EmployeeController } from "../../controllers/employee/employee.controller";
+import { EmployeeController } from "../../controllers/Implementation/employee/employee.controller";
 
 const router = express.Router();
 const jwtService  = new JwtService()

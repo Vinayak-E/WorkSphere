@@ -1,9 +1,9 @@
 import express from "express";
-import {DepartmentController}  from "../../controllers/company/departmentController";
+import { DepartmentController } from "../../controllers/Implementation/company/departmentController";
 import { tenantMiddleware } from "../../middlewares/tenantMiddleware";
 import { DepartmentService } from "../../services/company/department.service";
 import { DepartmentRepository } from "../../repositories/company/departmentRepository";
-import { ManageEmployeeController } from "../../controllers/company/manageEmployeeController";
+import { ManageEmployeeController } from "../../controllers/Implementation/company/manageEmployeeController";
 import { EmployeeService } from "../../services/company/employee.service";
 import { EmployeeRepository } from "../../repositories/company/employeeRepository";
 import { UserRepository } from "../../repositories/user/userRepository";

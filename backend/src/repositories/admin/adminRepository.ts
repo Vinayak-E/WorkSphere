@@ -2,8 +2,8 @@ import { IUser } from "../../interfaces/IUser.types";
 import { Model } from "mongoose";
 import { UserModel } from "../../models/userModel";
 import { IAdminRepository } from "../../interfaces/admin/admin.types";
-import Company from "../../models/companyModel";
-
+import CompanyRequest from "../../models/companyRequest";
+import { ICompanyRequest } from "../../interfaces/company/company.types";
 
 export class AdminRepository implements IAdminRepository {
   private readonly model: Model<IUser>; 
@@ -46,7 +46,13 @@ export class AdminRepository implements IAdminRepository {
     return company; 
 
   }
-  
+  async findTempCompany(companyName: string): Promise<ICompanyRequest | null> {
+    const company = await CompanyRequest.findOne({companyName})
+    return company
+  }
+  async deleteTempCompany(companyId: string): Promise<void> {
+    await CompanyRequest.findByIdAndDelete(companyId);
+  }
   
 
 }

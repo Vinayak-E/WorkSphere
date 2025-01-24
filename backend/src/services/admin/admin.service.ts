@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import { ICompanyRepository } from "../../interfaces/company/company.types";
 import { sendEmail } from "../../utils/email";
 import { companyApprovalTemplates } from "../../helpers/emailTemplate";
+import { generateCompanySlug } from "../../helpers/helperFunctions";
 export class AdminService implements IAdminService {
   constructor(
     private jwtService: IJwtService,
@@ -74,20 +75,34 @@ export class AdminService implements IAdminService {
       companyId,
       isApproved
     );
-    if (company) {
-      const subject =
-        isApproved === "Approved"
-          ? "Your Company Registration on WorkSphere Has Been Approved"
-          : "Update on Your Company Registration Request";
+  
+    if (company && isApproved === "Approved") {
+    
+      const tempCompany = await this.adminRepository.findTempCompany(company.companyName);
+      console.log('tempcompany found',tempCompany)
+      if (!tempCompany) {
+        throw new Error("Temp company not found");
+      }
+  
+      const tenantId = generateCompanySlug(company.companyName);
+  
 
-      const message =
-        isApproved === "Approved"
-          ? companyApprovalTemplates.approved(company.companyName)
-          : companyApprovalTemplates.rejected(company.companyName, reason);
-
+      await this.companyRepository.createTenantCompany(tenantId, tempCompany);
+  
+      // Delete temp company after successful tenant creation
+      await this.adminRepository.deleteTempCompany(tempCompany._id);
+  
+      const subject = "Your Company Registration on WorkSphere Has Been Approved";
+      const message = companyApprovalTemplates.approved(company.companyName);
+      
+      await sendEmail(company.email, subject, message);
+    } else if (company && isApproved !== "Approved") {
+      const subject = "Update on Your Company Registration Request";
+      const message = companyApprovalTemplates.rejected(company.companyName, reason);
+      
       await sendEmail(company.email, subject, message);
     }
-
+  
     return company;
   }
 }

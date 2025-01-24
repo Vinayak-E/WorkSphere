@@ -298,7 +298,7 @@ const  Login = () => {
             {userType === 'COMPANY' && (
               <>
 
-            <div className="relative flex items-center justify-center">
+            {/* <div className="relative flex items-center justify-center">
               <div className="border-t border-gray-300 w-full"></div>
               <span className="bg-white px-4 text-sm text-gray-500">OR</span>
               <div className="border-t border-gray-300 w-full"></div>
@@ -328,7 +328,7 @@ const  Login = () => {
                 />
               </svg>
               <span  className="text-gray-700 font-medium">Continue with Google</span>
-            </button>
+            </button> */}
 
             <p className="text-sm text-gray-500 text-center">
             Don't have an account yet?{" "}

@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/LandingPage/Hero';
 import HeroSecond from '../components/LandingPage/HeroSecond';
 import Footer from '@/components/LandingPage/Footer';
+import { CustomCursor } from '@/hooks/customCursor';
 gsap.registerPlugin(ScrollTrigger);
 
 const Home = () => {
@@ -77,6 +78,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
+    <CustomCursor />
     <Navbar />
     <Hero/>
     <HeroSecond/>

@@ -8,15 +8,27 @@ export interface SignupData {
   companyName: string;
   email: string;
   phone: string;
+  industry: string;
+  bussinessRegNum:string;
+  city:string;
+  state:string;
+  country:string;
+  zipcode:string;
   password: string;
 }
 
-export type FieldName = "companyName" | "email" | "phone" | "password" | "confirmPassword";
+export type FieldName = "companyName" | "email" | "phone" | "industry" |"bussinessRegNum"| "city" | "state" | "zipcode" | "country"| "password" | "confirmPassword";
 
 export interface FormState {
   companyName: FieldState;
   email: FieldState;
   phone: FieldState;
+  industry: FieldState;
+  bussinessRegNum: FieldState;
+  city: FieldState;
+  state: FieldState;
+  country: FieldState;
+  zipcode:  FieldState;
   password: FieldState;
   confirmPassword: FieldState;
 } 
@@ -32,6 +44,12 @@ export interface ValidationRules {
   companyName: string;
   email: string;
   phone: string;
+  industry: string;
+  bussinessRegNum:string;
+  city: string;
+  state:  string;
+  country: string;
+  zipcode: string;
   password: string;
   confirmPassword: string;
 }
