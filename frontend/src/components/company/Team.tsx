@@ -1,33 +1,49 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Plus, Loader2, Search, Edit, ChevronLeft, ChevronRight } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,} from "@/components/ui/alert-dialog";
 import { toast } from "react-toastify";
 import api from "@/api/axios";
 
+import EmployeeForm from "./EmployeeModal";
+
 const ITEMS_PER_PAGE = 10;
 
 interface Employee {
-  _id: string;
-  name: string;
-  email: string;
-  mobile: string;
-  department: {
     _id: string;
     name: string;
-  };
-  position: string;
-  gender: string;
-  status: string;
-  role: string;
-}
-
+    email: string;
+    mobile: string;
+    dob :string
+    workMode:string;
+    department: {
+      _id: string;
+      name: string;
+    };
+    position: string;
+    gender: string;
+    status: string;
+    role: string;
+    salary?: string;
+    employmentStartDate?: string;
+    profilePicture?: string;
+    address?: {
+      city?: string;
+      state?: string;
+      zipCode?: string;
+      country?: string;
+    };
+    qualifications?: Array<{
+      degree?: string;
+      institution?: string;
+      yearOfCompletion?: number;
+    }>;
+  }
+  
 interface Department {
   _id: string;
   name: string;
@@ -54,9 +70,24 @@ const MyTeam = () => {
     position: "",
     gender: "Male",
     status: "Active",
-    role : "EMPLOYEE"
-  });
+    role: "EMPLOYEE",
+    dob: "",
+    workMode: "On-Site",
+    salary: "",
+    profilePicture: null,
+    qualifications: [{
+      degree: "",
+      institution: "",
+      yearOfCompletion: ""
+    }],
+    address: {
 
+      city: "",
+      state: "",
+      zipCode: "",
+      country: ""
+    }
+  });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
@@ -68,8 +99,7 @@ const MyTeam = () => {
     setIsLoading(true);
     try {
       const response = await api.get("/company/employees");
-     
-      
+      console.log("employees data at user",response.data.data);
       setEmployees(response.data.data);
     } catch (error) {
       toast.error("Failed to load employees. Please try again.");
@@ -90,60 +120,33 @@ const MyTeam = () => {
     }
   };
 
-  const validateForm = () => {
-    let tempErrors: { [key: string]: string } = {};
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    const mobileRegex = /^\d{10}$/;
-
-    if (!formData.name.trim()) {
-      tempErrors.name = "Name is required";
-    } else if (formData.name.length < 2) {
-      tempErrors.name = "Name must be at least 2 characters long";
-    }
-
-    if (!isEditMode) {
-      if (!formData.email.trim()) {
-        tempErrors.email = "Email is required";
-      } else if (!emailRegex.test(formData.email)) {
-        tempErrors.email = "Please enter a valid email address";
+ 
+  const handleChange = (value: any, fieldPath: string) => {
+    setFormData(prev => {
+      const fields = fieldPath.split('.');
+      const newData = JSON.parse(JSON.stringify(prev)); 
+      
+      let current: any = newData;
+      for (let i = 0; i < fields.length - 1; i++) {
+        const key = fields[i];
+        if (!current[key]) current[key] = {};
+        current = current[key];
       }
-    }
-
-    if (!formData.mobile.trim()) {
-      tempErrors.mobile = "Mobile number is required";
-    } else if (!mobileRegex.test(formData.mobile)) {
-      tempErrors.mobile = "Please enter a valid 10-digit mobile number";
-    }
-
-    if (!formData.department) {
-      tempErrors.department = "Department is required";
-    }
-
-    if (!formData.position.trim()) {
-      tempErrors.position = "Position is required";
-    }
-    if (!formData.role) {
-      tempErrors.role = "Role is required";
-    }
-
-    if (isEditMode && !formData.status) {
-      tempErrors.status = "Status is required";
-    }
-
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
+      
+      const lastField = fields[fields.length - 1];
+      current[lastField] = value;
+      
+      return newData;
+    });
+  
+    
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldPath];
+      return newErrors;
+    });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | string, field?: string) => {
-    if (typeof e === 'string' && field) {
-      setFormData(prev => ({ ...prev, [field]: e }));
-      setErrors(prev => ({ ...prev, [field]: "" }));
-    } else if ('target' in e) {
-      const { name, value } = e.target;
-      setFormData(prev => ({ ...prev, [name]: value }));
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
-  };
 
   const handleStatusChange = (value: string) => {
     if (value === "Inactive" && formData.status === "Active") {
@@ -162,13 +165,12 @@ const MyTeam = () => {
     setShowStatusAlert(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) {
-      toast.error("Please fill all required fields correctly");
+  const handleSubmit = async (isValid: boolean) => {  
+    if (!isValid) {
+      toast.error("Please fix all errors before submitting");
       return;
     }
-
+  
     setIsLoading(true);
     try {
       if (isEditMode && selectedEmployee) {
@@ -190,18 +192,33 @@ const MyTeam = () => {
       setIsLoading(false);
     }
   };
-
-  const handleEdit = (employee: Employee) => {
+  const handleEdit = (employee) => {
     setSelectedEmployee(employee);
     setFormData({
+   
       name: employee.name,
       email: employee.email,
       department: employee.department._id,
       gender: employee.gender,
       mobile: employee.mobile,
+      dob:  employee.dob.split('T')[0],
       position: employee.position,
       status: employee.status,
-      role: employee.role
+      role: employee.role,
+      address: employee.address || {
+        city: "",
+        state: "",
+        zipCode: "",
+        country: ""
+      },
+      workMode: employee.workMode || "",
+      salary: employee.salary || "",
+      profilePicture: employee.profilePicture || "",
+      qualifications: employee.qualifications || [{
+        degree: "",
+        institution: "",
+        yearOfCompletion: ""
+      }]
     });
     setErrors({});
     setIsEditMode(true);
@@ -217,10 +234,27 @@ const MyTeam = () => {
       email: "",
       mobile: "",
       department: "",
+      dob: "",
       position: "",
       gender: "Male",
       status: "Active",
-      role:"EMPLOYEE"
+      role: "EMPLOYEE",
+      salary: "",
+      workMode: "",
+      profilePicture: "" || null,
+      address: {
+        city: "",
+        state: "",
+        zipCode: "",
+        country: ""
+      },
+      qualifications: [
+        {
+          degree: "",
+          institution: "",
+          yearOfCompletion: ""
+        }
+      ]
     });
     setErrors({});
   };
@@ -259,6 +293,8 @@ const MyTeam = () => {
           </Button>
         </div>
       </CardHeader>
+
+      {/* Status Alert Dialog */}
       <AlertDialog open={showStatusAlert} onOpenChange={setShowStatusAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -283,6 +319,7 @@ const MyTeam = () => {
       </AlertDialog>
 
       <CardContent>
+        {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -295,6 +332,7 @@ const MyTeam = () => {
           </div>
         </div>
 
+        {/* Loading State and Table */}
         {isLoading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -304,13 +342,13 @@ const MyTeam = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>No</TableHead>
+                  <TableHead></TableHead>
+                  <TableHead>Employee ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Mobile</TableHead>
                   <TableHead>Department</TableHead>
                   <TableHead>Position</TableHead>
-                  <TableHead>Gender</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -318,18 +356,26 @@ const MyTeam = () => {
               </TableHeader>
               <TableBody>
                 {paginatedEmployees.length > 0 ? (
-                  paginatedEmployees.map((emp, index) => (
+                  paginatedEmployees.map((emp) => (
                     <TableRow 
                       key={emp._id}
                       className={emp.status === "Inactive" ? "opacity-60" : ""}
                     >
-                      <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+                      <TableCell>
+                        {emp.profilePicture && (
+                          <img 
+                            src={emp.profilePicture} 
+                            alt={emp.name} 
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>{emp.employeeId}</TableCell>
                       <TableCell>{emp.name}</TableCell>
                       <TableCell>{emp.email}</TableCell>
                       <TableCell>{emp.mobile}</TableCell>
                       <TableCell>{emp.department.name}</TableCell>
                       <TableCell>{emp.position}</TableCell>
-                      <TableCell>{emp.gender}</TableCell>
                       <TableCell>{emp.role}</TableCell>
                       <TableCell>
                         <Badge 
@@ -352,7 +398,7 @@ const MyTeam = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
+                    <TableCell colSpan={11} className="text-center py-8">
                       No employees found
                     </TableCell>
                   </TableRow>
@@ -391,160 +437,20 @@ const MyTeam = () => {
           </>
         )}
 
-        <Dialog open={open} onOpenChange={handleCloseModal}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
-                {isEditMode ? "Edit Employee" : "Add New Employee"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Input
-                  placeholder="Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={errors.name ? "border-red-500" : ""}
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                )}
-              </div>
 
-              <div>
-                <Input
-                  placeholder="Email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  readOnly={isEditMode}
-                  onChange={handleChange}
-                  className={`${errors.email ? "border-red-500" : ""} ${isEditMode ? "bg-gray-100" : ""}`}
-                />
-                {isEditMode && (
-                  <p className="text-gray-500 text-sm mt-1">Email cannot be modified</p>
-                )}
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                )}
-              </div>
-
-              <div>
-                <Input
-                  placeholder="Mobile"
-                  name="mobile"
-                  value={formData.mobile}
-                  onChange={handleChange}
-                  className={errors.mobile ? "border-red-500" : ""}
-                />
-                {errors.mobile && (
-                  <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
-                )}
-              </div>
-
-              <Select
-                value={formData.department}
-                onValueChange={(value) => handleChange(value, "department")}
-              >
-                <SelectTrigger className={errors.department ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select Department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept._id} value={dept._id}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.department && (
-                <p className="text-red-500 text-sm mt-1">{errors.department}</p>
-              )}
-
-
-              <div>
-                <Input
-                  placeholder="Position"
-                  name="position"
-                  value={formData.position}
-                  onChange={handleChange}
-                  className={errors.position ? "border-red-500" : ""}
-                />
-                {errors.position && (
-                  <p className="text-red-500 text-sm mt-1">{errors.position}</p>
-                )}
-              </div>
-
-              <Select
-                value={formData.gender}
-                onValueChange={(value) => handleChange(value, "gender")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                </SelectContent>
-              </Select>
-
-
-              <Select
-                value={formData.role}
-                onValueChange={(value) => handleChange(value, "role")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                  <SelectItem value="MANAGER">Manager</SelectItem>
-                </SelectContent>
-              </Select>{errors.role && (
-                <p className="text-red-500 text-sm mt-1">{errors.role}</p>
-              )}
-
-
-              {isEditMode && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Status</label>
-                <Select
-                    value={formData.status}
-                    onValueChange={handleStatusChange}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.status && (
-                    <p className="text-sm text-red-500 mt-1">{errors.status}</p>
-                  )}
-              </div>
-            )}
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline"  onClick={handleCloseModal}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {isEditMode ? "Updating..." : "Saving..."}
-                    </>
-                  ) : (
-                    isEditMode ? "Update Employee" : "Save Employee"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        {open && (
+     <EmployeeForm
+     isEditMode={isEditMode}
+     formData={formData}
+     handleChange={handleChange}
+     handleSubmit={(isValid: boolean) => handleSubmit(isValid)}
+     errors={errors}
+     setErrors={setErrors}
+     departments={departments}
+     isLoading={isLoading}
+     handleCloseModal={handleCloseModal}
+   />
+    )}
       </CardContent>
     </Card>
   );

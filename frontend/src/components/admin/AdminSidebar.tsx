@@ -49,7 +49,7 @@ const items = [
 
 export function AdminSidebar() {
   return (
-    <Sidebar className="border-r bg-white h-screen flex flex-col"> 
+    <Sidebar  className="border-r bg-white h-screen flex flex-col "> 
       <SidebarContent className="flex-1"> 
         <div className="flex h-16 items-center border-b px-6">
           <img src={IMAGES.navBarLogoDark} alt="Company Logo" className="h-12" />

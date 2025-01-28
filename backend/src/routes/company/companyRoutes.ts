@@ -4,7 +4,7 @@ import { tenantMiddleware } from "../../middlewares/tenantMiddleware";
 import { DepartmentService } from "../../services/company/department.service";
 import { DepartmentRepository } from "../../repositories/company/departmentRepository";
 import { ManageEmployeeController } from "../../controllers/Implementation/company/manageEmployeeController";
-import { EmployeeService } from "../../services/company/employee.service";
+import { EmployeeService } from "../../services/company/employees.service";
 import { EmployeeRepository } from "../../repositories/company/employeeRepository";
 import { UserRepository } from "../../repositories/user/userRepository";
 import { verifyAuth } from "../../middlewares/authMiddleware";

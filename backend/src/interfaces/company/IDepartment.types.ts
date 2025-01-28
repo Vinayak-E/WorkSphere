@@ -1,5 +1,6 @@
 export interface IDepartment extends Document {
     _id :string
+    departmentId: string;
     name: string;         
     description: string;
     status :string;

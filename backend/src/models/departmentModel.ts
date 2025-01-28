@@ -4,6 +4,7 @@ import { IDepartment } from "../interfaces/company/IDepartment.types";
 export const departmentSchema = new Schema<IDepartment>(
 
   {
+    departmentId :{ type : String },
     name: { type: String},
     description: { type: String, },
     status:{type:String}

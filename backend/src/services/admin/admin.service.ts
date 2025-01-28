@@ -89,7 +89,6 @@ export class AdminService implements IAdminService {
 
       await this.companyRepository.createTenantCompany(tenantId, tempCompany);
   
-      // Delete temp company after successful tenant creation
       await this.adminRepository.deleteTempCompany(tempCompany._id);
   
       const subject = "Your Company Registration on WorkSphere Has Been Approved";

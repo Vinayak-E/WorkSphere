@@ -16,6 +16,7 @@ import { AxiosError } from "axios";
 const ITEMS_PER_PAGE = 10;
 interface Department {
   _id: string;
+  departmentId: string;
   name: string;
   description?: string;
   status: string;
@@ -207,6 +208,7 @@ const Departments = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Department ID</TableHead>
                   <TableHead>Department Name</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Status</TableHead>
@@ -217,6 +219,7 @@ const Departments = () => {
               <TableBody>
                 {paginatedDepartments.map((dept) => (
                   <TableRow key={dept._id}>
+                    <TableCell className="font-medium">{dept.departmentId}</TableCell>
                     <TableCell className="font-medium">{dept.name}</TableCell>
                     <TableCell className="max-w-md truncate">
                       {dept.description || "No description"}

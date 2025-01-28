@@ -112,7 +112,6 @@ export interface ICompanyService {
   verifyLogin(email: string, password: string,userType:string): Promise<{ user: ICompanyUser,refreshToken:string,accessToken:string, tenantId: string ,forcePasswordChange?: boolean} | null> 
   resendOtp(email: string): Promise<boolean>
   verifyAccessToken(token: string): Promise<DecodedToken | null>
-  generateAccessToken(userId: string): Promise<string>
   sendResetLink(email: string): Promise<boolean | null>
   resetPassword(email: string, password: string): Promise<void>
   findOrCreateCompany(profile: any): Promise<any>

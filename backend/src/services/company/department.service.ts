@@ -1,3 +1,4 @@
+import { generateDepartmentId } from "../../helpers/helperFunctions";
 import { IDepartment, ICreateDepartment, IUpdateDepartment } from "../../interfaces/company/IDepartment.types";
 import { DepartmentRepository } from "../../repositories/company/departmentRepository";
 import { Connection } from "mongoose";
@@ -10,7 +11,6 @@ export class DepartmentService {
       const departments = await this.departmentRepository.getDepartments(tenantConnection);
       return departments;
     } catch (error) {
-      console.error("Error in DepartmentService.getDepartments:", error);
       throw error;
     }
   }
@@ -26,11 +26,13 @@ export class DepartmentService {
       if (existingDepartment) {
         throw new Error("Department with this name already exists");
       }
-      console.log('service',departmentData)
+      const departmentId = generateDepartmentId();
+      const newDepartmentData = {
+        ...departmentData,
+        departmentId: departmentId
+      };
 
-      const newDepartment = await this.departmentRepository.createDepartment( departmentData, 
-        tenantConnection);
-      console.log('newDepartmetdata',newDepartment)
+      const newDepartment = await this.departmentRepository.createDepartment( newDepartmentData, tenantConnection);
       return newDepartment;
     } catch (error) {
       throw error;

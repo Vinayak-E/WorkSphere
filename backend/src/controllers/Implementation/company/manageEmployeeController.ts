@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { RequestHandler } from "express-serve-static-core";
 import { ICreateEmployee, IUpdateEmployee } from "../../../interfaces/company/IEmployee.types";
-import { EmployeeService } from "../../../services/company/employee.service";
+import { EmployeeService } from "../../../services/company/employees.service";
 
 export class ManageEmployeeController {
     constructor(private readonly employeeService: EmployeeService) {}
@@ -42,21 +42,9 @@ export class ManageEmployeeController {
                 });
                 return
             }
+            const employeeData: ICreateEmployee = req.body;
+           console.log("employeeData",employeeData);
            
-            const { name, email, mobile, department, position, gender,role, status } = req.body;
-            
-
-            const employeeData: ICreateEmployee = {
-                name,
-                email,
-                mobile,
-                department,
-                position,
-                gender,
-                status,
-                role
-            };
-
             const newEmployee = await this.employeeService.addEmployee(employeeData, tenantConnection,tenantId);
 
              res.status(201).json({

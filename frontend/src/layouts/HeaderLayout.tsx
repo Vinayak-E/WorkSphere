@@ -18,10 +18,7 @@ export function Header() {
       <div className="flex h-16 items-center px-4 gap-4">
         <div className="flex flex-1 items-center gap-4">
           <div className="w-[300px]">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search..." className="pl-8" />
-            </div>
+           
           </div>
         </div>
         

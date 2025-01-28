@@ -7,7 +7,7 @@ import { sendEmail,sendResetEmail} from "../../utils/email";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken";
 import slugify from "slugify";
-import { generateCompanySlug, hashPassword ,generateOTP, setRedisData} from "../../helpers/helperFunctions";
+import { generateCompanySlug, hashPassword ,generateOTP, setRedisData, comparePasswords, checkCompanyPrefix} from "../../helpers/helperFunctions";
 import { ISignup } from "../Interface/IAuthService.types";
 
 
@@ -65,7 +65,6 @@ async verifyOtp(data: IVerifyOtpDto): Promise<boolean> {
 
 async resendOtp(email: string): Promise<boolean> {
   try {
-
         const redisKey = `user:register:${email}`;
         const userData = await redisClient.get(redisKey);
         if (!userData) throw new Error("OTP expired or invalid");
@@ -83,143 +82,92 @@ async resendOtp(email: string): Promise<boolean> {
 }
 
 
-async verifyLogin(email: string, password: string, userType: string): Promise<{user: ICompanyUser , refreshToken: string , accessToken: string, tenantId: string ,forcePasswordChange?: boolean} | null> {
-    try {
-        const user = await this.userRepository.findByEmail(email);
-        if (!user) return null;
-        const isDefaultPassword = (userType === 'EMPLOYEE' || userType === 'MANAGER') &&   password === 'helloemployee';
-        
-        if (isDefaultPassword) {
-            const isPasswordValid = password === 'helloemployee';
-            if (!isPasswordValid) return null;
 
-        
-            const tenantId = slugify(user.companyName).toUpperCase();
-            const data = {
-                tenantId,
-                email: user.email,
-                role: user.role,
-            };
-
-            const [accessToken, refreshToken] = await Promise.all([
-                this.jwtService.generateAccessToken(data),
-                this.jwtService.generateRefreshToken(data)
-            ]);
-
-            return {
-                user: data,
-                accessToken,
-                refreshToken,
-                tenantId,
-                forcePasswordChange: true
-            };
-        }
-
-      
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return null;
-
-        if (!user.isActive) {
-            throw new Error("You are blocked from this account");
-        }
-        
-        if(user.role == 'COMPANY'){
-
-          if (user.isApproved === 'Pending' || user.isApproved === 'Rejected') {
-              throw new Error("Your Request is still under pending you will get a confirmation email");
-          }
-        }
-
-        const tenantId = slugify(user.companyName).toUpperCase();
-        const data = {
-            tenantId,
-            email: user.email,
-            role: user.role,
-        };
-
-        const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.generateAccessToken(data),
-            this.jwtService.generateRefreshToken(data)
-        ]);
-
-        return { user: data, accessToken, refreshToken, tenantId };
-    } catch (error) {
-        console.error('Error verifying login:', error);
-        throw error;
-    }
-}
-
-
-
-
-async generateAccessToken(userId: string): Promise<string> {
+async verifyLogin(email: string, password: string, userType: string): Promise<{ user: ICompanyUser, refreshToken: string, accessToken: string, tenantId: string, forcePasswordChange?: boolean } | null> {
   try {
-      return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '20s' });
-  } catch (error) {
-      console.error('Error generating access token:', error);
-      throw new Error('Failed to generate access token');
+          const user = await this.userRepository.findByEmail(email);
+          if (!user) return null;
+
+          if (!user.isActive) {
+            throw new Error("You are blocked from this account");
+          }
+
+          const isPasswordValid = await comparePasswords(password, user.password);
+          if (!isPasswordValid) return null;
+
+          if (user.role === "COMPANY") {
+            if (user.isApproved === "Pending" || user.isApproved === "Rejected") {
+              throw new Error("Your request is still pending. You will receive a confirmation email.");
+            }
+          }
+          const tenantId = slugify(user.companyName).toUpperCase();
+          const data = { tenantId, email: user.email, role: user.role };
+
+          const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.generateAccessToken(data),
+            this.jwtService.generateRefreshToken(data),
+          ]);
+
+          if (userType === "EMPLOYEE") {
+            if (checkCompanyPrefix(user.companyName, password)) {
+              return { user: data, accessToken, refreshToken, tenantId, forcePasswordChange: true };
+            }
+          }
+          return { user: data, accessToken, refreshToken, tenantId };
+
+      }   catch (error) {
+          throw error;
+      }
   }
-}
 
 
-async sendResetLink(email: string) {
-try {
-    if (!process.env.RESET_LINK_SECRET) {
-        console.error('RESET_LINK_SECRET is not configured');
-        return null;
-    }
 
-    const existingUser = await this.userRepository.findByEmail(email);
-    if (!existingUser) {
-        return false;
-    }
-      
-       
-    const payload = { email };
-    const resetToken = jwt.sign(
-        payload, 
-        process.env.RESET_LINK_SECRET, 
-        { expiresIn: '1h' }
-    );
-    console.log('reset token founds',resetToken)
 
-    const tokenExpiry = new Date(Date.now() + 3600 * 1000);
-    await this.companyRepository.storeResetToken(email, resetToken, tokenExpiry);
 
-    const resetLink = `http://localhost:5173/resetPassword?token=${resetToken}`;
-    await sendResetEmail(
-        email, 
-        "Password Reset", 
-        `Click here to reset your password: ${resetLink}`
-    );
 
-    console.log("Reset link sent:", resetLink);
-    return true;
-} catch (error) {
-    console.error('Error sending reset link to the mail:', error);
-    return null;
-}
-}
+
+  async sendResetLink(email: string) {
+    try {
+          if (!process.env.RESET_LINK_SECRET) return null;
+          const existingUser = await this.userRepository.findByEmail(email);
+          if (!existingUser) return false; 
+
+          const payload = { email };
+          const resetToken = jwt.sign(
+              payload, 
+              process.env.RESET_LINK_SECRET, 
+              { expiresIn: '1h' }
+          );
+          const tokenExpiry = new Date(Date.now() + 3600 * 1000);
+          await this.companyRepository.storeResetToken(email, resetToken, tokenExpiry);
+          const resetLink = `http://localhost:5173/resetPassword?token=${resetToken}`;
+          await sendResetEmail( email, "Password Reset", `Click here to reset your password: ${resetLink}`);
+          return true;
+        } catch (error) {
+          throw error;
+        }
+  }
+
+
 
 async resetPassword (email: string, password :string) {
-try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await this.userRepository.resetPassword(email, hashedPassword);
-} catch (error) {
-    console.error('Error reseting the password:', error);
-    throw new Error('Error reseting the password');
+    try {
+         const hashedPassword = await bcrypt.hash(password, 10);
+         await this.userRepository.resetPassword(email, hashedPassword);
+    } catch (error) {
+        throw new Error('Error reseting the password');
+    }
 }
-}
+
 
 
 async verifyAccessToken (token: string)  {
+  try {
+       return jwt.verify(token, process.env.JWT_SECRETKEY!) as DecodedToken;
 
-try {
-  return jwt.verify(token, process.env.JWT_SECRETKEY!) as DecodedToken;
-} catch (error) {
-  console.error("Token verification failed:", error)
-  return null;
-}
+     } catch (error) {
+       throw error
+     }
 }
 
 

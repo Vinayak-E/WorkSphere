@@ -15,22 +15,18 @@ import IMAGES from "@/assets/images/image"
 const items = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "/employee",
     icon: Home,
   },
+
   {
-    title: "My Team",
-    url: "/company/myteam",
-    icon: Users,
-  },
-  {
-    title: "Attendance",
-    url: "/calendar",
+    title: "Leaves",
+    url: "/employee/leaves",
     icon: Calendar,
   },
   {
-    title: "Leave Management",
-    url: "/reports",
+    title: "Task Management",
+    url: "/employee/tasks",
     icon: FileText,
   },
   {
@@ -46,7 +42,7 @@ const items = [
   },
   {
     title: "Settings",
-    url: "/settings",
+    url: "/employee/profile",
     icon: Settings,
   },
 ]
