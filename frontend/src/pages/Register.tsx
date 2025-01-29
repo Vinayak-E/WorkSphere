@@ -258,7 +258,7 @@ const Register = () => {
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </button>
 
-        <div className="relative flex items-center justify-center">
+        {/* <div className="relative flex items-center justify-center">
           <div className="border-t border-secondary w-full"></div>
           <span className="bg-background px-4 text-sm text-secondary">OR</span>
           <div className="border-t border-secondary w-full"></div>
@@ -281,7 +281,7 @@ const Register = () => {
               fill="#EA4335" />
           </svg>
           <span className="text-foreground font-medium">Continue with Google</span>
-        </button>
+        </button> */}
 
         <p className="text-sm text-gray-500 text-center">
           Already using WorkSphere?{" "}

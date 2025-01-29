@@ -31,12 +31,13 @@ export class EmployeeController {
     next: NextFunction
   ) => {
     try {
-      // Since we're using the middleware, we can directly access req.user and req.tenantConnection
+      
       if (!req.user?.email) {
          res.status(401).json({
           success: false,
           message: "User email not found in token"
         });
+        return
       }
 
       if (!req.tenantConnection) {
@@ -44,19 +45,19 @@ export class EmployeeController {
           success: false,
           message: "Tenant connection not established"
         });
+        return
       }
 
       const details = await this.employeeService.getEmployeeProfile(
         req.tenantConnection,
         req.user.email
       );
-      
+       console.log('details',details)
        res.status(200).json({
         success: true,
         data: details
       });
     } catch (error) {
-      console.error("Error fetching employee profile:", error);
       next(error);
     }
   };

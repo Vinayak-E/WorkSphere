@@ -20,11 +20,12 @@ const employeeController = new ManageEmployeeController(employeeService)
 
  router.use(tenantMiddleware)
  router.use(verifyAuth)
+ 
  router.get("/departments",departmentController.getDepartments);
- router.put('/departments/editDepartment/:id', departmentController.updateDepartment);
+ router.post("/departments",departmentController.addDepartment);
+ router.put('/departments/:id', departmentController.updateDepartment);
  router.get("/employees",employeeController.getEmployees);
- router.post("/addDepartment",departmentController.addDepartment);
- router.post("/addEmployee",employeeController.addEmployee)
- router.put('/employees/editEmployee/:id', employeeController.updateEmployee);
+ router.post("/employees",employeeController.addEmployee)
+ router.put('/employees/:id', employeeController.updateEmployee);
 
 export default router;  

@@ -1,5 +1,5 @@
 import { Connection, Model } from "mongoose";
-import Department from "../../models/departmentModel"; // ✅ Use the existing model
+import Department from "../../models/departmentModel"; 
 import { ICreateDepartment, IDepartment, IUpdateDepartment } from "../../interfaces/company/IDepartment.types";
 
 

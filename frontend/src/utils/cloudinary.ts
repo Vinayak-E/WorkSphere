@@ -1,4 +1,3 @@
-// lib/cloudinary.ts
 export const uploadToCloudinary = async (file: File) => {
     const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
     const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;

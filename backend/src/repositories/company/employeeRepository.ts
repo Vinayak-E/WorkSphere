@@ -50,4 +50,17 @@ export class EmployeeRepository {
           { new: true, runValidators: true }
         );
       }
+
+      async getEmployeeByEmail(connection: Connection, email: string): Promise<IEmployee | null> {
+        try {
+            const EmployeeModel = this.getEmployeeModel(connection);
+            const DepartmentModel = this.getDepartmentModel(connection);
+            return await EmployeeModel.findOne({ email })
+                .populate('department')
+                .exec();
+            
+        } catch (error) {
+            throw error;
+        }
+    }
 }

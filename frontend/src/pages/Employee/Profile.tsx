@@ -11,34 +11,29 @@ const EmployeeProfilePage = () => {
   const [employee, setEmployee] = useState(null);
   const [error, setError] = useState('');
   
-  // Get auth state from Redux
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
-      try {
-        const response = await api.get("/employee/myProfile", {
+        try {
+          const response = await api.get("/employee/myProfile", {
             withCredentials: true,
           });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch employee data');
+      
+         
+          setEmployee(response.data.data); 
+        } catch (err) {
+          console.error('Error fetching employee data:', err.response?.data || err.message);
+          setError(err.response?.data?.message || 'Failed to load employee data');
+          toast({
+            title: "Error",
+            description: err.response?.data?.message || "Failed to load your profile data. Please try again later.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
         }
-
-       
-        setEmployee(response.data);
-      } catch (err) {
-        console.error('Error fetching employee data:', err);
-        setError('Failed to load employee data');
-        toast({
-          title: "Error",
-          description: "Failed to load your profile data. Please try again later.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
     if (user?.email) {
       fetchEmployeeData();
@@ -101,7 +96,6 @@ const EmployeeProfilePage = () => {
     return null;
   }
 
-  // Format date function
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -113,7 +107,7 @@ const EmployeeProfilePage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header Section */}
+    
         <div className="bg-white rounded-lg shadow-md p-6 flex items-center space-x-6">
           <div className="relative">
             <img
@@ -144,7 +138,7 @@ const EmployeeProfilePage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Personal Information */}
+        
           <Card>
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>

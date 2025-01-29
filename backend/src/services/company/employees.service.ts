@@ -75,15 +75,20 @@ export class EmployeeService {
 
     return updatedEmployee;
   }
-  async getEmployeeProfile(tenantConnection: Connection): Promise<IEmployee[]> {
+
+  async getEmployeeProfile(connection: Connection, email: string): Promise<IEmployee> {
     try {
-      const employees = await this.employeeRepository.getEmployeeProfile(tenantConnection);
-      return employees;
+        const employee = await this.employeeRepository.getEmployeeByEmail(connection, email);
+        if (!employee) {
+            throw new Error('Employee not found');
+        }
+
+        return employee;
     } catch (error) {
-      console.error("Error in EmployeeService.getEmployees:", error);
-      throw error;
+        console.error("Error in EmployeeService.getEmployeeProfile:", error);
+        throw error;
     }
-  }
+}
 
   
 

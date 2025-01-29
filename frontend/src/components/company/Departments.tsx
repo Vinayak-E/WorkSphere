@@ -103,7 +103,7 @@ const Departments = () => {
     try {
       if (isEditMode && selectedDepartment?._id) {
         const response = await api.put(
-          `/company/departments/editDepartment/${selectedDepartment._id}`,
+          `/company/departments/${selectedDepartment._id}`,
           formData,
           { withCredentials: true }
         );
@@ -115,7 +115,7 @@ const Departments = () => {
         handleCloseModal();
       } else {
         const response = await api.post(
-          "/company/addDepartment",
+          "/company/departments",
           formData,
           { withCredentials: true }
         );

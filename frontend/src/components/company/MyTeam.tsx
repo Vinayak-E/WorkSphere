@@ -172,10 +172,10 @@ const MyTeam = () => {
     setIsLoading(true);
     try {
       if (isEditMode && selectedEmployee) {
-        await api.put(`/company/employees/editEmployee/${selectedEmployee._id}`, formData);
+        await api.put(`/company/employees/${selectedEmployee._id}`, formData);
         toast.success("Employee updated successfully!");
       } else {
-        await api.post("/company/addEmployee", formData);
+        await api.post("/company/employees", formData);
         toast.success("Employee added successfully!");
       }
       
