@@ -1,4 +1,5 @@
 import mongoose, { Connection } from "mongoose";
+import { IAttendance } from "./IAttendance.types";
 
 export interface IEmployee extends Document {
   _id: string;
@@ -76,5 +77,6 @@ export interface ICreateEmployee {
 export interface IEmployeeService {
   getEmployeeProfile(connection: Connection, email: string): Promise<IEmployee>
   updateProfile(  id: string,connection : Connection, updateData:IUpdateEmployee): Promise<IEmployee>
+  checkIn(connection: Connection, employeeId: string): Promise<IAttendance>
  }
  

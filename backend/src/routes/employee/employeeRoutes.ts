@@ -26,6 +26,7 @@ router.post('/changePassword', employeeController.changePassword);
 router.use(tenantMiddleware)
 router.use(verifyAuth)
 router.get('/myProfile', employeeController.getProfile);
-
 router.patch('/updateProfile/:id',employeeController.updateProfile);
+
+router.post('/attendance/checkin',employeeController.checkIn)
 export default router;

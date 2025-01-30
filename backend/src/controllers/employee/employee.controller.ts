@@ -109,4 +109,42 @@ export class EmployeeController {
       next(error);
     }
   };
+
+  checkIn: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { employeeId} = req.body;
+        const tenantConnection = req.tenantConnection;
+
+        if (!tenantConnection) {
+            res.status(500).json({
+                success: false,
+                message: "Tenant connection not established"
+            });
+            return;
+        }
+
+        if (!employeeId ) {
+            res.status(400).json({
+                success: false,
+                message: "Employee ID and Company ID are required"
+            });
+            return;
+        }
+
+        const attendance = await this.employeeService.checkIn(
+            tenantConnection,
+            employeeId
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Checked in successfully",
+            data: attendance
+        });
+    } catch (error) {
+       
+            next(error);
+        
+    }
+};
 }
