@@ -52,7 +52,7 @@ const PasswordChange: React.FC = () => {
             navigate("/company");
             break;
           case "MANAGER":
-            navigate("/manager");
+            navigate("/employee/dashboard");
             break;
           case "EMPLOYEE":
             navigate("/employee");

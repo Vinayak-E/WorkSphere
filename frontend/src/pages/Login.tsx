@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { authController } from "../controllers/authController";
 import 'react-toastify/dist/ReactToastify.css';
 
+import { setUser} from '../redux/slices/authSlice';
 
 
 
@@ -28,6 +29,12 @@ interface FormState {
   
 }
 
+interface IRoleRoutes {
+    ADMIN :string;
+    EMPLOYEE :string;
+    MANAGER : string;
+    COMPANY :string;
+}
 
 const  Login = () => {
   const [formState, setFormState] = useState<FormState>({
@@ -116,53 +123,57 @@ const  Login = () => {
     const isValid = Object.values(validatedState).every(field => field.isValid);
 
     if (isValid) {
+     
       setIsSubmitting(true);
+      
       try {
         const response = await api.post("/auth/login", {
-        
           email: formState.email.value,
           password: formState.password.value,
-          userType : userType
+          userType
         });
-             console.log("response",response);
-             
-             if (response.status === 200) {
-              const { tenantId, success ,role ,forcePasswordChange} = response.data;
-      
-              if (success) {
-             
-                localStorage.setItem("user", JSON.stringify(response.data));
-                localStorage.setItem('tenantId',tenantId)
 
-                if (forcePasswordChange) {
-                  toast.info('Please change your default password before continuing');
-                  navigate('/employee/passwordChange');
-                  return;
-                }
-      
+        if (response.status === 200 && response.data.success) {
+          const { email, tenantId, role, forcePasswordChange } = response.data;
 
-                console.log("User Role:", role);
-      
-                if (role === "ADMIN") navigate("/admin");
-                else if (role === "COMPANY") navigate("/company");
-                else if (role === "MANAGER") navigate("/manager");
-                else if (role === "EMPLOYEE") navigate("/employee");
-              } else {
-                setErrorMessage("Login failed. Please try again.");
-              }
-            }
-          } catch (error: unknown) {
-            console.error("Login Error:", error);
-            if (error instanceof AxiosError) {
-              setErrorMessage(error.response?.data?.message || "An error occurred.");
-            } else {
-              setErrorMessage("An unexpected error occurred.");
-            }
-          } finally {
-            setIsSubmitting(false);
+          dispatch(setUser({
+            email,
+            role,
+            tenantId,
+   
+          }));
+
+          if (forcePasswordChange) {
+            toast.info('Please change your default password before continuing');
+            navigate('/employee/passwordChange');
+            return;
           }
+
+          const roleRoutes :IRoleRoutes = {
+            ADMIN: '/admin',
+            COMPANY: '/company',
+            MANAGER: '/employee/dashboard',
+            EMPLOYEE: '/employee'
+          };
+          let url = roleRoutes[role as keyof typeof roleRoutes]
+          navigate(url)
+
+        } else {
+          setErrorMessage("Login failed. Please try again.");
         }
-      };
+      } catch (error: unknown) {
+        console.error("Login Error:", error);
+        if (error instanceof AxiosError) {
+          setErrorMessage(error.response?.data?.message || "An error occurred.");
+        } else {
+          setErrorMessage("An unexpected error occurred.");
+        }
+      } finally {
+        setIsSubmitting(false);
+        
+      }
+    }
+  };
     const getInputStyle = (field: FieldState) => `
     w-full pb-2 border-b-2 
     ${field.touched && field.error ? "border-red-500" : "border-gray-300"}

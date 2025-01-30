@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Login from "../pages/LoginCopy";
+import Login from "../pages/Login";
 import Register from "../pages/Register";
 import OtpVerification from "../pages/OtpVerification";
 import ResetPassword from "../pages/ResetPassword";
@@ -49,7 +49,7 @@ const AppRoutes: React.FC = () => {
       } />
 
       <Route path="/employee/*" element={
-        <ProtectedRoute allowedRoles={['EMPLOYEE']}>
+        <ProtectedRoute allowedRoles={['EMPLOYEE', 'MANAGER']}>
           <EmployeeRoutes />
         </ProtectedRoute>
       } />

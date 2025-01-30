@@ -1,40 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { User, Mail, Phone, Briefcase, Building2, Calendar, DollarSign, MapPin, GraduationCap, UserCheck } from 'lucide-react';
+import { User, Mail, Phone, Briefcase, Building2, Calendar, DollarSign, MapPin, GraduationCap, UserCheck ,Pencil} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'react-toastify'
-import api from '@/api/axios';
+import { Button } from "@/components/ui/button";
+import EditProfileModal from '@/components/Employee/EditProfileModal';
+import { ProfileController } from '@/controllers/employee/employee.controller';
+import { AuthState, Employee } from '@/types/IEmployee';
+
 
 const EmployeeProfilePage = () => {
   const [loading, setLoading] = useState(true);
-  const [employee, setEmployee] = useState(null);
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [error, setError] = useState('');
-  
-  const user = useSelector((state) => state.auth.user);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const user = useSelector((state: AuthState) => state.auth.user);
+
+
+  const handleProfileUpdate = (updatedData: Employee) => {
+    setEmployee(updatedData);
+  };
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
-        try {
-          const response = await api.get("/employee/myProfile", {
-            withCredentials: true,
-          });
-      
-         
-          setEmployee(response.data.data); 
-        } catch (err) {
-          console.error('Error fetching employee data:', err.response?.data || err.message);
-          setError(err.response?.data?.message || 'Failed to load employee data');
-          toast({
-            title: "Error",
-            description: err.response?.data?.message || "Failed to load your profile data. Please try again later.",
-            variant: "destructive",
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
-
+      try {
+        const profileData = await ProfileController.getProfile();
+        setEmployee(profileData);
+      } catch (err) {
+        setError('Failed to load employee data');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     if (user?.email) {
       fetchEmployeeData();
     }
@@ -51,7 +49,7 @@ const EmployeeProfilePage = () => {
               <Skeleton className="h-4 w-72" />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2, 3, 4].map((i) => (
               <Card key={i}>
@@ -80,7 +78,7 @@ const EmployeeProfilePage = () => {
           <CardContent className="pt-6 text-center">
             <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Profile</h2>
             <p className="text-gray-600">{error}</p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
@@ -96,7 +94,7 @@ const EmployeeProfilePage = () => {
     return null;
   }
 
-  const formatDate = (date) => {
+  const formatDate = (date:string) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -107,38 +105,56 @@ const EmployeeProfilePage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-    
-        <div className="bg-white rounded-lg shadow-md p-6 flex items-center space-x-6">
-          <div className="relative">
-            <img
-              src={employee.profilePicture || "/api/placeholder/150/150"}
-              alt={employee.name}
-              className="w-32 h-32 rounded-full object-cover border-4 border-blue-100"
-            />
-            <span className={`absolute bottom-2 right-2 w-4 h-4 rounded-full ${
-              employee.status === 'Active' ? 'bg-green-500' : 'bg-gray-500'
-            }`} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{employee.name}</h1>
-            <div className="flex items-center space-x-4 mt-2 text-gray-600">
-              <span className="flex items-center">
-                <Briefcase className="w-4 h-4 mr-2" />
-                {employee.position}
-              </span>
-              <span className="flex items-center">
-                <Building2 className="w-4 h-4 mr-2" />
-                {employee.department?.name || 'Department'}
-              </span>
+
+        <div className="bg-white rounded-lg shadow-md p-6 relative">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setIsEditModalOpen(true)}
+            className="absolute top-4 right-4 bg-transparent border-none"
+          >
+            <Pencil className="w-4 h-4 " />
+          </Button>
+
+          <div className="flex items-center space-x-6">
+            <div className="relative">
+              <img
+                src={employee.profilePicture || "/api/placeholder/150/150"}
+                alt={employee.name}
+                className="w-36 h-36 rounded-full object-cover border-4 border-blue-100"
+              />
+              <span className={`absolute bottom-2 right-2 w-4 h-4 rounded-full ${employee.status === 'Active' ? 'bg-green-500' : 'bg-gray-500'
+                }`} />
             </div>
-            <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-              {employee.workMode}
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{employee.name}</h1>
+              <div className="flex items-center space-x-4 mt-2 text-gray-600">
+                <span className="flex items-center">
+                  <Briefcase className="w-4 h-4 mr-2" />
+                  {employee.position}
+                </span>
+                <span className="flex items-center">
+                  <Building2 className="w-4 h-4 mr-2" />
+                  {employee.department?.name || 'Department'}
+                </span>
+              </div>
+              <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                {employee.workMode}
+              </div>
             </div>
           </div>
         </div>
 
+        {isEditModalOpen && (
+          <EditProfileModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            employee={employee}
+            onUpdate={handleProfileUpdate}
+            employeeId={employee._id}
+          />)}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
           <Card>
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
@@ -201,7 +217,7 @@ const EmployeeProfilePage = () => {
             </CardContent>
           </Card>
 
-          {/* Qualifications */}
+
           <Card>
             <CardHeader>
               <CardTitle>Qualifications</CardTitle>
@@ -222,8 +238,11 @@ const EmployeeProfilePage = () => {
             </CardContent>
           </Card>
         </div>
+
       </div>
+
     </div>
+
   );
 };
 

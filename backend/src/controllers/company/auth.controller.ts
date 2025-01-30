@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { ICompanyService } from "../../../interfaces/company/company.types";
+import { IAuthService } from "../../interfaces/company/company.types";
 import jwt, { JwtPayload} from "jsonwebtoken";
-import { firebaseAdmin } from "../../../configs/firebase.config";
+import { firebaseAdmin } from "../../configs/firebase.config";
 
 
 export class AuthenticationController {
-  constructor(private readonly authService: ICompanyService) {}
+  constructor(private readonly authService: IAuthService) {}
 
     signup: RequestHandler = async (req, res, next ) => {
       try {
@@ -49,19 +49,10 @@ export class AuthenticationController {
 
 
 
-    login: RequestHandler = async (
-      req ,
-      res: Response,
-      next: NextFunction
-    ) => {
+    login: RequestHandler = async ( req , res, next ) => {
       try {
         const { email, password, userType } = req.body;
-
-        const response = await this.authService.verifyLogin(
-          email,
-          password,
-          userType
-        );
+        const response = await this.authService.verifyLogin( email, password, userType );
 
         if (!response) {
           res.status(400).json({ message: "Invalid email or password!" });
@@ -97,25 +88,17 @@ export class AuthenticationController {
       }
     };
 
-  forgotPassword: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  forgotPassword: RequestHandler = async ( req, res, next ) => {
     try {
       const { email } = req.body;
-      console.log("forgetPassreq", req.body);
-
       const sendResetLink = await this.authService.sendResetLink(email);
       if (sendResetLink === false) {
-        console.log(sendResetLink);
         res.status(400).json({ message: "The email is not registered!" });
       } else if (sendResetLink) {
         res.status(200).json({ message: "The otp has sent to your email" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Something went wrong!" });
-      console.log( "Something went wrong during resetting the forgot password",error );
+      next (error)
     }
   };
 
@@ -143,38 +126,75 @@ export class AuthenticationController {
     }
   };
 
-  verifyToken: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  verifyToken: RequestHandler = async ( req, res, next ) => {
     try {
-      const token = req.cookies.accessToken;
+      const accessToken = req.cookies.accessToken;
+      const refreshToken = req.cookies.refreshToken;
 
-      if (!token) {
+      if (!accessToken && !refreshToken) {
         res.status(401).json({
           success: false,
-          message: "No authentication token provided",
+          message: "No authentication tokens provided"
         });
         return;
       }
-      const decoded = await this.authService.verifyAccessToken(token);
 
-      if (!decoded) {
+      if (accessToken) {
+        try {
+          const decoded = await this.authService.verifyAccessToken(accessToken);
+          if (decoded) {
+            res.status(200).json({
+              success: true,
+              email: decoded.email,
+              role: decoded.role,
+              tenantId: decoded.tenantId
+            });
+            return;
+          }
+        } catch (error) {
+          
+          if (!refreshToken) {
+            res.status(401).json({
+              success: false,
+              message: "Invalid access token and no refresh token provided"
+            });
+            return;
+          }
+        }
+      }
+
+      if (!refreshToken) {
         res.status(401).json({
           success: false,
-          message: "Invalid token",
+          message: "No valid tokens provided"
         });
         return;
       }
-      console.log("decoded token", decoded);
 
-      res.status(200).json({
-        success: true,
-        email: decoded.email,
-        role: decoded.role,
-        tenantId: decoded.tenantId,
-      });
+      try {
+        const { accessToken: newAccessToken, decodedToken } = await this.authService.refreshTokens(refreshToken);
+
+        res.cookie('accessToken', newAccessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 15 * 60 * 1000 
+        });
+
+        res.status(200).json({
+          success: true,
+          email: decodedToken.email,
+          role: decodedToken.role,
+          tenantId: decodedToken.tenantId
+        });
+        return;
+      } catch (error) {
+        res.status(401).json({
+          success: false,
+          message: "Invalid refresh token"
+        });
+        return;
+      }
     } catch (error) {
       next(error);
     }

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Connection } from "mongoose";
 
 export interface IEmployee extends Document {
   _id: string;
@@ -71,3 +71,10 @@ export interface ICreateEmployee {
     department?:mongoose.Schema.Types.ObjectId; 
     status?: string;
   }
+
+  
+export interface IEmployeeService {
+  getEmployeeProfile(connection: Connection, email: string): Promise<IEmployee>
+  updateProfile(  id: string,connection : Connection, updateData:IUpdateEmployee): Promise<IEmployee>
+ }
+ 

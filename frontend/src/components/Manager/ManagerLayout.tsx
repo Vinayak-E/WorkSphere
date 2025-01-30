@@ -1,9 +1,9 @@
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "./Sidebar"
-import { Header } from "./EmployeeHeader"
+import { AppSidebar } from "./ManagerSidebar"
+import { Header } from "../Employee/EmployeeHeader"
 import { Outlet } from "react-router-dom"
 
-const EmployeeLayout = () => {
+const ManagerLayout = () => {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
@@ -22,4 +22,4 @@ const EmployeeLayout = () => {
   )
 }
 
-export default EmployeeLayout
+export default ManagerLayout

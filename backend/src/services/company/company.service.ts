@@ -7,7 +7,7 @@ import { IUserRepository } from "../../interfaces/IUser.types";
 import { envConfig } from "../../configs/envConfig";
 import { generateCompanyBasedPassword, generateEmployeeId } from "../../helpers/helperFunctions";
 
-export class EmployeeService {
+export class CompanyService {
   constructor(private readonly employeeRepository:EmployeeRepository,
     private readonly userRepository:IUserRepository) {}
 
@@ -16,7 +16,7 @@ export class EmployeeService {
       const employees = await this.employeeRepository.getEmployees(tenantConnection);
       return employees;
     } catch (error) {
-      console.error("Error in EmployeeService.getEmployees:", error);
+      console.error("Error in CompanyService.getEmployees:", error);
       throw error;
     }
   }
@@ -31,6 +31,7 @@ export class EmployeeService {
       if (existingUser) throw new Error("This email already exists");
   
       const randomPassword = generateCompanyBasedPassword(tenantId);
+      console.log('random Password ',randomPassword)
       const hashPassword = await bcrypt.hash(randomPassword, 10);
   
       const data = {
@@ -76,19 +77,7 @@ export class EmployeeService {
     return updatedEmployee;
   }
 
-  async getEmployeeProfile(connection: Connection, email: string): Promise<IEmployee> {
-    try {
-        const employee = await this.employeeRepository.getEmployeeByEmail(connection, email);
-        if (!employee) {
-            throw new Error('Employee not found');
-        }
 
-        return employee;
-    } catch (error) {
-        console.error("Error in EmployeeService.getEmployeeProfile:", error);
-        throw error;
-    }
-}
 
   
 

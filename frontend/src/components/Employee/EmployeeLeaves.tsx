@@ -2,7 +2,7 @@ import React from 'react'
 
 const EmployeeLeaves = () => {
   return (
-    <div>EmployeeLeaves</div>
+    <div className='bg-primary'>EmployeeLeaves</div>
   )
 }
 

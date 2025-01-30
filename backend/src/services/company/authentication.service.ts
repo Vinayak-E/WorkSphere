@@ -1,17 +1,17 @@
 import {redisClient } from "../../configs/redisClient";
-import { IJwtService } from "../../interfaces/IJwtService.types";
+import { IJwtService, IPayload } from "../../interfaces/IJwtService.types";
 import { IUserRepository } from "../../interfaces/IUser.types";
-import {ICompanySignup,IVerifyOtpDto,ICompanyService,ICompanyRepository,ICompanyUser,DecodedToken} from "../../interfaces/company/company.types";
+import {ICompanySignup,IVerifyOtpDto,IAuthService,ICompanyRepository,ICompanyUser,DecodedToken} from "../../interfaces/company/company.types";
 import { sendEmail,sendResetEmail} from "../../utils/email"; 
 
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken";
 import slugify from "slugify";
 import { generateCompanySlug, hashPassword ,generateOTP, setRedisData, comparePasswords, checkCompanyPrefix} from "../../helpers/helperFunctions";
-import { ISignup } from "../Interface/IAuthService.types";
+import { ISignup } from "../../interfaces/company/company.types";
 
 
-export class AuthService implements ICompanyService {
+export class AuthService implements IAuthService {
 
   constructor(
           private readonly companyRepository: ICompanyRepository,
@@ -160,17 +160,42 @@ async resetPassword (email: string, password :string) {
 }
 
 
-
-async verifyAccessToken (token: string)  {
+async verifyAccessToken(token: string): Promise<IPayload> {
   try {
-       return jwt.verify(token, process.env.JWT_SECRETKEY!) as DecodedToken;
-
-     } catch (error) {
-       throw error
-     }
+    const decoded = await this.jwtService.verifyJwtToken(token);
+    if (!decoded) {
+      throw new Error('Token verification failed');
+    }
+    return decoded;
+  } catch (error) {
+    throw error;
+  }
 }
 
+async refreshTokens(refreshToken: string): Promise<{
+  accessToken: string;
+  decodedToken: IPayload;
+}> {
+  try {
+    const decoded = await this.jwtService.verifyJwtToken(refreshToken);
+    if (!decoded) {
+      throw new Error('Refresh token verification failed');
+    }
 
+    const newAccessToken = await this.jwtService.generateAccessToken({
+      email: decoded.email,
+      role: decoded.role,
+      tenantId: decoded.tenantId,
+    });
+
+    return {
+      accessToken: newAccessToken,
+      decodedToken: decoded,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
 
 
 async findOrCreateCompany(profile: any): Promise<any> {

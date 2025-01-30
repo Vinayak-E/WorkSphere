@@ -47,7 +47,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   if (isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
-        <ScaleLoader />
+        <ScaleLoader color="rgb(37, 99, 235)" />
       </div>
     );
   }

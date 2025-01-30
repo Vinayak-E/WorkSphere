@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { RequestHandler } from "express-serve-static-core";
-import { ICreateEmployee, IUpdateEmployee } from "../../../interfaces/company/IEmployee.types";
-import { EmployeeService } from "../../../services/company/employees.service";
+import { ICreateEmployee, IUpdateEmployee } from "../../interfaces/company/IEmployee.types";
+import { CompanyService } from "../../services/company/company.service";
 
 export class ManageEmployeeController {
-    constructor(private readonly employeeService: EmployeeService) {}
+    constructor(private readonly companyService: CompanyService) {}
 
 
     getEmployees: RequestHandler = async ( req: Request, res: Response,next: NextFunction) => {
@@ -19,7 +19,7 @@ export class ManageEmployeeController {
             return
           }
     
-          const employees = await this.employeeService.getEmployees(tenantConnection);
+          const employees = await this.companyService.getEmployees(tenantConnection);
 
              res.status(200).json({
             success: true,
@@ -45,7 +45,7 @@ export class ManageEmployeeController {
             const employeeData: ICreateEmployee = req.body;
            console.log("employeeData",employeeData);
            
-            const newEmployee = await this.employeeService.addEmployee(employeeData, tenantConnection,tenantId);
+            const newEmployee = await this.companyService.addEmployee(employeeData, tenantConnection,tenantId);
 
              res.status(201).json({
                 success: true,
@@ -85,7 +85,7 @@ export class ManageEmployeeController {
     
         const updateData: IUpdateEmployee = req.body;
     
-          const updatedEmployee= await this.employeeService.updateEmployee(
+          const updatedEmployee= await this.companyService.updateEmployee(
             id,
             updateData,
             tenantConnection

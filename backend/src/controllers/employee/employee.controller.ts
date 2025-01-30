@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { ICompanyService } from "../../../interfaces/company/company.types";
-import { IEmployeeService } from "../../Interface/IEmpoyee.types";
+import { IAuthService } from "../../interfaces/company/company.types";
+import { IEmployeeService, IUpdateEmployee } from "../../interfaces/company/IEmployee.types";
 
 export class EmployeeController {
-  constructor(private readonly companyService: ICompanyService,
+  constructor(private readonly authService: IAuthService,
     private readonly  employeeService :IEmployeeService) {}
 
   changePassword: RequestHandler = async (
@@ -15,7 +15,7 @@ export class EmployeeController {
     try {
       console.log("email at employee controller", email);
       console.log("req.body at employeecontroller", req.body);
-      await this.companyService.resetPassword(email, newPassword);
+      await this.authService.resetPassword(email, newPassword);
       res.status(200).json({
         success: true,
         message: "Password Changed Successfully",
@@ -52,11 +52,59 @@ export class EmployeeController {
         req.tenantConnection,
         req.user.email
       );
-       console.log('details',details)
+
        res.status(200).json({
         success: true,
         data: details
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+
+
+
+  updateProfile: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+      
+      if (!tenantConnection) {
+    res.status(500).json({ 
+          success: false,
+          message: "Tenant connection not established" 
+        });
+        return
+      }
+
+      const { id } = req.params;
+    
+      console.log('reqId at updateemploye',req.params)
+      console.log('req.body at updateemploye',req.body)
+
+      if (!id) {
+         res.status(400).json({
+        success: false,
+        message: "Employee ID is required"
+      });
+      return
+    }
+
+    const updateData: IUpdateEmployee = req.body;
+
+      const updatedEmployee= await this.employeeService.updateProfile(
+        id,
+        tenantConnection,
+        updateData,
+      );
+
+        res.status(200).json({
+        success: true,
+        message: "Employee updated successfully",
+        data: updatedEmployee
+      });
+ 
     } catch (error) {
       next(error);
     }

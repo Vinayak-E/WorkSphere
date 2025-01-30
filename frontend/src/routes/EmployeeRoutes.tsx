@@ -4,6 +4,8 @@ import PasswordChange from "@/pages/Employee/PasswordChange"
 import EmployeeLayout from "@/components/Employee/EmployeeLayout"
 import EmployeeLeaves from "@/components/Employee/EmployeeLeaves"
 import EmployeeProfile from "@/pages/Employee/Profile"
+import ManagerLayout from "@/components/Manager/ManagerLayout"
+import ManagerDashboard from "@/components/Manager/ManagerDashboard"
 
 
 const EmployeeRoutes = () => {
@@ -11,11 +13,20 @@ const EmployeeRoutes = () => {
     <>
   <Routes>
       <Route path= '/passwordChange' element ={<PasswordChange />} />
-       <Route element={ <EmployeeLayout />} >
 
+
+       <Route element={ <EmployeeLayout />} >
        <Route path="/" element={<EmployeeLeaves/>} />
        <Route path="/profile" element={<EmployeeProfile/>} />
         </Route>
+
+        <Route element={<ManagerLayout />}>
+        <Route path="/dashboard" element={<ManagerDashboard />} />
+        <Route path="/profile" element={<EmployeeProfile />} /> 
+      </Route>
+
+
+
   </Routes>
 
     </>

@@ -1,8 +1,20 @@
 import { ObjectId } from "mongoose";
 import { IUser } from "../IUser.types";
 import { refreshToken } from "firebase-admin/app";
+import { IPayload } from "../IJwtService.types";
 
-
+export interface ISignup {
+  companyName: string 
+  email: string;
+  password: string ;
+  phone: string | null;
+  industry: string;
+  bussinessRegNo:string;
+  city:string;
+  state:string;
+  country:string;
+  zipcode:string;
+}
 export interface ICompanySignup {
   companyName: string | null;
   email: string;
@@ -106,12 +118,16 @@ export interface ICompanyRequest extends Document {
   hasValidSubscription(): boolean;
 }
 
-export interface ICompanyService {
+export interface IAuthService {
  signup(data: ICompanySignup): Promise<string | boolean | null | { message: string }>
   verifyOtp(data: IVerifyOtpDto): Promise<boolean>; 
   verifyLogin(email: string, password: string,userType:string): Promise<{ user: ICompanyUser,refreshToken:string,accessToken:string, tenantId: string ,forcePasswordChange?: boolean} | null> 
   resendOtp(email: string): Promise<boolean>
   verifyAccessToken(token: string): Promise<DecodedToken | null>
+  refreshTokens(refreshToken: string): Promise<{
+    accessToken: string;
+    decodedToken: IPayload;
+}>
   sendResetLink(email: string): Promise<boolean | null>
   resetPassword(email: string, password: string): Promise<void>
   findOrCreateCompany(profile: any): Promise<any>

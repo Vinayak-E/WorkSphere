@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { DepartmentService } from "../../../services/company/department.service";
-import { ICreateDepartment, IUpdateDepartment } from "../../../interfaces/company/IDepartment.types";
+import { DepartmentService } from "../../services/company/department.service";
+import { ICreateDepartment, IUpdateDepartment } from "../../interfaces/company/IDepartment.types";
 
 
 export class DepartmentController {
