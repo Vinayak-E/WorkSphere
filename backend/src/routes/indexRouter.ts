@@ -5,13 +5,20 @@ import { JwtService } from "../services/jwt.service";
 import { AuthenticationController } from "../controllers/company/auth.controller";
 
  import { AuthService } from "../services/company/authentication.service";
+import { CompanyService } from "../services/company/company.service";
+import { EmployeeRepository } from "../repositories/company/employeeRepository";
+import { tenantMiddleware } from "../middlewares/tenantMiddleware";
+import { EmployeeService } from "../services/employee/employee.service";
 
 const router = express.Router();
 const jwtService  = new JwtService()
 const userRepository = new UserRepository();
 const companyRepository = new CompanyRepository();
+const employeeRepository = new EmployeeRepository()
+const employeeService = new EmployeeService(employeeRepository,userRepository)
+const companyService = new CompanyService(employeeRepository,userRepository,companyRepository)
 const authService =  new AuthService(companyRepository,userRepository,jwtService)
-const authController = new AuthenticationController(authService)
+const authController = new AuthenticationController(authService,companyService,employeeService)
 
 
 router.post("/signup", authController.signup);
@@ -21,7 +28,7 @@ router.post("/resendOtp", authController.resendOtp);
 router.post('/forgotPassword',authController.forgotPassword)
 router.post('/resetPassword', authController.resetPassword);
 router.post('/google-login', authController.googleLogin);
-
-
+router.post('/logout', authController.logout);
+router.use(tenantMiddleware)
 router.get('/verify-token',authController.verifyToken)
 export default router;

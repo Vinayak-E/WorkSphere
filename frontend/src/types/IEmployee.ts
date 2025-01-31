@@ -16,7 +16,7 @@ export interface Address {
     _id: string;
   }
   
-  export interface Employee {
+  export interface IEmployee {
     _id: string;
     name: string;
     email: string;

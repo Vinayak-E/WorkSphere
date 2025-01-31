@@ -8,14 +8,16 @@ import { CompanyService } from "../../services/company/company.service";
 import { EmployeeRepository } from "../../repositories/company/employeeRepository";
 import { UserRepository } from "../../repositories/user/userRepository";
 import { verifyAuth } from "../../middlewares/authMiddleware";
+import { CompanyRepository } from "../../repositories/company/companyRepository";
 
 const router = express.Router();
 const deparmentRepository = new DepartmentRepository()
 const userRepository = new UserRepository()
+const companyRepository = new CompanyRepository()
 const departmentService = new DepartmentService(deparmentRepository)
 const departmentController = new DepartmentController(departmentService)
 const employeeRepository = new EmployeeRepository()
-const companyService = new CompanyService(employeeRepository,userRepository)
+const companyService = new CompanyService(employeeRepository,userRepository,companyRepository)
 const employeeController = new ManageEmployeeController(companyService)
 
  router.use(tenantMiddleware)

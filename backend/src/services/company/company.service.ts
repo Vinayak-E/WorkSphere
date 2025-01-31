@@ -6,10 +6,13 @@ import { EmployeeRepository } from "../../repositories/company/employeeRepositor
 import { IUserRepository } from "../../interfaces/IUser.types";
 import { envConfig } from "../../configs/envConfig";
 import { generateCompanyBasedPassword, generateEmployeeId } from "../../helpers/helperFunctions";
+import { ICompanyDocument } from "../../interfaces/company/company.types";
+import { CompanyRepository } from "../../repositories/company/companyRepository";
 
 export class CompanyService {
   constructor(private readonly employeeRepository:EmployeeRepository,
-    private readonly userRepository:IUserRepository) {}
+    private readonly userRepository:IUserRepository,
+    private readonly companyRepository:CompanyRepository ,) {}
 
   async getEmployees(tenantConnection: Connection): Promise<IEmployee[]> {
     try {
@@ -80,6 +83,19 @@ export class CompanyService {
 
 
   
-
+  async getCompanyByEmail(
+    email: string,
+    tenantConnection: Connection
+  ): Promise<ICompanyDocument | null> {
+    try {
+      return this.companyRepository.getCompanyByEmail(
+        email,
+        tenantConnection, 
+      );
+    } catch (error) {
+      console.error("Error fetching company:", error);
+      throw new Error("Failed to retrieve company data");
+    }
+  }
 
 }

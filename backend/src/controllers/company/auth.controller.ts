@@ -1,11 +1,17 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { IAuthService } from "../../interfaces/company/company.types";
+import { IAuthService, ICompanyDocument } from "../../interfaces/company/company.types";
 import jwt, { JwtPayload} from "jsonwebtoken";
 import { firebaseAdmin } from "../../configs/firebase.config";
+import { IPayload } from "../../interfaces/IJwtService.types";
+import { IEmployee, IEmployeeService } from "../../interfaces/company/IEmployee.types";
+import { CompanyService } from "../../services/company/company.service";
 
 
 export class AuthenticationController {
-  constructor(private readonly authService: IAuthService) {}
+  constructor(private readonly authService: IAuthService,
+    private readonly companyService: CompanyService,
+    private readonly  employeeService :IEmployeeService
+    ) {}
 
     signup: RequestHandler = async (req, res, next ) => {
       try {
@@ -126,79 +132,113 @@ export class AuthenticationController {
     }
   };
 
-  verifyToken: RequestHandler = async ( req, res, next ) => {
+  verifyToken: RequestHandler = async (req, res, next) => {
     try {
       const accessToken = req.cookies.accessToken;
       const refreshToken = req.cookies.refreshToken;
-
+  
       if (!accessToken && !refreshToken) {
-        res.status(401).json({
-          success: false,
-          message: "No authentication tokens provided"
-        });
-        return;
+        res.status(401).json({ success: false, message: "No tokens" });
+        return; // Explicit return without value
       }
 
+      const tenantConnection = req.tenantConnection;
+          
+      if (!tenantConnection) {
+           res.status(500).json({ 
+          success: false,
+          message: "Tenant connection not established" 
+        });
+        return
+      }
+  
+      let decodedToken: IPayload | null = null;
+      let newAccessToken: string | null = null;
+  
       if (accessToken) {
         try {
-          const decoded = await this.authService.verifyAccessToken(accessToken);
-          if (decoded) {
-            res.status(200).json({
-              success: true,
-              email: decoded.email,
-              role: decoded.role,
-              tenantId: decoded.tenantId
-            });
-            return;
-          }
+          decodedToken = await this.authService.verifyAccessToken(accessToken);
         } catch (error) {
-          
           if (!refreshToken) {
-            res.status(401).json({
-              success: false,
-              message: "Invalid access token and no refresh token provided"
-            });
-            return;
+            res.status(401).json({ success: false, message: "Invalid token" });
+            return; 
           }
         }
       }
-
-      if (!refreshToken) {
-        res.status(401).json({
-          success: false,
-          message: "No valid tokens provided"
-        });
-        return;
+  
+      if (!decodedToken && refreshToken) {
+        try {
+          const refreshResult = await this.authService.refreshTokens(refreshToken);
+          newAccessToken = refreshResult.accessToken;
+          decodedToken = refreshResult.decodedToken;
+  
+          res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000
+          });
+        } catch (error) {
+          res.status(401).json({ success: false, message: "Invalid refresh" });
+          return; 
+        }
       }
-
+  
+      if (!decodedToken) {
+        res.status(401).json({ success: false, message: "Auth failed" });
+        return; 
+      }
+  
       try {
-        const { accessToken: newAccessToken, decodedToken } = await this.authService.refreshTokens(refreshToken);
-
-        res.cookie('accessToken', newAccessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 15 * 60 * 1000 
-        });
-
+        let userData: ICompanyDocument | IEmployee | null;
+        switch (decodedToken.role) {
+          case 'COMPANY':
+            userData = await this.companyService.getCompanyByEmail(decodedToken.email,tenantConnection);
+            break;
+          case 'EMPLOYEE':
+            userData = await this.employeeService.getEmployeeProfile(tenantConnection,decodedToken.email);
+            break;
+          default:
+            res.status(403).json({ success: false, message: "Invalid role" });
+            return; 
+        }
+  
+        if (!userData) {
+          res.status(404).json({ success: false, message: "Not found" });
+          return; 
+        }
+  
         res.status(200).json({
           success: true,
           email: decodedToken.email,
           role: decodedToken.role,
-          tenantId: decodedToken.tenantId
+          tenantId: decodedToken.tenantId,
+          userData
         });
-        return;
+        return; 
+  
       } catch (error) {
-        res.status(401).json({
-          success: false,
-          message: "Invalid refresh token"
-        });
-        return;
+        next(error);
       }
     } catch (error) {
       next(error);
     }
   };
+
+  logout: RequestHandler = async (req, res, next) => {
+    try {
+      res.clearCookie('accessToken');
+      res.clearCookie('refreshToken');
+      
+      res.status(200).json({ 
+        success: true, 
+        message: "Logged out successfully" 
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 
   googleLogin: RequestHandler = async (
     req: Request,

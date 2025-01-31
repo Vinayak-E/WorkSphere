@@ -1,9 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IEmployee } from '@/types/IEmployee';
+import { Icompany } from '@/types/types';
 
 interface User {
   email: string;
   role: string;
   tenantId: string;
+  userData?: Icompany | IEmployee; 
 }
 
 export interface AuthState {

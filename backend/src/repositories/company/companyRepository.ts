@@ -65,5 +65,12 @@ async createTempCompany(userData : Partial<IUser>) {
   return await user.save();
 }
 
+async getCompanyByEmail(
+  email: string,
+  tenantConnection: Connection,
+): Promise<ICompanyDocument | null> {
+
+  return this.model.findOne({ email })
+}
   
 }

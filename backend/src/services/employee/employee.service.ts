@@ -46,7 +46,7 @@ export class EmployeeService {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
 
-          // Check if already checked in
+        
           const existingAttendance = await this.employeeRepository.findAttendance(connection, {
               employeeId,
               date: today

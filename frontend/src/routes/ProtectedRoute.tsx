@@ -11,6 +11,8 @@ interface ProtectedRouteProps {
   allowedRoles?: string[];
 }
 
+
+
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -27,6 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
             email: response.data.email,
             role: response.data.role,
             tenantId: response.data.tenantId,
+            userData: response.data.userData
           }));
         } else {
           dispatch(logout());

@@ -15,7 +15,7 @@ const userRepository = new UserRepository();
 const companyRepository = new CompanyRepository();
 const employeeRepository = new EmployeeRepository()
 const employeeService = new EmployeeService(employeeRepository,userRepository)
-const companyService = new CompanyService(employeeRepository,userRepository)
+const companyService = new CompanyService(employeeRepository,userRepository,companyRepository)
 const authService = new AuthService(companyRepository,userRepository,jwtService);
 const employeeController = new EmployeeController(authService,employeeService);
 

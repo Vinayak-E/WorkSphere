@@ -6,29 +6,34 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from "@/components/ui/button";
 import EditProfileModal from '@/components/Employee/EditProfileModal';
 import { ProfileController } from '@/controllers/employee/employee.controller';
-import { AuthState, Employee } from '@/types/IEmployee';
+import { IEmployee } from '@/types/IEmployee';
+import { RootState } from '@/redux/store';
 
 
 const EmployeeProfilePage = () => {
   const [loading, setLoading] = useState(true);
-  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [employee, setEmployee] = useState<IEmployee | null>(null);
   const [error, setError] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const user = useSelector((state: AuthState) => state.auth.user);
-
-
-  const handleProfileUpdate = (updatedData: Employee) => {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const handleProfileUpdate = (updatedData: IEmployee) => {
     setEmployee(updatedData);
   };
 
   useEffect(() => {
+    if (user?.userData) {
+      setEmployee(user.userData as IEmployee);
+      setLoading(false);
+      return;
+    }
+    
     const fetchEmployeeData = async () => {
       try {
         const profileData = await ProfileController.getProfile();
         setEmployee(profileData);
+        setLoading(false);
       } catch (err) {
         setError('Failed to load employee data');
-      } finally {
         setLoading(false);
       }
     };
@@ -36,7 +41,7 @@ const EmployeeProfilePage = () => {
     if (user?.email) {
       fetchEmployeeData();
     }
-  }, [user?.email]);
+  }, [user?.userData, user?.email]);
 
   if (loading) {
     return (
