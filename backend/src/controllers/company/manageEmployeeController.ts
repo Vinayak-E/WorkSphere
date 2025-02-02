@@ -179,6 +179,44 @@ export class ManageEmployeeController {
           next(error);
         }
       };
-      
+
+
+
+      getAttendance: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const tenantConnection = req.tenantConnection;
+            
+            if (!tenantConnection) {
+                res.status(500).json({ 
+                    success: false,
+                    message: "Tenant connection not established" 
+                });
+                return;
+            }
+
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+            const date = req.query.date as string;
+
+            const { attendance, total } = await this.companyService.getAttendance(
+                tenantConnection,
+                page,
+                limit,
+                date
+            );
+
+            res.status(200).json({
+                success: true,
+                attendance,
+                total,
+                totalPages: Math.ceil(total / limit),
+                currentPage: page,
+            });
+        } catch (error) {
+            console.error("Error fetching attendance:", error);
+            next(error);
+        }
+    };
+
       
 }

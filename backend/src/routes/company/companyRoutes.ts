@@ -31,5 +31,6 @@ const employeeController = new ManageEmployeeController(companyService)
  router.put('/employees/:id', employeeController.updateEmployee);
  router.get('/leaves', employeeController.getLeaveRequests);
  router.patch('/leaves/:id', employeeController.updateLeaveStatus);
+ router.get('/attendance', employeeController.getAttendance);
 
 export default router;  

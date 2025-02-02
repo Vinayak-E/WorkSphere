@@ -95,20 +95,18 @@ export class EmployeeRepository {
         });
     }
 
-    async checkActiveLeave(connection: Connection, query: {
-        employeeId: string;
-        date: Date;
-    }): Promise<boolean> {
+    async checkActiveLeave(connection: Connection, query: { employeeId: string; date: Date; }): Promise<boolean> {
         const LeaveModel = this.getLeaveModel(connection);
-        const date = query.date;
-
+        const date = new Date(query.date);
+        date.setHours(0, 0, 0, 0);
+    
         const leave = await LeaveModel.findOne({
             employeeId: query.employeeId,
             startDate: { $lte: date },
             endDate: { $gte: date },
             status: "Approved"
-        });
-
+        }).lean();
+        console.log('leave',leave)
         return !!leave;
     }
 

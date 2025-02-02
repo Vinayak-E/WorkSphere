@@ -60,6 +60,7 @@ export class EmployeeService {
               employeeId,
               date: today
           });
+          console.log('isOnleave',isOnLeave)
 
           if (isOnLeave) {
               throw new Error("You are on approved leave today");

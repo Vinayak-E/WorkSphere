@@ -9,7 +9,7 @@ export interface ISignup {
   password: string ;
   phone: string | null;
   industry: string;
-  bussinessRegNo:string;
+  businessRegNo:string;
   city:string;
   state:string;
   country:string;

@@ -8,7 +8,7 @@ import { envConfig } from "../../configs/envConfig";
 import { generateCompanyBasedPassword, generateEmployeeId } from "../../helpers/helperFunctions";
 import { ICompanyDocument } from "../../interfaces/company/company.types";
 import { CompanyRepository } from "../../repositories/company/companyRepository";
-import { ILeave } from "../../interfaces/company/IAttendance.types";
+import { IAttendance, ILeave } from "../../interfaces/company/IAttendance.types";
 
 export class CompanyService {
   constructor(private readonly employeeRepository:EmployeeRepository,
@@ -165,4 +165,22 @@ export class CompanyService {
       throw error;
     }
   }
+
+  async getAttendance(
+    connection: Connection,
+    page: number,
+    limit: number,
+    date?: string
+): Promise<{ attendance: IAttendance[]; total: number }> {
+    try {
+        return await this.companyRepository.getAttendanceRecords(
+            connection,
+            page,
+            limit,
+            date
+        );
+    } catch (error) {
+        throw error;
+    }
+}
 }

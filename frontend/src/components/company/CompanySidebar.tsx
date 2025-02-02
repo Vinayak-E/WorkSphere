@@ -25,7 +25,7 @@ const items = [
   },
   {
     title: "Attendance",
-    url: "/calendar",
+    url: "/company/attendance",
     icon: Calendar,
   },
   {
@@ -46,7 +46,7 @@ const items = [
   },
   {
     title: "Settings",
-    url: "/settings",
+    url: "/company/profile",
     icon: Settings,
   },
 ]

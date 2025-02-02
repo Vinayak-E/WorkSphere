@@ -1,12 +1,12 @@
 import { ProfileFormData } from '../../utils/validations'
 import api from '@/api/axios';
-import { Employee } from '@/types/IEmployee';
+import { IEmployee } from '@/types/IEmployee';
 import { uploadToCloudinary } from '@/utils/cloudinary';
 
 export class ProfileService {
 
-  static async getProfile(): Promise<Employee> {
-    const response = await api.get<{ data: Employee }>("/employee/myProfile", {
+  static async getProfile(): Promise<IEmployee> {
+    const response = await api.get<{ data: IEmployee }>("/employee/myProfile", {
       withCredentials: true,
     });
     return response.data.data;

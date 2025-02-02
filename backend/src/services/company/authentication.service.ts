@@ -22,7 +22,7 @@ export class AuthService implements IAuthService {
 
 async signup(data: ISignup): Promise<string | boolean > {
   try {
-        const {  email, password, phone ,bussinessRegNo, city,country, industry,state,zipcode} = data;
+        const {  email, password, phone ,businessRegNo, city,country, industry,state,zipcode} = data;
         const companyName  = generateCompanySlug(data.companyName) 
         const existingUser = await this.userRepository.findByEmailOrCompanyName(data.email, companyName);
         if (existingUser) return false
@@ -30,7 +30,7 @@ async signup(data: ISignup): Promise<string | boolean > {
         const otp = await generateOTP();
         console.log('otp', otp);
         const redisKey = `user:register:${email}`;
-        await setRedisData(redisKey, { email, password: hashedPassword, companyName, phone, otp,bussinessRegNo, city,country, industry,state,zipcode }, 300);
+        await setRedisData(redisKey, { email, password: hashedPassword, companyName, phone, otp,businessRegNo, city,country, industry,state,zipcode }, 300);
         await sendEmail( email,"Verify Your Email", `Your OTP is ${otp}`)
         return data.email;
 

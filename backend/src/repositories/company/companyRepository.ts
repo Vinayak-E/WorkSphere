@@ -5,10 +5,12 @@ import { UserModel } from "../../models/userModel";
 import { IUser } from "../../interfaces/IUser.types";
 import { connectTenantDB } from "../../configs/db.config";
 import CompanyRequest from "../../models/companyRequest";
-import { ILeave } from "../../interfaces/company/IAttendance.types";
+import { IAttendance, ILeave } from "../../interfaces/company/IAttendance.types";
 import Leave from "../../models/leavesModel";
 import { IEmployee } from "../../interfaces/company/IEmployee.types";
 import Employee from "../../models/employeeModel";
+import Attendance from "../../models/attendanceModel";
+import { log } from "console";
 
 export class CompanyRepository implements ICompanyRepository {
   private readonly model: Model<ICompanyDocument>;
@@ -27,6 +29,9 @@ private getEmployeeModel(connection: Connection): Model<IEmployee> {
 
 private getLeaveModel(connection: Connection): Model<ILeave> {
   return connection.models.Leave || connection.model<ILeave>("Leave", Leave.schema);
+}
+private getAttendanceModel(connection: Connection): Model<IAttendance> {
+  return connection.models.Attendance || connection.model<IAttendance>("Attendance", Attendance.schema);
 }
 
 
@@ -167,5 +172,144 @@ async updateLeaveStatus(
   }
 }
 
+async getAttendanceRecords(
+  connection: Connection,
+  page: number,
+  limit: number,
+  date?: string
+): Promise<{ attendance: IAttendance[]; total: number }> {
+  const skip = (page - 1) * limit;
   
+  let query: any = {};
+  
+  if (date) {
+      // Create date range for the given date (start of day to end of day)
+      const startDate = new Date(date);
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(date);
+      endDate.setHours(23, 59, 59, 999);
+      
+      query.date = {
+          $gte: startDate,
+          $lte: endDate
+      };
+  }
+
+  const AttendanceModel = this.getAttendanceModel(connection);
+  const LeaveModel = this.getLeaveModel(connection);
+   const EmployeeModel = this.getEmployeeModel(connection);
+  // Get approved leaves only if date is provided
+  let employeesOnLeave: string[] = [];
+  
+  if (date) {
+    const approvedLeaves = await LeaveModel.find({
+        status: "Approved",
+        startDate: { $lte: new Date(date) },
+        endDate: { $gte: new Date(date) }
+    }).select('employeeId');
+
+    // Get employees who are on approved leave
+    employeesOnLeave = approvedLeaves.map(leave => leave.employeeId.toString());
+  }
+
+  // Update attendance statuses considering leaves
+  await this.updateAttendanceStatuses(AttendanceModel, query, employeesOnLeave);
+
+  const [attendance, total] = await Promise.all([
+      AttendanceModel.find(query)
+          .populate("employeeId")
+          .sort({ date: -1, "employeeId.name": 1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+      AttendanceModel.countDocuments(query)
+  ]);
+
+  return { attendance, total };
+}
+
+
+
+
+private async updateAttendanceStatuses(
+  AttendanceModel: Model<IAttendance>,
+  query: any,
+  employeesOnLeave: string[]
+): Promise<void> {
+  const FULL_DAY_HOURS = 8;
+  const MIN_HOURS = 0;
+
+  // First, update status for employees on approved leave
+  await AttendanceModel.updateMany(
+      {
+          ...query,
+          employeeId: { $in: employeesOnLeave }
+      },
+      { 
+          $set: { 
+              status: "On Leave",
+              checkInStatus: false,
+              totalWorkedTime: 0
+          } 
+      }
+  );
+
+  // Then update status for other employees
+  
+  // Full day
+  await AttendanceModel.updateMany(
+      {
+          ...query,
+          employeeId: { $nin: employeesOnLeave },
+          totalWorkedTime: { $gte: FULL_DAY_HOURS },
+          checkInStatus: true
+      },
+      { $set: { status: "Present" } }
+  );
+
+  // Partial day
+  await AttendanceModel.updateMany(
+      {
+          ...query,
+          employeeId: { $nin: employeesOnLeave },
+          totalWorkedTime: { $gt: MIN_HOURS, $lt: FULL_DAY_HOURS },
+          checkInStatus: true
+      },
+      { $set: { status: "Half Day" } }
+  );
+
+  // Absent (not on leave and no work time)
+  await AttendanceModel.updateMany(
+      {
+          ...query,
+          employeeId: { $nin: employeesOnLeave },
+          $or: [
+              { checkInStatus: false },
+             
+          ],
+          status: { $nin: ["On Leave", "Half Day Leave"] }
+      },
+      { $set: { status: "Absent" } }
+  );
+
+  // Handle edge cases with work time but no check-in status
+  await AttendanceModel.updateMany(
+      {
+          ...query,
+          employeeId: { $nin: employeesOnLeave },
+          totalWorkedTime: { $gt: MIN_HOURS },
+          checkInStatus: false,
+          status: "Absent"
+      },
+      { 
+          $set: { 
+              status: "Present",
+              checkInStatus: true
+          } 
+      }
+  );
+}
+
+
 }
