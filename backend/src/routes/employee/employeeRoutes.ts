@@ -6,7 +6,7 @@ import { EmployeeController } from "../../controllers/employee/employee.controll
 import { AuthService } from "../../services/company/authentication.service";
 import { tenantMiddleware } from "../../middlewares/tenantMiddleware";
 import { verifyAuth } from "../../middlewares/authMiddleware";
-import { EmployeeRepository } from "../../repositories/company/employeeRepository";
+import { EmployeeRepository } from "../../repositories/employee/employeeRepository";
 import { CompanyService } from "../../services/company/company.service";
 import { EmployeeService } from "../../services/employee/employee.service";
 const router = express.Router();
@@ -28,5 +28,10 @@ router.use(verifyAuth)
 router.get('/myProfile', employeeController.getProfile);
 router.patch('/updateProfile/:id',employeeController.updateProfile);
 
-router.post('/attendance/checkin',employeeController.checkIn)
+router.post('/attendance/check-in',employeeController.checkIn)
+router.post('/attendance/check-out',employeeController.checkOut)
+router.get('/attendance/status/:id',employeeController.getAttendanceStatus)
+
+router.get('/leaves', employeeController.getLeaves);
+router.post('/leaves', employeeController.applyLeave);
 export default router;

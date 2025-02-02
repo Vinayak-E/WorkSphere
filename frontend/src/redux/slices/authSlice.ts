@@ -6,7 +6,7 @@ interface User {
   email: string;
   role: string;
   tenantId: string;
-  userData?: Icompany | IEmployee; 
+  userData?: Icompany | IEmployee ; 
 }
 
 export interface AuthState {

@@ -163,6 +163,7 @@ async resetPassword (email: string, password :string) {
 async verifyAccessToken(token: string): Promise<IPayload> {
   try {
     const decoded = await this.jwtService.verifyJwtToken(token);
+    console.log('decoded at service',decoded)
     if (!decoded) {
       throw new Error('Token verification failed');
     }

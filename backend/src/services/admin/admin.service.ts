@@ -6,6 +6,7 @@ import { ICompanyRepository } from "../../interfaces/company/company.types";
 import { sendEmail } from "../../utils/email";
 import { companyApprovalTemplates } from "../../helpers/emailTemplate";
 import { generateCompanySlug } from "../../helpers/helperFunctions";
+import { IUser } from "../../interfaces/IUser.types";
 export class AdminService implements IAdminService {
   constructor(
     private jwtService: IJwtService,
@@ -49,6 +50,16 @@ export class AdminService implements IAdminService {
     } catch (error) {
       console.error("Error verifying login:", error);
       throw new Error("Login failed");
+    }
+  }
+
+  async getProfile(email:string): Promise<IUser |null> {
+    try {
+      const data = await this.adminRepository.findByEmail(email);
+      return data;
+    } catch (error) {
+      console.error("Error fetching Profile:", error);
+      throw new Error("Failed to fetch Profile");
     }
   }
 

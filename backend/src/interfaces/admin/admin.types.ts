@@ -12,6 +12,7 @@ export interface IAdminService {
     getCompanies(): Promise<any>
     updateCompanyStatus(companyId: string, isActive: boolean): Promise<IUser | null>
     updateCompanyRequest(companyId: string, isApproved: string, reason: string): Promise<IUser | null>
+    getProfile(email: string): Promise<IUser | null>
   }
   
 

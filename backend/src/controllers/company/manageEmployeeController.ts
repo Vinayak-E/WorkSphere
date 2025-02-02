@@ -100,4 +100,85 @@ export class ManageEmployeeController {
           next(error);
         }
       };
+
+      getLeaveRequests: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const tenantConnection = req.tenantConnection;
+          
+          if (!tenantConnection) {
+            res.status(500).json({ 
+              success: false,
+              message: "Tenant connection not established" 
+            });
+            return;
+          }
+      
+          const page = parseInt(req.query.page as string) || 1;
+          const limit = parseInt(req.query.limit as string) || 10;
+          const { startDate, endDate, status } = req.query;
+      
+          const { leaves, total } = await this.companyService.getLeaves(
+            tenantConnection,
+            page,
+            limit,
+            startDate?.toString(),
+            endDate?.toString(),
+            status?.toString()
+          );
+      
+          res.status(200).json({
+            success: true,
+            leaves,
+            total,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+          });
+        } catch (error) {
+          console.error("Error fetching leaves:", error);
+          next(error);
+        }
+      };
+
+
+      updateLeaveStatus: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const tenantConnection = req.tenantConnection;
+          
+          if (!tenantConnection) {
+            res.status(500).json({ 
+              success: false,
+              message: "Tenant connection not established" 
+            });
+            return;
+          }
+      
+          const { id } = req.params;
+          const { status } = req.body;
+      
+          if (!id) {
+            res.status(400).json({
+              success: false,
+              message: "Leave ID is required"
+            });
+            return;
+          }
+      
+          const updatedLeave = await this.companyService.updateLeaveStatus(
+            id,
+            status,
+            tenantConnection
+          );
+      
+          res.status(200).json({
+            success: true,
+            message: "Leave status updated successfully",
+            data: updatedLeave
+          });
+        } catch (error) {
+          console.error("Error updating leave status:", error);
+          next(error);
+        }
+      };
+      
+      
 }

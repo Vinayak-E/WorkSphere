@@ -22,7 +22,7 @@ const items = [
 
   {
     title: "Leaves",
-    url: "/employee/",
+    url: "/employee/leaves",
     icon: Calendar,
   },
   {

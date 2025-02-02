@@ -5,12 +5,16 @@ import { firebaseAdmin } from "../../configs/firebase.config";
 import { IPayload } from "../../interfaces/IJwtService.types";
 import { IEmployee, IEmployeeService } from "../../interfaces/company/IEmployee.types";
 import { CompanyService } from "../../services/company/company.service";
+import { IAdminService } from "../../interfaces/admin/admin.types";
+import { IUser } from "../../interfaces/IUser.types";
 
 
 export class AuthenticationController {
   constructor(private readonly authService: IAuthService,
     private readonly companyService: CompanyService,
-    private readonly  employeeService :IEmployeeService
+    private readonly  employeeService :IEmployeeService,
+    private readonly  adminService :IAdminService
+    
     ) {}
 
     signup: RequestHandler = async (req, res, next ) => {
@@ -81,9 +85,9 @@ export class AuthenticationController {
             maxAge: 15 * 60 * 1000,
           });
         }
-
         res.status(200).json({
           success: true,
+          email : response.user.email,
           accessToken: response.accessToken,
           tenantId: response.tenantId,
           role: response.user.role,
@@ -114,7 +118,6 @@ export class AuthenticationController {
     next: NextFunction
   ) => {
     const { token, newPassword } = req.body;
-    console.log("token & pass: ", token, " ", newPassword);
     try {
       interface TokenPayload extends JwtPayload {
         email: string;
@@ -123,7 +126,6 @@ export class AuthenticationController {
         token,
         process.env.RESET_LINK_SECRET as string
       ) as TokenPayload;
-      console.log("decoded: ", decoded);
       const { email } = decoded;
       await this.authService.resetPassword(email, newPassword);
       res.status(200).json({ message: "Token is valid", decoded });
@@ -154,7 +156,7 @@ export class AuthenticationController {
   
       let decodedToken: IPayload | null = null;
       let newAccessToken: string | null = null;
-  
+      
       if (accessToken) {
         try {
           decodedToken = await this.authService.verifyAccessToken(accessToken);
@@ -188,9 +190,12 @@ export class AuthenticationController {
         res.status(401).json({ success: false, message: "Auth failed" });
         return; 
       }
+      console.log("@here")
+      console.log('decoded Token',decodedToken)
+
   
       try {
-        let userData: ICompanyDocument | IEmployee | null;
+        let userData: ICompanyDocument | IEmployee | IUser |null;
         switch (decodedToken.role) {
           case 'COMPANY':
             userData = await this.companyService.getCompanyByEmail(decodedToken.email,tenantConnection);
@@ -198,6 +203,12 @@ export class AuthenticationController {
           case 'EMPLOYEE':
             userData = await this.employeeService.getEmployeeProfile(tenantConnection,decodedToken.email);
             break;
+            case 'MANAGER':
+              userData = await this.employeeService.getEmployeeProfile(tenantConnection,decodedToken.email);
+              break;
+              case 'ADMIN':
+                userData = await this.adminService.getProfile(decodedToken.email);
+                break;
           default:
             res.status(403).json({ success: false, message: "Invalid role" });
             return; 
@@ -247,7 +258,6 @@ export class AuthenticationController {
   ) => {
     const { idToken } = req.body;
     try {
-      console.log('google login a',req.body)
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
       const user = await this.authService.findOrCreateCompany(decodedToken);
       if (
@@ -279,13 +289,11 @@ export class AuthenticationController {
     } catch (error: any) {
       if (error.code === "auth/invalid-id-token") {
         res.status(400).json({ message: "Invalid Google ID Token" });
-        console.log("Invalid Google ID Token", error);
       } else {
         res.status(500).json({
           message: "Something went wrong during login",
           error: error.message,
         });
-        console.log("Something went wrong during login", error);
       }
     }
   };

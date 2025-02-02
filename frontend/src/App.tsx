@@ -3,6 +3,7 @@ import AppRoutes from "./routes/AppRoutes";
 import { ThemeProvider } from "./components/LandingPage/themeProvider";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             theme="light"
      
           />
+          <Toaster position="top-right" />
         </BrowserRouter>
       </ThemeProvider>
     </>

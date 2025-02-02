@@ -5,7 +5,7 @@ import { DepartmentService } from "../../services/company/department.service";
 import { DepartmentRepository } from "../../repositories/company/departmentRepository";
 import { ManageEmployeeController } from "../../controllers/company/manageEmployeeController";
 import { CompanyService } from "../../services/company/company.service";
-import { EmployeeRepository } from "../../repositories/company/employeeRepository";
+import { EmployeeRepository } from "../../repositories/employee/employeeRepository";
 import { UserRepository } from "../../repositories/user/userRepository";
 import { verifyAuth } from "../../middlewares/authMiddleware";
 import { CompanyRepository } from "../../repositories/company/companyRepository";
@@ -29,5 +29,7 @@ const employeeController = new ManageEmployeeController(companyService)
  router.get("/employees",employeeController.getEmployees);
  router.post("/employees",employeeController.addEmployee)
  router.put('/employees/:id', employeeController.updateEmployee);
+ router.get('/leaves', employeeController.getLeaveRequests);
+ router.patch('/leaves/:id', employeeController.updateLeaveStatus);
 
 export default router;  

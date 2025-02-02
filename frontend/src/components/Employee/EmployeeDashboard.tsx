@@ -1,45 +1,182 @@
-import { useState, useEffect } from "react";
+import { RootState } from "@/redux/store";
 import { motion } from "framer-motion";
+import api from "@/api/axios";
+import { toast } from "react-hot-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { AxiosError } from "axios";
+import { IEmployee } from "@/types/IEmployee";
 import { Button } from "@/components/ui/button";
-import { 
-  Bell, 
-  Clock, 
-  Briefcase, 
-  CalendarCheck, 
-  CheckCircle, 
-  ArrowRightCircle,
-  TrendingUp,
-  AlertCircle
+import { useState, useEffect } from 'react';
+import {
+  Bell, Clock, Briefcase, CalendarCheck, CheckCircle,
+  ArrowRightCircle, TrendingUp, AlertCircle, Loader2
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { TimeTrackingSection } from "./TimeTrackingSection";
+
+const WORK_DAY_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+
+function isEmployee(userData: unknown): userData is IEmployee {
+  return !!userData && typeof userData === 'object' && 'role' in userData;
+}
+
+interface AttendanceResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    checkInStatus: Boolean;
+    checkInTime: string;
+    checkOutTime?: string;
+    totalWorkedTime?: number;
+    status: 'Present' | 'Marked' | 'On Leave' | "Absent" | "Half Day";
+  };
+}
+
+const formatServerDate = (date: Date | null) => {
+  if (!date) return '';
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
+const formatWorkDuration = (decimalHours: number) => {
+  const hours = Math.floor(decimalHours);
+  const minutes = Math.round((decimalHours - hours) * 60);
+  
+
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+  if (minutes === 0) {
+    return `${hours}h`;
+  }
+  
+  return `${hours}h ${minutes}m`;
+};
 
 export default function EmployeeDashboard() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const employeeData = user?.userData;
+  const employeeId = isEmployee(employeeData) ? employeeData._id : undefined;
+  const employeeName = isEmployee(employeeData) ? employeeData.name : "User";
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [checkedIn, setCheckedIn] = useState(false);
-  const [checkInTime, setCheckInTime] = useState<string | null>(null);
+  const [checkInTime, setCheckInTime] = useState<Date | null>(null);
+  const [totalWorkedTime, setTotalWorkedTime] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(WORK_DAY_DURATION);
 
+  // Fetch initial attendance status
   useEffect(() => {
-    const storedCheckIn = localStorage.getItem("checkInTime");
-    if (storedCheckIn) {
-      setCheckedIn(true);
-      setCheckInTime(storedCheckIn);
-    }
-  }, []);
+    const fetchAttendanceStatus = async () => {
+      if (!employeeId) return;
+      
+      try {
+        const response = await api.get<AttendanceResponse>(
+          `/employee/attendance/status/${employeeId}`
+        );
+        
+        if (response.data.success && response.data.data) {
+          const { checkInTime: serverCheckInTime, checkInStatus, totalWorkedTime } = response.data.data;
+          
+          if (checkInStatus && serverCheckInTime) {
+            const checkIn = new Date(serverCheckInTime);
+            setCheckInTime(checkIn);
+            setCheckedIn(true);
+            setCurrentTime(Date.now());
+          }
+          
+          if (totalWorkedTime && !checkInStatus) {
+            setTotalWorkedTime(totalWorkedTime);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching attendance status:', error);
+        toast.error('Failed to fetch attendance status');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
 
-  const handleCheckInOut = () => {
-    if (!checkedIn) {
-      const now = new Date().toLocaleTimeString();
-      localStorage.setItem("checkInTime", now);
-      setCheckInTime(now);
-    } else {
-      localStorage.removeItem("checkInTime");
-      setCheckInTime(null);
+    fetchAttendanceStatus();
+  }, [employeeId]);
+
+  // Update elapsed and remaining time
+  useEffect(() => {
+    if (!checkedIn || !checkInTime) return;
+
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const elapsed = now - checkInTime.getTime();
+      setElapsedTime(elapsed);
+      setRemainingTime(WORK_DAY_DURATION - elapsed);
+      setCurrentTime(now);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [checkedIn, checkInTime]);
+
+  const handleCheckInOut = async () => {
+    if (isLoading || !employeeId) return;
+    
+    setIsLoading(true);
+    try {
+      const endpoint = checkedIn 
+        ? '/employee/attendance/check-out' 
+        : '/employee/attendance/check-in';
+      
+      const response = await api.post<AttendanceResponse>(endpoint, { employeeId });
+
+      if (response.data.success) {
+        if (checkedIn) {
+          setCheckInTime(null);
+          setCheckedIn(false);
+          setElapsedTime(0);
+          setRemainingTime(WORK_DAY_DURATION);
+          if (response.data.data?.totalWorkedTime) {
+            setTotalWorkedTime(response.data.data.totalWorkedTime);
+          }
+        } else {
+          const checkInTimeStr = response.data.data?.checkInTime;
+          if (checkInTimeStr) {
+            const serverTime = new Date(checkInTimeStr);
+            if (!isNaN(serverTime.getTime())) {
+              setCheckInTime(serverTime);
+              setCheckedIn(true);
+              setCurrentTime(Date.now());
+              setTotalWorkedTime(null);
+            }
+          }
+        }
+        
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      let errorMessage = "An unexpected error occurred";
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || error.message;
+      }
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-    setCheckedIn(!checkedIn);
   };
+
+  if (initialLoading) {
+    return (
+      <div className="p-4 md:p-8 max-w-7xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen">
-      {/* Header Section */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -47,64 +184,105 @@ export default function EmployeeDashboard() {
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Welcome back, John</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">Track your daily progress and activities</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+              Welcome back, {employeeName}
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">
+              Track your daily progress and activities
+            </p>
           </div>
           <div className="mt-4 md:mt-0">
             <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
-              <span className="text-gray-600 dark:text-gray-300">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span className="text-gray-600 dark:text-gray-300">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </span>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Check-in Card - Highlighted */}
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className="mb-8"
       >
-        <Card className={`border-0  rounded-xl shadow-xl overflow-hidden ${
-          checkedIn ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'
+        <Card className={`border-0 rounded-xl shadow-xl overflow-hidden transition-colors ${
+          checkedIn 
+            ? 'bg-gradient-to-r from-emerald-500 to-teal-500' 
+            : totalWorkedTime
+            ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+            : 'bg-gradient-to-r from-blue-500 to-indigo-500'
         }`}>
-          <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="flex items-center space-x-6 mb-6 md:mb-0">
-                <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-lg">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-6 flex-1">
+                <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-lg shrink-0">
                   {checkedIn ? (
                     <CheckCircle className="w-8 h-8 text-white" />
+                  ) : totalWorkedTime ? (
+                    <Clock className="w-8 h-8 text-white" />
                   ) : (
                     <ArrowRightCircle className="w-8 h-8 text-white" />
                   )}
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-2">
-                    {checkedIn ? 'Currently Working' : 'Start Your Day'}
+                    {checkedIn 
+                      ? 'Currently Working' 
+                      : totalWorkedTime 
+                      ? 'Day Complete' 
+                      : 'Start Your Day'}
                   </h2>
                   <p className="text-white/80">
-                    {checkedIn ? `Checked in at ${checkInTime}` : "Ready to begin? Check in now"}
+                    {checkedIn 
+                      ? `Checked in at ${formatServerDate(checkInTime)}` 
+                      : totalWorkedTime
+                      ? `Total time worked: ${formatWorkDuration(totalWorkedTime)}`
+                      : "Ready to begin? Check in now"}
                   </p>
                 </div>
               </div>
-              <Button 
-                size="lg"
-                onClick={handleCheckInOut}
-                className={`w-full md:w-auto text-lg font-semibold shadow-lg ${
-                  checkedIn 
-                    ? 'bg-white text-red-500 hover:bg-gray-100' 
-                    : 'bg-white text-blue-500 hover:bg-gray-100'
-                }`}
-              >
-                {checkedIn ? 'End Work Day' : 'Check In'}
-              </Button>
+              {!totalWorkedTime && (
+                <Button 
+                  size="lg"
+                  onClick={handleCheckInOut}
+                  disabled={isLoading}
+                  className={`w-full md:w-auto text-lg font-semibold shadow-lg transition-transform ${
+                    isLoading ? 'opacity-75 cursor-not-allowed' : ''
+                  } ${
+                    checkedIn 
+                      ? 'bg-white text-red-500 hover:bg-gray-50 hover:scale-[1.02]' 
+                      : 'bg-white text-blue-500 hover:bg-gray-50 hover:scale-[1.02]'
+                  }`}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      {checkedIn ? 'Checking Out...' : 'Checking In...'}
+                    </span>
+                  ) : (
+                    checkedIn ? 'End Work Day' : 'Check In'
+                  )}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Stats Grid */}
+      <TimeTrackingSection
+        checkedIn={checkedIn}
+        checkInTime={checkInTime}
+        elapsedTime={elapsedTime}
+        remainingTime={remainingTime}
+      />
+  
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Tasks Card */}
         <Card className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg transition-all duration-200 rounded-xl">
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
@@ -128,7 +306,6 @@ export default function EmployeeDashboard() {
           </CardContent>
         </Card>
 
-        {/* Time Card */}
         <Card className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg transition-all duration-200 rounded-xl">
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
@@ -147,7 +324,6 @@ export default function EmployeeDashboard() {
           </CardContent>
         </Card>
 
-        {/* Leave Card */}
         <Card className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg transition-all duration-200 rounded-xl">
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
@@ -167,7 +343,6 @@ export default function EmployeeDashboard() {
         </Card>
       </div>
 
-      {/* Announcements Section */}
       <Card className="bg-white dark:bg-gray-800 shadow-sm rounded-xl">
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-6">

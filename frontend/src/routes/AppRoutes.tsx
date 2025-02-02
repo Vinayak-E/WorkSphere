@@ -13,6 +13,7 @@ import HomePage from "../pages/Home";
 import CompanyRoutes from "./CompanyRoutes";
 import EmployeeRoutes from "./EmployeeRoutes";
 import AdminLogin from "@/pages/Admin/AdminLogin";
+import PasswordChange from "@/pages/Employee/PasswordChange";
 
 
 const AppRoutes: React.FC = () => {
@@ -25,6 +26,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/verifyOtp" element={<OtpVerification />} />
       <Route path="/resetPassword" element={<ResetPassword />} />
       <Route path="/admin" element={<AdminLogin/>} />
+      <Route path= '/passwordChange' element ={<PasswordChange />} />
 
       <Route element={
         <ProtectedRoute>

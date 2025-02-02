@@ -4,7 +4,7 @@ import { ILeave } from "../interfaces/company/IAttendance.types";
 export const leaveSchema= new Schema<ILeave>({
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Employee",
     required: true,
   },
   startDate: {

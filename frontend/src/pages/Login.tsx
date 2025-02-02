@@ -145,7 +145,7 @@ const  Login = () => {
 
           if (forcePasswordChange) {
             toast.info('Please change your default password before continuing');
-            navigate('/employee/passwordChange');
+            navigate('/passwordChange');
             return;
           }
 
@@ -185,7 +185,7 @@ const  Login = () => {
     isOpen={showForgotModal} 
     onClose={() => setShowForgotModal(false)} 
     />
-    <div className="min-h-screen bg-[#E9E9E9] p-3 md:p-6 lg:p-8 relative">
+    <div className="min-h-screen bg-background p-3 md:p-6 lg:p-8 relative">
       <div className="top-0 left-0">
         <img src={IMAGES.navBarLogoDark} alt="WorkSphere Logo" className="w-32 h-auto" />
       </div>

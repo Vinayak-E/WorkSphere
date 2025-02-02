@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom"
 
 const EmployeeLayout = () => {
   return (
-    <SidebarProvider>
+    <SidebarProvider >
     <div className="flex h-screen w-screen bg-gray-50">
       <AppSidebar />
       <div className="flex flex-col flex-1 overflow-hidden">

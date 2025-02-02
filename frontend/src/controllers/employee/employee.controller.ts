@@ -4,10 +4,6 @@ import { toast } from 'react-toastify';
 
 export class ProfileController {
 
-
-
-
-  
   static async getProfile() {
     try {
       const profile = await ProfileService.getProfile();

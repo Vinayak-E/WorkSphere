@@ -2,12 +2,13 @@ import { IEmployee,ICreateEmployee, IUpdateEmployee } from "../../interfaces/com
 import { sendEmail } from "../../utils/email";
 import bcrypt from 'bcryptjs'
 import { Connection } from "mongoose";
-import { EmployeeRepository } from "../../repositories/company/employeeRepository";
+import { EmployeeRepository } from "../../repositories/employee/employeeRepository";
 import { IUserRepository } from "../../interfaces/IUser.types";
 import { envConfig } from "../../configs/envConfig";
 import { generateCompanyBasedPassword, generateEmployeeId } from "../../helpers/helperFunctions";
 import { ICompanyDocument } from "../../interfaces/company/company.types";
 import { CompanyRepository } from "../../repositories/company/companyRepository";
+import { ILeave } from "../../interfaces/company/IAttendance.types";
 
 export class CompanyService {
   constructor(private readonly employeeRepository:EmployeeRepository,
@@ -88,14 +89,80 @@ export class CompanyService {
     tenantConnection: Connection
   ): Promise<ICompanyDocument | null> {
     try {
-      return this.companyRepository.getCompanyByEmail(
+     const company = this.companyRepository.getCompanyByEmail(
         email,
-        tenantConnection, 
+        tenantConnection
       );
+      console.log('company data',company)
+      return company
     } catch (error) {
       console.error("Error fetching company:", error);
       throw new Error("Failed to retrieve company data");
     }
   }
 
+
+
+  async getLeaves(
+    connection: Connection,
+    page: number,
+    limit: number,
+    startDate?: string,
+    endDate?: string,
+    status?: string
+  ): Promise<{ leaves: ILeave[]; total: number }> {
+    try {
+      return await this.companyRepository.getLeaveRequests(
+        connection,
+        page,
+        limit,
+        startDate,
+        endDate,
+        status
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  async updateLeaveStatus(
+    leaveId: string,
+    status: string,
+    connection: Connection
+  ): Promise<ILeave> {
+    try {
+      const updatedLeave = await this.companyRepository.updateLeaveStatus(
+        leaveId,
+        status,
+        connection
+      );
+  
+      if (!updatedLeave) {
+        throw new Error('Leave request not found');
+      }
+  
+      // Optional: Send email notification to employee about status change
+      if (updatedLeave.employeeId) {
+        const employee = await this.companyRepository.findById(
+          updatedLeave.employeeId.toString(),
+          connection
+        );
+        
+        if (employee && employee.email) {
+          const statusMessage = `Your leave request from ${new Date(updatedLeave.startDate).toLocaleDateString()} to ${new Date(updatedLeave.endDate).toLocaleDateString()} has been ${status.toLowerCase()}.`;
+          
+          await sendEmail(
+            employee.email,
+            "Leave Request Status Update",
+            statusMessage
+          );
+        }
+      }
+  
+      return updatedLeave;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

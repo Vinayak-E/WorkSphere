@@ -15,13 +15,14 @@ export const attendanceSchema = new Schema<IAttendance>({
     type: Date,
     default: null, 
   },
-  totalHours: {
+  totalWorkedTime: {
     type: Number,
     default: 0, 
   },
+  checkInStatus:{type: Boolean,default:false},
   status: {
     type: String,
-    enum: ["Present", "Absent", "On Leave"],
+    enum: ["Present", "Absent", "On Leave" ,"Marked", "Half Day Leave"],
     default: "Absent", 
   },
   

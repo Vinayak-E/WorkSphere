@@ -49,9 +49,9 @@ const Hero = () => {
 
             <div className="relative lg:h-[400px] mt-8 lg:mt-10 pt-10 md:h-[400px] sm:h-[400px]">
               <img 
-                src={IMAGES.hero} 
+                src={IMAGES.man} 
                 alt="Dashboard Analytics"
-                className="object-cover w-full h-full rounded-3xl shadow-2xl border border-border" 
+                className="object-cover w-full h-full rounded-md shadow-md border" 
               />
             </div>
           </div>

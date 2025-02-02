@@ -30,7 +30,7 @@ const items = [
   },
   {
     title: "Leave Management",
-    url: "/reports",
+    url: "/company/leaveRequests",
     icon: FileText,
   },
   {

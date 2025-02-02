@@ -6,8 +6,9 @@ export interface IAttendance extends Document {
     date: Date;  
     checkInTime?: Date | null; 
     checkOutTime?: Date | null;
-    totalHours?: number;
-    status: "Present" | "Absent" | "On Leave"; 
+    totalWorkedTime?: number;
+    checkInStatus :Boolean;
+    status: "Present" | "Absent" | "On Leave" | "Marked" |"Half Day"; 
     createdAt?: Date;
     updatedAt?: Date;
   }
@@ -15,7 +16,7 @@ export interface IAttendance extends Document {
 
  export  interface ILeave extends Document{
     _id: string; 
-    employeeId: mongoose.Schema.Types.ObjectId;
+    employeeId: mongoose.Types.ObjectId;
     startDate: Date; 
     endDate: Date;   
     reason: string; 

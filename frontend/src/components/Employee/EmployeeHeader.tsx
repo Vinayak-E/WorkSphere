@@ -27,7 +27,7 @@ export function Header() {
   }
 
   return (
-    <header className="border-b border-gray-100 bg-white">
+    <header className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-100">
       <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
           <SidebarTrigger className="-ml-2 mr-2 text-gray-600 hover:text-gray-900" />

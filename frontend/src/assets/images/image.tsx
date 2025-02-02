@@ -8,6 +8,8 @@ const IMAGES = {
     heroSecond1 : new URL('../landingPage/heroSecond1.png', import.meta.url).href,  
     heroSecond2 : new URL('../landingPage/heroSecond2.png', import.meta.url).href,
     heroSecond3 : new URL('../landingPage/heroSecond3.png', import.meta.url).href,
+    man : new URL('../landingPage/man.jpg', import.meta.url).href, 
+    login : new URL('../landingPage/loginBackground.jpg', import.meta.url).href,
     // LogoOnly : new URL('../assets/landingPageAssets/nnn logooo 1000.png ', import.meta.url).href,
     // nexuimLogoWithName : new URL('../assets/landingPageAssets/nnnlogo1000[1].png ', import.meta.url).href,
     // homePicture : new URL('../assets/landingPageAssets/Human-Resources-square-ezgif.com-webp-to-png-converter.png ', import.meta.url).href,
