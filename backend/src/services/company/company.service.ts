@@ -93,7 +93,7 @@ export class CompanyService {
         email,
         tenantConnection
       );
-      console.log('company data',company)
+   
       return company
     } catch (error) {
       console.error("Error fetching company:", error);

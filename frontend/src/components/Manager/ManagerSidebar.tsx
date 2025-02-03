@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom"
-import { Calendar, Home, Inbox,  Settings, Users, FileText, BarChart } from "lucide-react"
+import { Calendar, Home, Inbox,  Settings, Users, FileText, BarChart ,ClipboardCheck } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -26,9 +26,15 @@ const items = [
     icon: Calendar,
   },
   {
+    title: "Projects",
+    url: "/employee/projects",
+    icon: FileText,
+  
+  },
+  {
     title: "Task Management",
     url: "/employee/tasks",
-    icon: FileText,
+    icon: ClipboardCheck,
   },
   {
     title: "Messages",

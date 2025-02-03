@@ -152,7 +152,7 @@ const  Login = () => {
           const roleRoutes :IRoleRoutes = {
             ADMIN: '/admin',
             COMPANY: '/company',
-            MANAGER: '/employee/dashboard',
+            MANAGER: '/employee',
             EMPLOYEE: '/employee'
           };
           let url = roleRoutes[role as keyof typeof roleRoutes]

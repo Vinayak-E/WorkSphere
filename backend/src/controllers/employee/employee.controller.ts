@@ -13,8 +13,7 @@ export class EmployeeController {
   ) => {
     const { email, newPassword } = req.body;
     try {
-      console.log("email at employee controller", email);
-      console.log("req.body at employeecontroller", req.body);
+
       await this.authService.resetPassword(email, newPassword);
       res.status(200).json({
         success: true,
@@ -80,8 +79,6 @@ export class EmployeeController {
 
       const { id } = req.params;
     
-      console.log('reqId at updateemploye',req.params)
-      console.log('req.body at updateemploye',req.body)
 
       if (!id) {
          res.status(400).json({
@@ -188,7 +185,7 @@ getAttendanceStatus: RequestHandler = async (req: Request, res: Response, next: 
   try {
     const { id: employeeId } = req.params;
       const tenantConnection = req.tenantConnection;
-        console.log("emplopyeeId on get Attendance status",employeeId);
+
         
       if (!tenantConnection) {
           res.status(500).json({
@@ -203,7 +200,7 @@ getAttendanceStatus: RequestHandler = async (req: Request, res: Response, next: 
           employeeId
       );
 
-      console.log(attendance,"attendance")
+
 
       res.status(200).json({
           success: true,
@@ -268,7 +265,6 @@ applyLeave: RequestHandler = async (req, res, next) => {
     }
 
     const { startDate, endDate, reason } = req.body;
-    console.log("apply leave",req.body)
     const leave = await this.employeeService.applyLeave(
       tenantConnection,
       email,

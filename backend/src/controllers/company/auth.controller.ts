@@ -190,9 +190,7 @@ export class AuthenticationController {
         res.status(401).json({ success: false, message: "Auth failed" });
         return; 
       }
-      console.log("@here")
-      console.log('decoded Token',decodedToken)
-
+     
   
       try {
         let userData: ICompanyDocument | IEmployee | IUser |null;

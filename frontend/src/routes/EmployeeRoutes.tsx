@@ -4,33 +4,38 @@ import EmployeeLayout from "@/components/Employee/EmployeeLayout"
 import EmployeeLeaves from "@/components/Employee/EmployeeLeaves"
 import EmployeeProfile from "@/pages/Employee/Profile"
 import ManagerLayout from "@/components/Manager/ManagerLayout"
-import ManagerDashboard from "@/components/Manager/ManagerDashboard"
 import EmployeeDashboard from "@/components/Employee/EmployeeDashboard"
-
+import { RootState } from "@/redux/store"
+import { useSelector } from "react-redux"
+import ProjectList from "@/components/Manager/Projects"
+import ProjectDetails from "@/components/Manager/ProjectDetails"
 
 const EmployeeRoutes = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const isManager = user?.role === "MANAGER"; 
+
   return (
-    <>
-  <Routes>
-    
+    <Routes>
 
-       <Route element={ <EmployeeLayout />} >
-       <Route path="/" element={<EmployeeDashboard/>} />
-       <Route path="/leaves" element={<EmployeeLeaves/>} />
-       <Route path="/profile" element={<EmployeeProfile/>} />
+      {!isManager ? (
+        <Route element={<EmployeeLayout />}>
+          <Route path="/" element={<EmployeeDashboard />} />
+          <Route path="/leaves" element={<EmployeeLeaves />} />
+          <Route path="/profile" element={<EmployeeProfile />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
         </Route>
-
+      ) : (
+        
         <Route element={<ManagerLayout />}>
-        <Route path="/dashboard" element={<ManagerDashboard />} />
-        <Route path="/profile" element={<EmployeeProfile />} /> 
-      </Route>
+           <Route path="/" element={<EmployeeDashboard />} />
+           <Route path="/leaves" element={<EmployeeLeaves />} />
+          <Route path="/profile" element={<EmployeeProfile />} />
+          <Route path="/projects" element={<ProjectList />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
+        </Route>
+      )}
+    </Routes>
+  );
+};
 
-
-
-  </Routes>
-
-    </>
-  )
-}
-
-export default EmployeeRoutes
+export default EmployeeRoutes;

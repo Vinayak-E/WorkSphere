@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Filter, X, Check, X as Cross } from 'lucide-react';
+import { CalendarPlus2, ChevronLeft, ChevronRight, Plus, Filter, X, Check, X as Cross } from 'lucide-react';
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,7 +79,7 @@ const LeaveManagement = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-blue-600" />
+              <CalendarPlus2 className="w-6 h-6 text-blue-600" />
                 Leave Management
             </CardTitle>
             <p className="text-sm text-gray-500">Review and manage employee leave requests</p>

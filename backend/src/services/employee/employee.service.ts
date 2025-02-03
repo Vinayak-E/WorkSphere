@@ -60,7 +60,6 @@ export class EmployeeService {
               employeeId,
               date: today
           });
-          console.log('isOnleave',isOnLeave)
 
           if (isOnLeave) {
               throw new Error("You are on approved leave today");
@@ -144,7 +143,6 @@ async getAttendanceStatus(connection: Connection, employeeId: string): Promise<I
             employeeId,
             date: today
         });
-        console.log(attendance,"attendance at service")
         return attendance;
     } catch (error) {
         throw error;
