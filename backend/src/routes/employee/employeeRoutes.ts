@@ -42,6 +42,12 @@ router.post('/leaves', employeeController.applyLeave);
 router.get('/projects',projectController.getProjects);
 router.post('/projects',projectController.createProject);
 router.get('/projects/:id',projectController.projectDetails);
-router.post('/projects/:id/tasks',projectController.addTask);
+router.patch('/projects/:projectId',projectController.editProject);
+router.post('/projects/:id/tasks',projectController.addTask); 
+router.patch('/projects/:id/status',projectController.updateProjectStatus); 
+
+
+router.get('/tasks',projectController.getEmployeeTasks)
+router.patch('/tasks/:id/status',projectController. updateTaskStatus)
 
 export default router;

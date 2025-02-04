@@ -1,5 +1,5 @@
 import { Connection, connection } from "mongoose";
-import { IProject, ITask } from "../../interfaces/company/IProject.types";
+import { GetProjectsOptions, IProject, ITask } from "../../interfaces/company/IProject.types";
 import { ProjectRepository } from "../../repositories/employee/projectRepository";
 import { EmployeeRepository } from "../../repositories/employee/employeeRepository";
 import { IEmployee } from "../../interfaces/company/IEmployee.types";
@@ -37,14 +37,29 @@ export class ProjectService {
       return this.projectRepository.createProject(connection, projectToCreate);
     }
     
-      async getManagerProjects(connection:Connection ,id: string): Promise<IProject[]> {
-
-
-           
-        const projects = await this.projectRepository.getProjectsByManager(connection,id);
-        console.log(projects)
-        return projects
-      }
+    async getManagerProjects(connection: Connection, options: GetProjectsOptions) {
+      const { page, limit, search, employeeId } = options;
+      const skip = (page - 1) * limit;
+    
+      const query = { 
+        manager: employeeId,
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      };
+    
+      const [projects, total] = await Promise.all([
+        this.projectRepository.getProjectsByManager(connection, query, skip, limit),
+        this.projectRepository.countProjects(connection, query)
+      ]);
+    
+      return {
+        data: projects,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page
+      };
+    }
 
 
 
@@ -68,8 +83,71 @@ export class ProjectService {
     }
     
       // New method: Add a task to a project
-      async addTask(connection: Connection, taskData: ITask): Promise<ITask> {
+      async addTask(connection: Connection, taskData: ITask): Promise<ITask | null> {
         // Optionally, you could add validations here (e.g., check that the project exists)
         return this.projectRepository.createTask(connection, taskData);
       }
+
+
+      async updateProject( id:string, connection: Connection, updateData: IProject ): Promise<IProject> {
+        try{
+  
+          const updatedProject = await this.projectRepository.update(id, updateData, connection);
+          if (!updatedProject) {
+            throw new Error('Employee not found');
+          }
+      
+          return updatedProject;
+        } catch (error) {
+          console.error("Error in CompanyService.getEmployeeProfile:", error);
+          throw error;
+      }
+      }
+      async updateProjectStatus( id:string, connection: Connection, status: string ): Promise<IProject> {
+        try{
+  
+          const updatedProject = await this.projectRepository.updateStatus(id, status, connection);
+          if (!updatedProject) {
+            throw new Error('Employee not found');
+          }
+      
+          return updatedProject;
+        } catch (error) {
+          console.error("Error in CompanyService.getEmployeeProfile:", error);
+          throw error;
+      }
+      }
+
+
+      async getEmployeeTasks(
+        connection: Connection,
+        options: { employeeId: string; page: number; limit: number; search?: string; status?: string }
+      ): Promise<{ data: ITask[]; totalPages: number; currentPage: number }> {
+        const { employeeId, page, limit, search = '', status = '' } = options;
+        const skip = (page - 1) * limit;
+    
+        const [tasks, total] = await Promise.all([
+          this.projectRepository.getTasksByEmployee(connection, employeeId, search, status, skip, limit),
+          this.projectRepository.countTasksByEmployee(connection, employeeId, search, status)
+        ]);
+    
+        return {
+          data: tasks,
+          totalPages: Math.ceil(total / limit),
+          currentPage: page
+        };
+      }
+    
+      async updateTaskStatus(
+        connection: Connection,
+        taskId: string,
+        status: string
+      ): Promise<ITask | null> {
+
+       
+      
+        return this.projectRepository.updateTaskStatus(connection, taskId, status);
+      }
     }
+
+    

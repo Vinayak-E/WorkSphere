@@ -28,15 +28,28 @@ export class ProjectRepository {
         return project.save();
       }
     
-      async getProjectsByManager(connection:Connection, managerId: string): Promise<IProject[]> {
-        const projectModel = this.getProjectModel(connection)
+      async getProjectsByManager(
+        connection: Connection,
+        query: any,
+        skip: number,
+        limit: number
+      ): Promise<IProject[]> {
+        const projectModel = this.getProjectModel(connection);
         const employeeModel = this.getEmployeeModel(connection)
         const DepartmentModel =this.getDepartmentModel(connection)
         return projectModel
-          .find({ manager: managerId })
+          .find(query)
+          .skip(skip)
+          .limit(limit)
           .populate('department')
           .populate('manager')
+          .populate('employees')
           .exec();
+      }
+      
+      async countProjects(connection: Connection, query: any): Promise<number> {
+        const projectModel = this.getProjectModel(connection);
+        return projectModel.countDocuments(query);
       }
 
 
@@ -54,10 +67,11 @@ export class ProjectRepository {
           .exec();
       }
 
-      async createTask(connection: Connection, taskData: Partial<ITask>): Promise<ITask> {
+      async createTask(connection: Connection, taskData: Partial<ITask>): Promise<ITask |null> {
         const taskModel = this.getTaskModel(connection);
         const projectModel = this.getProjectModel(connection);
-        
+        const employeeModel = this.getEmployeeModel(connection);
+
         const task = new taskModel(taskData);
         const savedTask = await task.save();
         await projectModel.findByIdAndUpdate(
@@ -69,7 +83,92 @@ export class ProjectRepository {
           { new: true }
         );
       
-        return savedTask;
+      const tasks = await taskModel.findById(savedTask._id)
+    .populate('assignee', 'name email') 
+    .exec();
+    return tasks
       }
+
+      async update(id: string, updateData: IProject , connection: Connection): Promise<IProject | null> {
+        const projectModel = this.getProjectModel(connection);
+        return await projectModel.findByIdAndUpdate(
+          id,
+          { $set: updateData },
+          { new: true, runValidators: true }
+        );
+      }
+      async updateStatus(id: string,status :string , connection: Connection): Promise<IProject | null> {
+        const projectModel = this.getProjectModel(connection);
+        return await projectModel.findByIdAndUpdate(
+          id,
+          { $set:  { status } },
+          { new: true, runValidators: true }
+        );
+      }
+
+      async getTasksByEmployee(
+        connection: Connection,
+        employeeId: string,
+        search: string,
+        status: string,
+        skip: number,
+        limit: number
+      ): Promise<ITask[]> {
+        const taskModel = this.getTaskModel(connection);
+        const employeeModel = this.getEmployeeModel(connection);
+        const projectModel = this.getProjectModel(connection);
+        const query: any = { assignee: employeeId };
+    
+        if (search) {
+          query.title = { $regex: search, $options: "i" };
+        }
+    
+        if (status) {
+          query.status = status;
+        }
+    
+        return taskModel
+          .find(query)
+          .skip(skip)
+          .limit(limit)
+          .populate('assignee', 'name email')
+          .populate('project')
+          .exec();
+      }
+    
+
+      async countTasksByEmployee(
+        connection: Connection,
+        employeeId: string,
+        search: string,
+        status: string
+      ): Promise<number> {
+        const taskModel = this.getTaskModel(connection);
+        const query: any = { assignee: employeeId };
+    
+        if (search) {
+          query.title = { $regex: search, $options: "i" };
+        }
+    
+        if (status) {
+          query.status = status;
+        }
+    
+        return taskModel.countDocuments(query);
+      }
+
+      async updateTaskStatus(
+        connection: Connection,
+        taskId: string,
+        status: string
+      ): Promise<ITask | null> {
+        const taskModel = this.getTaskModel(connection);
+        return taskModel.findByIdAndUpdate(
+          taskId,
+          { status },
+          { new: true, runValidators: true }
+        ).exec();
+      }
+    
       
 }

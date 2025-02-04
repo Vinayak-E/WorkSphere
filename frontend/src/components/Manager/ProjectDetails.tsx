@@ -29,6 +29,7 @@ const ProjectDetails = () => {
     const loadProject = async () => {
       try {
         const response = await ProjectService.getProjectById(id!);
+        console.log('response dta',response.data.project)
         setProject(response.data.project);
         setDepartmentEmployees(response.data.departmentEmployees);
       } catch (error) {
@@ -44,11 +45,19 @@ const ProjectDetails = () => {
   const handleCreateTask = async () => {
     try {
         const createdTask = await ProjectService.createProjectTask(id!, newTask) as ITask;
-
+        const formattedTask = {
+          _id: createdTask._id,
+          title: createdTask.title,
+          description: createdTask.description,
+          assignee: createdTask.assignee,
+          deadline: createdTask.deadline,
+        };
+        console.log('formattedTask',createdTask)
       setProject(prev => prev ? ({
         ...prev,
-        tasks: [...(prev.tasks || []), createdTask]
+        tasks: [...(prev.tasks || []), formattedTask]
       }) : null);
+      
       setIsDialogOpen(false);
       setNewTask({
         title: "",
@@ -125,7 +134,7 @@ const ProjectDetails = () => {
         </CardContent>
       </Card>
 
-      {/* Tasks Section */}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {project.tasks?.map(task => (
           <Card key={task._id} className="hover:shadow-md transition-shadow">
@@ -133,8 +142,17 @@ const ProjectDetails = () => {
               <h3 className="font-semibold text-lg mb-2">{task.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{task.description}</p>
               <div className="flex justify-between items-center text-sm text-gray-500">
-                <span>Assigned to: {task.assignee}</span>
+                 
+              <span>
+            Assigned to: {
+              // Handle both object and string assignee formats
+              typeof task.assignee === 'object' 
+                ? task.assignee.name 
+                : departmentEmployees.find(emp => emp._id === task.assignee)?.name || task.assignee
+            }
+</span>
                 <span>Due: {new Date(task.deadline).toLocaleDateString()}</span>
+                <p className="text-gray-600 text-sm mb-4">{task.status}</p>
               </div>
             </CardContent>
           </Card>

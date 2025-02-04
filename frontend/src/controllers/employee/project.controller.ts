@@ -2,7 +2,7 @@
 import { ProjectService } from '@/services/employee/project.service';
 import { toast } from 'react-toastify';
 import { projectSchema } from '@/utils/validations';
-import { ICreateProject , ProjectQueryParams } from '@/types/IProject';
+import { ICreateProject , IProject, ProjectQueryParams } from '@/types/IProject';
 
 export class ProjectController {
   
@@ -15,7 +15,7 @@ export class ProjectController {
     }
   }
 
-  static async createProject(projectData: ICreateProject, employeeId: string) {
+  static async createProject(projectData: ICreateProject, employeeId: string ) {
     try {
       const completeProjectData = { ...projectData, employeeId }
       const validationResult = projectSchema.safeParse(completeProjectData);
@@ -48,7 +48,16 @@ export class ProjectController {
       }
     }
   }
-
+  static async updateProject(projectId: string, updateData: Partial<IProject>) {
+    try {
+      const updatedProject = await ProjectService.updateProject(projectId, updateData);
+      toast.success('Project updated successfully');
+      return updatedProject 
+    } catch (error) {
+      this.handleError(error, 'update project');
+      throw error;
+    }
+  }
 
 
 }

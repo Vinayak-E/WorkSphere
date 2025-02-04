@@ -1,6 +1,7 @@
 import api from '@/api/axios';
 import { ICreateProject, IProject, ITask, ProjectQueryParams, ProjectResponse } from '@/types/IProject';
 import { AxiosResponse } from 'axios';
+import toast from 'react-hot-toast';
 
 
 export class ProjectService {
@@ -22,10 +23,8 @@ export class ProjectService {
     return response.data;
   }
 
-  static async updateProject(projectId: string, projectData: Partial<IProject>) {
-    const response = await api.patch(`/projects/${projectId}`, projectData, {
-      withCredentials: true,
-    });
+  static async updateProject(projectId: string, updateData: Partial<IProject>) {
+    const response = await api.patch(`/employee/projects/${projectId}`, updateData);
     return response.data.data;
   }
 
@@ -37,6 +36,17 @@ export class ProjectService {
   
   static async createProjectTask(projectId: string, task: ITask): Promise<ITask> {
     const response = await api.post(`/employee/projects/${projectId}/tasks`, task);
-    return response.data;
+    toast.success('Task added successfully');
+    return response.data.data;
   }
+
+  static async updateProjectStatus(projectId: string, status: string) {
+    try {
+      const response = await api.patch(`/employee/projects/${projectId}/status`, { status });
+      toast.success('Project updated successfully');
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to update project status');
+    }
+}
 }

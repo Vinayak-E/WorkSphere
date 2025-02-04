@@ -31,4 +31,28 @@ export class ProfileService {
 
     return response.data.data;
   }
+
+  static async getEmployeeTasks({
+    employeeId,
+    page,
+    limit,
+    search,
+    status
+  }: {
+    employeeId: string;
+    page: number;
+    limit: number;
+    search?: string;
+    status?: string;
+  }) {
+    const response = await api.get(`/employee/tasks`, {
+      params: { employeeId, page, limit, search, status }
+    });
+    return response.data;
+  }
+  
+  static async updateTaskStatus(taskId: string, status: string) {
+    const response = await api.patch(`/employee/tasks/${taskId}/status`, { status });
+    return response.data;
+  }
 }

@@ -9,6 +9,7 @@ import { RootState } from "@/redux/store"
 import { useSelector } from "react-redux"
 import ProjectList from "@/components/Manager/Projects"
 import ProjectDetails from "@/components/Manager/ProjectDetails"
+import EmployeeTaskList from "@/components/Employee/EmployeeTask"
 
 const EmployeeRoutes = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -22,6 +23,7 @@ const EmployeeRoutes = () => {
           <Route path="/" element={<EmployeeDashboard />} />
           <Route path="/leaves" element={<EmployeeLeaves />} />
           <Route path="/profile" element={<EmployeeProfile />} />
+          <Route path="/tasks" element={<EmployeeTaskList />} />
          
         </Route>
       ) : (

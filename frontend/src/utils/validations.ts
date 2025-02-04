@@ -115,7 +115,6 @@ export const projectSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   status: z.enum(['Pending', 'In Progress', 'Completed']),
   deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
-  team: z.array(z.string()).optional(),
 });
 
 export type ProjectFormData = z.infer<typeof projectSchema>;
