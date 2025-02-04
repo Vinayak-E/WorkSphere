@@ -9,6 +9,9 @@ import { EmployeeRepository } from "../../repositories/employee/employeeReposito
 import { UserRepository } from "../../repositories/user/userRepository";
 import { verifyAuth } from "../../middlewares/authMiddleware";
 import { CompanyRepository } from "../../repositories/company/companyRepository";
+import { ProjectService } from "../../services/employee/project.service";
+import { ProjectRepository } from "../../repositories/employee/projectRepository";
+import { ProjectController } from "../../controllers/employee/project.controller";
 
 const router = express.Router();
 const deparmentRepository = new DepartmentRepository()
@@ -19,6 +22,9 @@ const departmentController = new DepartmentController(departmentService)
 const employeeRepository = new EmployeeRepository()
 const companyService = new CompanyService(employeeRepository,userRepository,companyRepository)
 const employeeController = new ManageEmployeeController(companyService)
+const projectRepository = new ProjectRepository()
+const projectService = new ProjectService(projectRepository,employeeRepository)
+const projectController = new ProjectController(projectService)
 
  router.use(tenantMiddleware)
  router.use(verifyAuth)
@@ -32,5 +38,7 @@ const employeeController = new ManageEmployeeController(companyService)
  router.get('/leaves', employeeController.getLeaveRequests);
  router.patch('/leaves/:id', employeeController.updateLeaveStatus);
  router.get('/attendance', employeeController.getAttendance);
+ 
+ router.get('/projects',projectController.getAllProjects)
 
 export default router;  

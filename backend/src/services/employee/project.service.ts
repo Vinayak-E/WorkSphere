@@ -1,5 +1,5 @@
 import { Connection, connection } from "mongoose";
-import { GetProjectsOptions, IProject, ITask } from "../../interfaces/company/IProject.types";
+import { GetCompanyProjectsOptions, GetProjectsOptions, IProject, ITask } from "../../interfaces/company/IProject.types";
 import { ProjectRepository } from "../../repositories/employee/projectRepository";
 import { EmployeeRepository } from "../../repositories/employee/employeeRepository";
 import { IEmployee } from "../../interfaces/company/IEmployee.types";
@@ -148,6 +148,42 @@ export class ProjectService {
       
         return this.projectRepository.updateTaskStatus(connection, taskId, status);
       }
+
+
+      async getAllProjects(
+        connection: Connection,
+        options: GetCompanyProjectsOptions
+      ): Promise<{ data: IProject[]; totalPages: number; currentPage: number }> {
+        const { page, limit, search, status, department } = options;
+        const skip = (page - 1) * limit;
+  
+        const query: any = {};
+        
+        if (search) {
+          query.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } }
+          ];
+        }
+        if (status) {
+          query.status = status;
+        }
+        if (department) {
+          query.department = department; 
+        }
+    
+        const [projects, total] = await Promise.all([
+          this.projectRepository.getAllProjects(connection, query, skip, limit),
+          this.projectRepository.countAllProjects(connection, query)
+        ]);
+    
+        return {
+          data: projects,
+          totalPages: Math.ceil(total / limit),
+          currentPage: page
+        };
+      }
+    
     }
 
     

@@ -5,6 +5,7 @@ import MyTeamC from '@/components/company/Team'
 import LeaveManagement from '@/components/company/LeaveManagement'
 import AttendanceList from '@/components/company/AttendanceList'
 import CompanyProfilePage from '@/components/company/CompanyProfilePage'
+import ProjectList from '@/components/company/ProjectList'
 
 
 const CompanyRoutes = () => {
@@ -16,6 +17,7 @@ const CompanyRoutes = () => {
         <Route path='/myteam' element={<MyTeamC/>}/>
         <Route path='/leaveRequests' element={<LeaveManagement/>}/>
         <Route path='/attendance' element={<AttendanceList/>}/>
+        <Route path='/projects' element={<ProjectList/>}/>
         
         </Route>
     </Routes>

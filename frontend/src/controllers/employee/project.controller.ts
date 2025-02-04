@@ -15,6 +15,15 @@ export class ProjectController {
     }
   }
 
+  static async getAllProjects(params?: ProjectQueryParams) {
+    try {
+      return await ProjectService.getAllProjects(params);
+    } catch (error: any) {
+      this.handleError(error, 'fetch projects');
+      throw error;
+    }
+  }
+
   static async createProject(projectData: ICreateProject, employeeId: string ) {
     try {
       const completeProjectData = { ...projectData, employeeId }

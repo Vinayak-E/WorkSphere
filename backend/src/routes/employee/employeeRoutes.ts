@@ -31,22 +31,17 @@ router.use(tenantMiddleware)
 router.use(verifyAuth)
 router.get('/myProfile', employeeController.getProfile);
 router.patch('/updateProfile/:id',employeeController.updateProfile);
-
 router.post('/attendance/check-in',employeeController.checkIn)
 router.post('/attendance/check-out',employeeController.checkOut)
 router.get('/attendance/status/:id',employeeController.getAttendanceStatus)
-
 router.get('/leaves', employeeController.getLeaves);
 router.post('/leaves', employeeController.applyLeave);
-
 router.get('/projects',projectController.getProjects);
 router.post('/projects',projectController.createProject);
 router.get('/projects/:id',projectController.projectDetails);
 router.patch('/projects/:projectId',projectController.editProject);
 router.post('/projects/:id/tasks',projectController.addTask); 
 router.patch('/projects/:id/status',projectController.updateProjectStatus); 
-
-
 router.get('/tasks',projectController.getEmployeeTasks)
 router.patch('/tasks/:id/status',projectController. updateTaskStatus)
 

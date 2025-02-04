@@ -23,6 +23,15 @@ export class ProjectService {
     return response.data;
   }
 
+  static async getAllProjects(params?: ProjectQueryParams) {
+    const response = await api.get('/company/projects', {
+      params,
+      withCredentials: true,
+    });
+    console.log(response.data)
+    return response.data;
+  }
+
   static async updateProject(projectId: string, updateData: Partial<IProject>) {
     const response = await api.patch(`/employee/projects/${projectId}`, updateData);
     return response.data.data;

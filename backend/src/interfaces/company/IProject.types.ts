@@ -39,6 +39,11 @@ export interface IProjectService {
   updateProjectStatus(id: string,connection: Connection,status: string): Promise<IProject>;
   getEmployeeTasks(connection: Connection,options: {employeeId: string; page: number; limit: number; search?: string;status?: string}): Promise<{ data: ITask[]; totalPages: number; currentPage: number }>;
   updateTaskStatus(connection: Connection, taskId: string, status: string):Promise<ITask | null>
+  getAllProjects(connection: Connection, options: GetCompanyProjectsOptions): Promise<{
+    data: IProject[];
+    totalPages: number;
+    currentPage: number;
+}>
 }
 
 export interface GetProjectsOptions {
@@ -48,3 +53,10 @@ export interface GetProjectsOptions {
   employeeId: string;
 }
 
+export interface GetCompanyProjectsOptions {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+  department?: string;
+}

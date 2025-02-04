@@ -34,15 +34,15 @@ const items = [
     icon: FileText,
   },
   {
+    title: "Projects",
+    url: "/company/projects",
+    icon: BarChart,
+  },
+  {
     title: "Messages",
     url: "/messages",
     icon: Inbox,
      badge: 0,
-  },
-  {
-    title: "Reports",
-    url: "/analytics",
-    icon: BarChart,
   },
   {
     title: "Settings",

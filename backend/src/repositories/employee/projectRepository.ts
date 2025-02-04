@@ -169,6 +169,31 @@ export class ProjectRepository {
           { new: true, runValidators: true }
         ).exec();
       }
+
+
+      async getAllProjects(
+        connection: Connection,
+        query: any,
+        skip: number,
+        limit: number
+      ): Promise<IProject[]> {
+        const projectModel = this.getProjectModel(connection);
+        const DepartmentModel =this.getDepartmentModel(connection);
+        const employeeModel = this.getEmployeeModel(connection);
+        return projectModel
+          .find(query)
+          .skip(skip)
+          .limit(limit)
+          .populate('department')
+          .populate('manager')
+          .populate('employees')
+          .exec();
+      }
     
+   
+      async countAllProjects(connection: Connection, query: any): Promise<number> {
+        const projectModel = this.getProjectModel(connection);
+        return projectModel.countDocuments(query);
+      }
       
 }

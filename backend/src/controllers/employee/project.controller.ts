@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { IProjectService } from "../../interfaces/company/IProject.types";
+import { GetCompanyProjectsOptions, IProjectService } from "../../interfaces/company/IProject.types";
 
 export class ProjectController {
   constructor(private readonly projectService: IProjectService ){}
@@ -219,6 +219,38 @@ editProject: RequestHandler = async (req: Request, res: Response, next: NextFunc
        res.status(200).json({
         success: true,
         data: updatedTask
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+  getAllProjects: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+      if (!tenantConnection) {
+         res.status(500).json({ success: false, message: "Tenant connection not established" });
+         return
+      }
+      
+      const { page = "1", limit = "6", search = "", status = "all", department = "all" } = req.query;
+
+      const options: GetCompanyProjectsOptions = {
+        page: parseInt(page as string),
+        limit: parseInt(limit as string),
+        search: search as string,
+        status: status !== "all" ? (status as string) : undefined,
+        department: department !== "all" ? (department as string) : undefined,
+      };
+
+      const result = await this.projectService.getAllProjects(tenantConnection, options);
+
+      res.status(200).json({
+        success: true,
+        data: result.data,
+        totalPages: result.totalPages,
+        currentPage: result.currentPage
       });
     } catch (error) {
       next(error);

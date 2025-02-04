@@ -82,7 +82,8 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                 <Input
                   id="companyName"
                   {...register('companyName')}
-                  className="mt-1"
+                  className="mt-1 bg-gray-200"
+                  readOnly
                 />
                 {errors.companyName && (
                   <p className="text-sm text-red-500 mt-1">{errors.companyName.message}</p>
@@ -90,17 +91,17 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
               </div>
 
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="phone">Phone Number</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
+                  id="phone"
+                  {...register('phone')}
                   className="mt-1"
                 />
-                {errors.email && (
-                  <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+                {errors.phone && (
+                  <p className="text-sm text-red-500 mt-1">{errors.phone.message}</p>
                 )}
               </div>
+      
 
               <div>
                 <Label htmlFor="industry">Industry</Label>
@@ -127,19 +128,23 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
               </div>
             </div>
 
-            {/* Contact and Address Information */}
             <div className="space-y-4">
+    
               <div>
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="phone"
-                  {...register('phone')}
-                  className="mt-1"
+                  id="email"
+                  type="email"
+                  {...register('email')}
+                  className="mt-1 bg-gray-200"
+                  readOnly
                 />
-                {errors.phone && (
-                  <p className="text-sm text-red-500 mt-1">{errors.phone.message}</p>
+                {errors.email && (
+                  <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
                 )}
               </div>
+       
+             
 
               <div className="space-y-2">
                 <Label>Address</Label>
