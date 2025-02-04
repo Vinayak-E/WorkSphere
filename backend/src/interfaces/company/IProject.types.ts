@@ -1,4 +1,5 @@
 import { Connection, Types } from "mongoose";
+import { IEmployee } from "./IEmployee.types";
 
 export interface IProject  extends Document {
   _id?: Types.ObjectId;
@@ -32,6 +33,9 @@ export interface ITask extends Document {
 export interface IProjectService{
   getManagerProjects(connection: Connection, id: string): Promise<IProject[]>
   createProject(connection: Connection, projectData: IProject): Promise<IProject>
-  getProjectDetails(connection: Connection, projectId: string): Promise<IProject | null>
+  getProjectDetails(connection: Connection, projectId: string): Promise<{
+    project: IProject | null;
+    departmentEmployees: IEmployee[];
+}>
   addTask(connection: Connection, taskData: ITask): Promise<ITask>
 }

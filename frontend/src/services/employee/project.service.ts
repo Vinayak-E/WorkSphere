@@ -1,5 +1,6 @@
 import api from '@/api/axios';
-import { ICreateProject, IProject, ITask, ProjectQueryParams } from '@/types/IProject';
+import { ICreateProject, IProject, ITask, ProjectQueryParams, ProjectResponse } from '@/types/IProject';
+import { AxiosResponse } from 'axios';
 
 
 export class ProjectService {
@@ -17,6 +18,7 @@ export class ProjectService {
       params,
       withCredentials: true,
     });
+    console.log(response.data)
     return response.data;
   }
 
@@ -27,21 +29,14 @@ export class ProjectService {
     return response.data.data;
   }
 
-  static async deleteProject(projectId: string) {
-    await api.delete(`/projects/${projectId}`, {
-      withCredentials: true,
-    });
+  static async getProjectById(id: string): Promise<ProjectResponse> {
+    const response: AxiosResponse<ProjectResponse> = await api.get(`/employee/projects/${id}`);
+    return response.data;  
   }
-
-  static async getProjectById(id: string): Promise<IProject> {
-   
-    const response = await api.get(`/employee/projects/${id}`);
-    console.log('reso',response)
-    return response.data.data;
-  }
+ 
   
   static async createProjectTask(projectId: string, task: ITask): Promise<ITask> {
-    const response = await api.post(`/api/projects/${projectId}/tasks`, task);
+    const response = await api.post(`/employee/projects/${projectId}/tasks`, task);
     return response.data;
   }
 }

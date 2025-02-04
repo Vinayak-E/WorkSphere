@@ -1,7 +1,7 @@
 import Department from "../../models/departmentModel";
 import { IDepartment } from "../../interfaces/company/IDepartment.types";
 import { ICreateEmployee, IEmployee, IUpdateEmployee } from "../../interfaces/company/IEmployee.types";
-import mongoose, { Connection } from "mongoose";
+import mongoose, { Connection, Types } from "mongoose";
 import { Model } from "mongoose";
 import Employee from "../../models/employeeModel";
 import Attendance from "../../models/attendanceModel";
@@ -60,6 +60,17 @@ export class EmployeeRepository {
           { $set: updateData },
           { new: true, runValidators: true }
         );
+      }
+      async getEmployeeById(connection: Connection,  id: string | Types.ObjectId): Promise<IEmployee | null> {
+        try {
+          const EmployeeModel = this.getEmployeeModel(connection);
+          const DepartmentModel = this.getDepartmentModel(connection)
+          return await EmployeeModel.findById(id)
+            .populate('department')  // Ensure the department field is populated
+            .exec();
+        } catch (error) {
+          throw error;
+        }
       }
 
       async getEmployeeByEmail(connection: Connection, email: string): Promise<IEmployee | null> {
@@ -182,5 +193,20 @@ export class EmployeeRepository {
           throw error;
         }
       }
+      async getEmployeesByDepartment(connection: Connection, departmentId: string | Types.ObjectId): Promise<IEmployee[]> {
+        try {
+            const EmployeeModel = this.getEmployeeModel(connection);
+            const DepartmentModel = this.getDepartmentModel(connection)
+            return await EmployeeModel.find({ 
+                department: departmentId,
+                 role: { $ne: 'MANAGER' } 
+            })
+            .populate('department')
+            .select('name email role department') // Select only needed fields
+            .exec();
+        } catch (error) {
+            throw error;
+        }
+    }
     
 }

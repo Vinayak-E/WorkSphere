@@ -36,15 +36,7 @@ export class ProjectController {
     }
   }
 
-  static async deleteProject(projectId: string) {
-    try {
-      await ProjectService.deleteProject(projectId);
-      toast.success('Project deleted successfully');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete project');
-      throw error;
-    }
-  }
+
 
   private static handleError(error: unknown, action: string) {
     if (error instanceof Error) {

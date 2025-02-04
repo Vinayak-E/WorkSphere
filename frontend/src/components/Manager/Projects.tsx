@@ -55,6 +55,8 @@ const ProjectList = () => {
           search: debouncedSearch,
           employeeId:employeeId
         });
+        console.log('data',data);
+        
         setProjects(data);
         setTotalPages(totalPages);
       } catch (error) {
@@ -64,7 +66,7 @@ const ProjectList = () => {
       }
     };
     loadProjects();
-  }, [currentPage, debouncedSearch]);
+  }, [currentPage, debouncedSearch,employeeId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,12 +97,12 @@ const ProjectList = () => {
   };
 
   const getDaysRemaining = (deadline: string) => {
-    const today = new Date();
     const deadlineDate = new Date(deadline);
-    const diffTime = deadlineDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    const now = new Date();
+    const timeDiff = deadlineDate.getTime() - now.getTime();
+    return Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
   };
+
 
   const handleProjectClick = (projectId: string) => {
     if (!projectId) {
@@ -201,51 +203,51 @@ const ProjectList = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {projects.map((project) => (
-            <Card 
-              key={project._id}
-              className="hover:shadow-lg transition-shadow cursor-pointer group"
-              onClick={() => handleProjectClick(project._id!)}
-            >
-              <CardContent className="p-6  ">
-                <div className="flex justify-between items-start mb-4 ">
-                  <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                    {project.name}
-                  </h3>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                    {project.status}
-                  </span>
-                </div>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Building className="w-4 h-4 text-gray-400" />
-                    <span>{project.department}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-gray-400" />
-                    <span>{project.employees?.length || 0} members</span>
-                  </div>
-                  {project.deadline && (
-                    <div className="flex items-center gap-2 col-span-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span className={`${
-                        getDaysRemaining(project.deadline) < 0 
-                          ? 'text-red-600' 
-                          : getDaysRemaining(project.deadline) < 7 
-                            ? 'text-yellow-600' 
-                            : 'text-gray-600'
-                      }`}>
-                        {getDaysRemaining(project.deadline) < 0 
-                          ? 'Overdue' 
-                          : `${getDaysRemaining(project.deadline)} days remaining`}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        {projects.map((project) => (
+    <Card 
+      key={project._id}
+      className="hover:shadow-lg transition-shadow cursor-pointer group"
+      onClick={() => handleProjectClick(project._id)}
+    >
+      <CardContent className="p-6">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+            {project.name}
+          </h3>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+            {project.status}
+          </span>
+        </div>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
+        <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <Building className="w-4 h-4 text-gray-400" />
+            <span>{project.department?.name || 'No Department'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-gray-400" />
+            <span>{project.employees?.length || 0} members</span>
+          </div>
+          {project.deadline && (
+            <div className="flex items-center gap-2 col-span-2">
+              <Clock className="w-4 h-4 text-gray-400" />
+              <span className={`${
+                getDaysRemaining(project.deadline) < 0 
+                  ? 'text-red-600' 
+                  : getDaysRemaining(project.deadline) < 7 
+                    ? 'text-yellow-600' 
+                    : 'text-gray-600'
+              }`}>
+                {getDaysRemaining(project.deadline) < 0 
+                  ? 'Overdue' 
+                  : `${getDaysRemaining(project.deadline)} days remaining`}
+              </span>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  ))}
         </div>
 
         {projects.length === 0 && !isLoading && (

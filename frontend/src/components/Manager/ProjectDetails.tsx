@@ -8,13 +8,14 @@ import { IProject, ITask } from "@/types/IProject";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {  Users, Clock, Briefcase, ListChecks, PlusCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, Clock, Briefcase, ListChecks, PlusCircle } from "lucide-react";
 
 const ProjectDetails = () => {
-    console.log('heloo')
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<IProject | null>(null);
+  const [departmentEmployees, setDepartmentEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -27,9 +28,9 @@ const ProjectDetails = () => {
   useEffect(() => {
     const loadProject = async () => {
       try {
-        const data = await ProjectService.getProjectById(id!);
-        console.log('data',data)
-        setProject(data);
+        const response = await ProjectService.getProjectById(id!);
+        setProject(response.data.project);
+        setDepartmentEmployees(response.data.departmentEmployees);
       } catch (error) {
         console.error('Error loading project:', error);
         navigate('/employee/projects');
@@ -162,11 +163,22 @@ const ProjectDetails = () => {
               />
             </div>
             <div>
-              <Label>Assignee</Label>
-              <Input 
+              <Label>Assign To</Label>
+              <Select
                 value={newTask.assignee}
-                onChange={(e) => setNewTask({...newTask, assignee: e.target.value})}
-              />
+                onValueChange={(value) => setNewTask({...newTask, assignee: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {departmentEmployees.map((employee) => (
+                    <SelectItem key={employee._id} value={employee._id}>
+                      {employee.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Deadline</Label>

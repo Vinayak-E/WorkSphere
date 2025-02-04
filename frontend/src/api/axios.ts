@@ -13,6 +13,7 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    
     if (error.response?.status === 401 || error.response?.status === 403) {
       store.dispatch(logout());
       if (!window.location.pathname.includes('/login')) {

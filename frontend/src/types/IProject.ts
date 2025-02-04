@@ -1,3 +1,5 @@
+import { IEmployee } from "./IEmployee";
+
 export interface IProject {
     _id?: string; 
     name: string;
@@ -33,4 +35,12 @@ export interface IProject {
     assignee: string;
     deadline: string;
     status?: 'Pending' | 'In Progress' | 'Completed';
+  }
+
+  export interface ProjectResponse {
+    success: boolean;
+    data: {
+      project: IProject;
+      departmentEmployees: IEmployee[];
+    };
   }

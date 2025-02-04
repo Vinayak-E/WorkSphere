@@ -42,5 +42,6 @@ router.post('/leaves', employeeController.applyLeave);
 router.get('/projects',projectController.getProjects);
 router.post('/projects',projectController.createProject);
 router.get('/projects/:id',projectController.projectDetails);
+router.post('/projects/:id/tasks',projectController.addTask);
 
 export default router;

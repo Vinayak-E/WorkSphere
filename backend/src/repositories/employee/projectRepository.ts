@@ -4,6 +4,8 @@ import Project from "../../models/projectModel";
 import { IEmployee } from "../../interfaces/company/IEmployee.types";
 import Employee from "../../models/employeeModel";
 import Task from "../../models/taskModel";
+import { IDepartment } from "../../interfaces/company/IDepartment.types";
+import Department from "../../models/departmentModel";
 
 export class ProjectRepository {
     private getProjectModel(connection: Connection): Model<IProject> {
@@ -14,6 +16,9 @@ export class ProjectRepository {
     }
     private getTaskModel(connection: Connection): Model<ITask> {
         return connection.models.Task || connection.model<ITask>("Task", Task.schema);
+    }
+    private getDepartmentModel(connection: Connection): Model<IDepartment> {
+        return connection.models.Department || connection.model<IDepartment>("Department", Department.schema);
     }
 
 
@@ -26,6 +31,7 @@ export class ProjectRepository {
       async getProjectsByManager(connection:Connection, managerId: string): Promise<IProject[]> {
         const projectModel = this.getProjectModel(connection)
         const employeeModel = this.getEmployeeModel(connection)
+        const DepartmentModel =this.getDepartmentModel(connection)
         return projectModel
           .find({ manager: managerId })
           .populate('department')
@@ -38,6 +44,7 @@ export class ProjectRepository {
         const projectModel = this.getProjectModel(connection);
         const employeeModel = this.getEmployeeModel(connection)
         const taskModel = this.getTaskModel(connection)
+        const DepartmentModel =this.getDepartmentModel(connection)
         return projectModel
           .findById(projectId)
           .populate('department')
@@ -49,7 +56,20 @@ export class ProjectRepository {
 
       async createTask(connection: Connection, taskData: Partial<ITask>): Promise<ITask> {
         const taskModel = this.getTaskModel(connection);
+        const projectModel = this.getProjectModel(connection);
+        
         const task = new taskModel(taskData);
-        return task.save();
+        const savedTask = await task.save();
+        await projectModel.findByIdAndUpdate(
+          savedTask.project,
+          {
+            $push: { tasks: savedTask._id },
+            $addToSet: { employees: savedTask.assignee }
+          },
+          { new: true }
+        );
+      
+        return savedTask;
       }
+      
 }

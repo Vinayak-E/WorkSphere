@@ -22,7 +22,7 @@ const EmployeeRoutes = () => {
           <Route path="/" element={<EmployeeDashboard />} />
           <Route path="/leaves" element={<EmployeeLeaves />} />
           <Route path="/profile" element={<EmployeeProfile />} />
-          <Route path="/projects/:id" element={<ProjectDetails />} />
+         
         </Route>
       ) : (
         

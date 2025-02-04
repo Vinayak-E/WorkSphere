@@ -29,6 +29,7 @@ export class ProjectController {
    
       const projects = await this.projectService.getManagerProjects(tenantConnection,id);
       
+      
       res.status(200).json({
         success: true,
         data: projects
@@ -70,29 +71,36 @@ export class ProjectController {
 
   projectDetails: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const tenantConnection = req.tenantConnection;
+        if (!tenantConnection) {
+            res.status(500).json({ success: false, message: "Tenant connection not established" });
+            return;
+        }
 
-      const tenantConnection = req.tenantConnection;
-      if (!tenantConnection) {
-        res.status(500).json({ success: false, message: "Tenant connection not established" });
-        return;
-      }
-  
-      const projectId = req.params.id;
-      const project = await this.projectService.getProjectDetails(tenantConnection, projectId);
-      res.status(200).json({ success: true, data: project });
+        const projectId = req.params.id;
+        const { project, departmentEmployees } = await this.projectService.getProjectDetails(tenantConnection, projectId);
+        
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                project,
+                departmentEmployees
+            }
+        });
     } catch (error) {
-      next(error);
+        next(error);
     }
 }
 addTask: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log('hello');
+    
     const tenantConnection = req.tenantConnection;
     if (!tenantConnection) {
       res.status(500).json({ success: false, message: "Tenant connection not established" });
       return;
     }
     const projectId = req.params.id;
-    // Build the task data with the project reference
     const taskData = { ...req.body, project: projectId };
 
     const newTask = await this.projectService.addTask(tenantConnection, taskData);
