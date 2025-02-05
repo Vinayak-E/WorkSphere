@@ -66,7 +66,7 @@ export class EmployeeRepository {
           const EmployeeModel = this.getEmployeeModel(connection);
           const DepartmentModel = this.getDepartmentModel(connection)
           return await EmployeeModel.findById(id)
-            .populate('department')  // Ensure the department field is populated
+            .populate('department') 
             .exec();
         } catch (error) {
           throw error;
@@ -202,7 +202,7 @@ export class EmployeeRepository {
                  role: { $ne: 'MANAGER' } 
             })
             .populate('department')
-            .select('name email role department') // Select only needed fields
+            .select('name email role department')  
             .exec();
         } catch (error) {
             throw error;

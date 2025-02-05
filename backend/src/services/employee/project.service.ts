@@ -12,21 +12,21 @@ export class ProjectService {
         throw new Error("Manager ID is required");
       }
     
-      // Retrieve the manager's details (by ID)
+
       const manager = await this.employeeRepository.getEmployeeById(connection, projectData.manager.toString());
       if (!manager) {
         throw new Error("Manager not found");
       }
     
-      // Convert the manager's department to a string (department id)
+
       const departmentId = (manager.department as any)._id 
         ? (manager.department as any)._id.toString() 
         : manager.department.toString();
     
-      // Merge the department into the project data
+  
       const projectToCreate: IProject = {
         ...projectData,
-        department: departmentId, // Now a string
+        department: departmentId, 
         status: "Pending",
         employees: [],
         tasks: []
@@ -70,7 +70,7 @@ export class ProjectService {
             throw new Error("Project not found");
         }
 
-        // Get the department ID from the project's manager
+
         const departmentId = project.department._id || project.department.toString();
         
 
@@ -82,9 +82,7 @@ export class ProjectService {
         };
     }
     
-      // New method: Add a task to a project
       async addTask(connection: Connection, taskData: ITask): Promise<ITask | null> {
-        // Optionally, you could add validations here (e.g., check that the project exists)
         return this.projectRepository.createTask(connection, taskData);
       }
 
@@ -191,13 +189,12 @@ export class ProjectService {
         taskId: string,
         taskData: Partial<ITask>
       ): Promise<ITask> {
-        // Validate project exists
+
         const project = await this.projectRepository.getProjectById(connection, projectId);
         if (!project) {
           throw new Error("Project not found");
         }
       
-        // Validate task belongs to project
         const taskExists = project.tasks.some(task =>
           task._id.toString() === taskId
         );
@@ -206,7 +203,7 @@ export class ProjectService {
           throw new Error("Task not found in this project");
         }
       
-        // If assignee is being changed, update project's employees array
+
         if (taskData.assignee) {
           const employee = await this.employeeRepository.getEmployeeById(connection, taskData.assignee.toString());
           if (!employee) {
@@ -214,7 +211,7 @@ export class ProjectService {
           }
         }
       
-        // Update the task
+ 
         const updatedTask = await this.projectRepository.updateProjectTask(
           connection,
           projectId,

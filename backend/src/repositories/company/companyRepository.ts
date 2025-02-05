@@ -68,7 +68,7 @@ private getAttendanceModel(connection: Connection): Model<IAttendance> {
   }
 
 
-  //////
+
 
   async findById(id: string,connection:Connection): Promise<IEmployee | null> {
     const EmployeeModel = this.getEmployeeModel(connection);
@@ -197,7 +197,6 @@ async getAttendanceRecords(
   let query: any = {};
   
   if (date) {
-      // Create date range for the given date (start of day to end of day)
       const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
       
@@ -213,7 +212,6 @@ async getAttendanceRecords(
   const AttendanceModel = this.getAttendanceModel(connection);
   const LeaveModel = this.getLeaveModel(connection);
    const EmployeeModel = this.getEmployeeModel(connection);
-  // Get approved leaves only if date is provided
   let employeesOnLeave: string[] = [];
   
   if (date) {
@@ -223,11 +221,9 @@ async getAttendanceRecords(
         endDate: { $gte: new Date(date) }
     }).select('employeeId');
 
-    // Get employees who are on approved leave
     employeesOnLeave = approvedLeaves.map(leave => leave.employeeId.toString());
   }
 
-  // Update attendance statuses considering leaves
   await this.updateAttendanceStatuses(AttendanceModel, query, employeesOnLeave);
 
   const [attendance, total] = await Promise.all([
@@ -254,7 +250,6 @@ private async updateAttendanceStatuses(
   const FULL_DAY_HOURS = 8;
   const MIN_HOURS = 0;
 
-  // First, update status for employees on approved leave
   await AttendanceModel.updateMany(
       {
           ...query,
@@ -269,9 +264,6 @@ private async updateAttendanceStatuses(
       }
   );
 
-  // Then update status for other employees
-  
-  // Full day
   await AttendanceModel.updateMany(
       {
           ...query,
@@ -282,7 +274,6 @@ private async updateAttendanceStatuses(
       { $set: { status: "Present" } }
   );
 
-  // Partial day
   await AttendanceModel.updateMany(
       {
           ...query,
@@ -293,7 +284,6 @@ private async updateAttendanceStatuses(
       { $set: { status: "Half Day" } }
   );
 
-  // Absent (not on leave and no work time)
   await AttendanceModel.updateMany(
       {
           ...query,
@@ -307,7 +297,7 @@ private async updateAttendanceStatuses(
       { $set: { status: "Absent" } }
   );
 
-  // Handle edge cases with work time but no check-in status
+
   await AttendanceModel.updateMany(
       {
           ...query,

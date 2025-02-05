@@ -44,7 +44,6 @@ const ProjectStatusDropdown = ({ status, onStatusChange, className = '' }) => {
   const [pendingStatus, setPendingStatus] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Function to determine available status transitions
   const getAvailableStatuses = (currentStatus) => {
     switch (currentStatus) {
       case 'Pending':

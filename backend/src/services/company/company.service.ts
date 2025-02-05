@@ -158,7 +158,6 @@ export class CompanyService {
         throw new Error('Leave request not found');
       }
   
-      // Optional: Send email notification to employee about status change
       if (updatedLeave.employeeId) {
         const employee = await this.companyRepository.findById(
           updatedLeave.employeeId.toString(),

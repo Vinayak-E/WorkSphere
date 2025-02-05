@@ -42,7 +42,7 @@ const EmployeeLeaves = () => {
       const data = await response.data;
       
       setLeaves(data.leaves);
-      setTotalPages(Math.ceil(data.total / 10));
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error('Error fetching leaves:', error);
     }

@@ -141,7 +141,7 @@ export class AuthenticationController {
   
       if (!accessToken && !refreshToken) {
         res.status(401).json({ success: false, message: "No tokens" });
-        return; // Explicit return without value
+        return; 
       }
 
       const tenantConnection = req.tenantConnection;
