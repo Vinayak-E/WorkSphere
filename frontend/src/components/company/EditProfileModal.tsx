@@ -75,8 +75,9 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
         
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Company Information */}
+            {/* Left Column */}
             <div className="space-y-4">
+              {/* Non-editable fields */}
               <div>
                 <Label htmlFor="companyName">Company Name</Label>
                 <Input
@@ -85,9 +86,16 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                   className="mt-1 bg-gray-200"
                   readOnly
                 />
-                {errors.companyName && (
-                  <p className="text-sm text-red-500 mt-1">{errors.companyName.message}</p>
-                )}
+              </div>
+
+              <div>
+                <Label htmlFor="businessRegNo">Business Registration Number</Label>
+                <Input
+                  id="businessRegNo"
+                  {...register('businessRegNo')}
+                  className="mt-1 bg-gray-200"
+                  readOnly
+                />
               </div>
 
               <div>
@@ -101,7 +109,6 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                   <p className="text-sm text-red-500 mt-1">{errors.phone.message}</p>
                 )}
               </div>
-      
 
               <div>
                 <Label htmlFor="industry">Industry</Label>
@@ -114,22 +121,11 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                   <p className="text-sm text-red-500 mt-1">{errors.industry.message}</p>
                 )}
               </div>
-
-              <div>
-                <Label htmlFor="businessRegNo">Business Registration Number</Label>
-                <Input
-                  id="businessRegNo"
-                  {...register('businessRegNo')}
-                  className="mt-1"
-                />
-                {errors.businessRegNo && (
-                  <p className="text-sm text-red-500 mt-1">{errors.businessRegNo.message}</p>
-                )}
-              </div>
             </div>
 
+            {/* Right Column */}
             <div className="space-y-4">
-    
+              {/* Non-editable field */}
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -139,13 +135,9 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                   className="mt-1 bg-gray-200"
                   readOnly
                 />
-                {errors.email && (
-                  <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
-                )}
               </div>
-       
-             
 
+              {/* Editable address fields */}
               <div className="space-y-2">
                 <Label>Address</Label>
                 <div className="grid grid-cols-2 gap-4">

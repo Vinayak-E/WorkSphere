@@ -183,6 +183,51 @@ export class ProjectService {
           currentPage: page
         };
       }
+
+
+      async updateProjectTask(
+        connection: Connection,
+        projectId: string,
+        taskId: string,
+        taskData: Partial<ITask>
+      ): Promise<ITask> {
+        // Validate project exists
+        const project = await this.projectRepository.getProjectById(connection, projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+      
+        // Validate task belongs to project
+        const taskExists = project.tasks.some(task =>
+          task._id.toString() === taskId
+        );
+        
+        if (!taskExists) {
+          throw new Error("Task not found in this project");
+        }
+      
+        // If assignee is being changed, update project's employees array
+        if (taskData.assignee) {
+          const employee = await this.employeeRepository.getEmployeeById(connection, taskData.assignee.toString());
+          if (!employee) {
+            throw new Error("Assignee not found");
+          }
+        }
+      
+        // Update the task
+        const updatedTask = await this.projectRepository.updateProjectTask(
+          connection,
+          projectId,
+          taskId,
+          taskData
+        );
+      
+        if (!updatedTask) {
+          throw new Error("Failed to update task");
+        }
+      
+        return updatedTask;
+      }
     
     }
 

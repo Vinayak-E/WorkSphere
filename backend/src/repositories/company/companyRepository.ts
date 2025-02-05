@@ -107,6 +107,20 @@ async getCompanyByEmail( email: string,connection: Connection,): Promise<ICompan
 }
 
 
+async update(id: string, updateData: ICompanyDocument, connection: Connection): Promise<ICompanyDocument | null> {
+  const CompanyModel = this.getCompanyModel(connection);
+  console.log('updateData',updateData)
+  console.log('companyModel',CompanyModel)
+  const company = await CompanyModel.findById(id)
+  console.log('companyfound',company)
+  return await CompanyModel.findByIdAndUpdate(
+    id,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
+}
+
+
 async getLeaveRequests(
   connection: Connection,
   page: number,

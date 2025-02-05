@@ -61,6 +61,22 @@ export class CompanyService {
       throw error;
     }
   }
+
+  async updateProfile( id:string, connection: Connection, updateData: ICompanyDocument ): Promise<ICompanyDocument> {
+    try{
+
+      const updatedCompany = await this.companyRepository.update(id, updateData, connection);
+      console.log('updated company',updatedCompany)
+      if (!updatedCompany) {
+        throw new Error('Employee not found');
+      }
+  
+      return updatedCompany;
+    } catch (error) {
+      console.error("Error in CompanyService.getEmployeeProfile:", error);
+      throw error;
+  }
+  }
   
 
 

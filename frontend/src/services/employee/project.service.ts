@@ -37,6 +37,13 @@ export class ProjectService {
     return response.data.data;
   }
 
+
+
+  static async updateProjectTask(projectId: string, taskId: string, taskData: any) {
+    const response = await api.put(`/employee/projects/${projectId}/tasks/${taskId}`, taskData)
+    return response.data.data;
+  }
+
   static async getProjectById(id: string): Promise<ProjectResponse> {
     const response: AxiosResponse<ProjectResponse> = await api.get(`/employee/projects/${id}`);
     return response.data;  
@@ -52,8 +59,8 @@ export class ProjectService {
   static async updateProjectStatus(projectId: string, status: string) {
     try {
       const response = await api.patch(`/employee/projects/${projectId}/status`, { status });
-      toast.success('Project updated successfully');
-      return response.data;
+      toast.success('Project status updated successfully');
+      return response.data.data;
     } catch (error) {
       throw new Error('Failed to update project status');
     }

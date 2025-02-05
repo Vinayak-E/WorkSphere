@@ -6,6 +6,7 @@ import LeaveManagement from '@/components/company/LeaveManagement'
 import AttendanceList from '@/components/company/AttendanceList'
 import CompanyProfilePage from '@/components/company/CompanyProfilePage'
 import ProjectList from '@/components/company/ProjectList'
+import CompanyProjectDetails from '@/components/company/ProjectDetails'
 
 
 const CompanyRoutes = () => {
@@ -18,6 +19,7 @@ const CompanyRoutes = () => {
         <Route path='/leaveRequests' element={<LeaveManagement/>}/>
         <Route path='/attendance' element={<AttendanceList/>}/>
         <Route path='/projects' element={<ProjectList/>}/>
+        <Route path="/projects/:id" element={<CompanyProjectDetails />} />
         
         </Route>
     </Routes>

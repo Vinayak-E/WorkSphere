@@ -17,12 +17,11 @@ export class CompanyService {
       phone: formData.phone,
       industry: formData.industry,
       businessRegNo: formData.businessRegNo,
-      address: {
         city: formData.city,
         state: formData.state,
         country: formData.country,
         zipcode: formData.zipcode
-      }
+  
     };
 
     const response = await api.patch(`/company/updateProfile/${companyId}`, updatedData, {

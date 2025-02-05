@@ -2,6 +2,7 @@ import { ProfileFormData } from '../../utils/validations'
 import api from '@/api/axios';
 import { IEmployee } from '@/types/IEmployee';
 import { uploadToCloudinary } from '@/utils/cloudinary';
+import toast from 'react-hot-toast';
 
 export class ProfileService {
 
@@ -9,6 +10,7 @@ export class ProfileService {
     const response = await api.get<{ data: IEmployee }>("/employee/myProfile", {
       withCredentials: true,
     });
+  
     return response.data.data;
   }
 
@@ -53,6 +55,7 @@ export class ProfileService {
   
   static async updateTaskStatus(taskId: string, status: string) {
     const response = await api.patch(`/employee/tasks/${taskId}/status`, { status });
-    return response.data;
+    toast.success('status updated successfully');
+    return response.data.data;
   }
 }

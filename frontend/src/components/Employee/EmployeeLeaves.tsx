@@ -1,5 +1,5 @@
 import  { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Filter, X } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Filter, X, AlertCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -109,7 +109,13 @@ const EmployeeLeaves = () => {
                     onChange={(e) => setLeaveForm({...leaveForm, startDate: e.target.value})}
                     required
                     className="focus:ring-2 focus:ring-blue-500"
+                    min={new Date().toISOString().split("T")[0]}
                   />
+                 {leaveForm.startDate &&
+                  new Date(leaveForm.startDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) && (
+                    <div className="text-red-500">Start Date cannot be in the past</div>
+                )}
+                  
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">End Date</label>
@@ -118,8 +124,13 @@ const EmployeeLeaves = () => {
                     value={leaveForm.endDate}
                     onChange={(e) => setLeaveForm({...leaveForm, endDate: e.target.value})}
                     required
+                    min={leaveForm.startDate || new Date().toISOString().split("T")[0]} 
                     className="focus:ring-2 focus:ring-blue-500"
                   />
+                  {leaveForm.endDate &&
+                  new Date(leaveForm.endDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) && (
+                    <div className="text-red-500">End Date cannot be in the past</div>
+                )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Reason</label>

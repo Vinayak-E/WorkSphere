@@ -5,10 +5,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useState } from 'react';
 
-const StatusButton = ({ status, className = '' }) => {
+const StatusButton = ({ status, className = '', disabled }) => {
   const getStatusConfig = (status) => {
     switch (status) {
       case 'Completed':
@@ -33,7 +33,7 @@ const StatusButton = ({ status, className = '' }) => {
   const Icon = config.icon;
 
   return (
-    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${config.baseStyle} ${className}`}>
+    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${config.baseStyle} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
       <Icon className="w-4 h-4" />
       <span className="text-sm font-medium">{status}</span>
     </div>
@@ -41,53 +41,75 @@ const StatusButton = ({ status, className = '' }) => {
 };
 
 const ProjectStatusDropdown = ({ status, onStatusChange, className = '' }) => {
-  const statuses = ['Pending', 'In Progress', 'Completed'];
-
-
   const [pendingStatus, setPendingStatus] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Function to determine available status transitions
+  const getAvailableStatuses = (currentStatus) => {
+    switch (currentStatus) {
+      case 'Pending':
+        return ['In Progress'];
+      case 'In Progress':
+        return ['Completed'];
+      case 'Completed':
+        return [];
+      default:
+        return [];
+    }
+  };
+
+  const availableStatuses = getAvailableStatuses(status);
+
   const handleStatusSelect = (newStatus) => {
-    if (newStatus !== status) {
+    if (newStatus !== status && availableStatuses.includes(newStatus)) {
       setPendingStatus(newStatus);
       setIsDialogOpen(true);
     }
   };
+
   const stopPropagation = (e) => {
     e.stopPropagation();
   };
+
   const handleConfirm = () => {
     onStatusChange(pendingStatus);
     setIsDialogOpen(false);
   };
+
   return (
     <>
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild onClick={stopPropagation}>
-        <Button
-          variant="ghost"
-          className={`p-0 hover:bg-transparent ${className}`}
-        >
-          <StatusButton status={status} />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        className="w-48 p-1 bg-white rounded-lg shadow-lg border"
-        onClick={stopPropagation}
-      >
-        {statuses.map((statusOption) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild onClick={stopPropagation}>
           <Button
-            key={statusOption}
             variant="ghost"
-            className="w-full justify-start px-2 py-1.5 hover:bg-gray-50"
-            onClick={() => handleStatusSelect(statusOption)}
+            className={`p-0 hover:bg-transparent ${className}`}
+            disabled={availableStatuses.length === 0}
           >
-            <StatusButton status={statusOption} />
+            <StatusButton status={status} disabled={availableStatuses.length === 0} />
           </Button>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          className="w-48 p-1 bg-white rounded-lg shadow-lg border"
+          onClick={stopPropagation}
+        >
+          {availableStatuses.map((statusOption) => (
+            <Button
+              key={statusOption}
+              variant="ghost"
+              className="w-full justify-start px-2 py-1.5 hover:bg-gray-50"
+              onClick={() => handleStatusSelect(statusOption)}
+            >
+              <StatusButton status={statusOption} />
+            </Button>
+          ))}
+          {availableStatuses.length === 0 && (
+            <div className="px-2 py-1.5 text-sm text-gray-500">
+              No status changes available
+            </div>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Status Change</DialogTitle>
@@ -100,7 +122,7 @@ const ProjectStatusDropdown = ({ status, onStatusChange, className = '' }) => {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleConfirm} variant="destructive">
+            <Button onClick={handleConfirm}>
               Confirm Change
             </Button>
           </div>

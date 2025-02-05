@@ -195,5 +195,36 @@ export class ProjectRepository {
         const projectModel = this.getProjectModel(connection);
         return projectModel.countDocuments(query);
       }
+
+      async updateProjectTask(
+        connection: Connection,
+        projectId: string,
+        taskId: string,
+        taskData: Partial<ITask>
+      ): Promise<ITask | null> {
+        const taskModel = this.getTaskModel(connection);
+        const projectModel = this.getProjectModel(connection);
       
+        const updatedTask = await taskModel.findOneAndUpdate(
+          { _id: taskId, project: projectId },
+          { $set: taskData },
+          { new: true, runValidators: true }
+        )
+          .populate('assignee', 'name email')
+          .populate('project', 'name')
+          .exec();
+      
+        if (!updatedTask) {
+          throw new Error('Task not found');
+        }
+
+        if (taskData.assignee) {
+          await projectModel.findByIdAndUpdate(
+            projectId,
+            { $addToSet: { employees: taskData.assignee } }
+          );
+        }
+      
+        return updatedTask;
+      }
 }

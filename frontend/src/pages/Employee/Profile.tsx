@@ -192,7 +192,7 @@ const EmployeeProfilePage = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center">
                 <DollarSign className="w-5 h-5 text-gray-500 mr-3" />
-                <span>Salary: ${employee.salary.toLocaleString()}/year</span>
+                <span>Salary: ${employee.salary.toLocaleString()}/Month</span>
               </div>
               <div className="flex items-center">
                 <User className="w-5 h-5 text-gray-500 mr-3" />

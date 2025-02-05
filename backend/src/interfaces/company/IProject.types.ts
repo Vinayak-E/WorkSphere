@@ -44,6 +44,7 @@ export interface IProjectService {
     totalPages: number;
     currentPage: number;
 }>
+updateProjectTask(connection: Connection, projectId: string, taskId: string, taskData: Partial<ITask>): Promise<ITask>
 }
 
 export interface GetProjectsOptions {

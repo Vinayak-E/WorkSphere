@@ -141,6 +141,39 @@ editProject: RequestHandler = async (req: Request, res: Response, next: NextFunc
 };
 
 
+editProjectTask: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const tenantConnection = req.tenantConnection;
+
+    if (!tenantConnection) {
+   res.status(500).json({
+        success: false,
+        message: "Tenant connection not established"
+      });
+      return
+    }
+
+    const { projectId, taskId } = req.params;
+    const taskData = req.body;
+     console.log('req.body',req.body)
+     console.log('req.params',req.params)
+    const updatedTask = await this.projectService.updateProjectTask(
+      tenantConnection,
+      projectId,
+      taskId,
+      taskData
+    );
+
+    res.status(200).json({
+      success: true,
+      data: updatedTask
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
   updateProjectStatus: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
   

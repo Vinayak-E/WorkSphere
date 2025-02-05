@@ -24,7 +24,6 @@ export class CompanyController {
         throw new Error(JSON.stringify(errors));
       }
       const updatedProfile = await CompanyService.updateCompanyProfile(formData, companyId);
-      toast.success("Company profile updated successfully");
       return updatedProfile;
     } catch (error) {
       if (error instanceof Error) {
