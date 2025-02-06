@@ -5,10 +5,7 @@ export const projectSchema =  new Schema<IProject>({
     name:{ type : String },
     description:{ type : String },
     isActive :{type :Boolean ,default:true},
-    deadline: {
-        type: Date,
-      },
-     
+    deadline: { type: Date },
     department: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
     manager: { type: mongoose.Schema.Types.ObjectId, ref: "Employee" }, 
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],

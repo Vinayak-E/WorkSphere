@@ -134,7 +134,7 @@ const Home = () => {
         </div>
         </div>
 
-        <div className="w-full bg-primary/50 py-12 mb-20 text-center">
+        <div className="w-full bg-primary/40 py-12 mb-20 text-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Trust Badge Text */}
           <div className="text-center mb-10 ">

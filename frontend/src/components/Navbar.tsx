@@ -29,7 +29,6 @@ const Navbar = () => {
   useEffect(() => {
     const timeline = gsap.timeline({ defaults: { ease: "power3.out" }});
     
-    // Animate navbar
     timeline.fromTo(
       navRef.current,
       { 
@@ -104,7 +103,7 @@ const Navbar = () => {
             >
               Get Started
             </Link>
-            <div className="menu-item ">
+            <div className="menu-item bg-transparent">
               <ModeToggle/>
             </div>
           </div>
