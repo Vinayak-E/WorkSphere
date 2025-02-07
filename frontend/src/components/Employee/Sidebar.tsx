@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuBadge,
-  SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import {
   Home,

@@ -1,96 +1,96 @@
-import { NavLink } from "react-router-dom"
-import { Calendar, Home, Inbox,  Settings, Users, FileText, BarChart ,ClipboardCheck } from "lucide-react"
+import { NavLink, useLocation } from "react-router-dom"
 import {
   Sidebar,
   SidebarContent,
+  SidebarHeader,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
-  SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuBadge,
 } from "@/components/ui/sidebar"
+import {
+  Home,
+  Calendar,
+  FileText,
+  Inbox,
+  BarChart,
+  Settings
+} from "lucide-react"
 import IMAGES from "@/assets/images/image"
 
 const items = [
-  {
-    title: "Dashboard",
-    url: "/employee",
-    icon: Home,
-  },
-
-  {
-    title: "Leaves",
-    url: "/employee/leaves",
-    icon: Calendar,
-  },
-  {
-    title: "Projects",
-    url: "/employee/projects",
-    icon: FileText,
-  
-  },
-  {
-    title: "Task Management",
-    url: "/employee/tasks",
-    icon: ClipboardCheck,
-  },
-  {
-    title: "Messages",
-    url: "/messages",
-    icon: Inbox,
-     badge: 0,
-  },
-  {
-    title: "Reports",
-    url: "/analytics",
-    icon: BarChart,
-  },
-  {
-    title: "Settings",
-    url: "/employee/profile",
-    icon: Settings,
-  },
+  { title: "Dashboard",       url: "/employee",         icon: Home },
+  { title: "Leaves",          url: "/employee/leaves",  icon: Calendar },
+  { title: "Projects",        url: "/employee/projects",icon: FileText },
+  { title: "Messages",        url: "/messages",         icon: Inbox,    badge: 0 },
+  { title: "Reports",         url: "/analytics",        icon: BarChart },
+  { title: "Settings",        url: "/employee/profile", icon: Settings },
 ]
+
 export function AppSidebar() {
+  const location = useLocation()
+
   return (
-    <Sidebar 
-      variant="sidebar" 
+    <Sidebar
+      variant="sidebar"
       collapsible="icon"
-      className=" drop-shadow-lg bg-white h-screen flex flex-col "
-    > 
-      <SidebarContent className="flex-1 bg-white">
-        <SidebarHeader className="border-b-2 px-12 ">
-          <div className="flex h-12 items-center">
-            <img src={IMAGES.navBarLogoDark} alt="Logo" className="h-12" />
+      className="
+        min-h-screen 
+        border-none 
+        bg-white 
+      
+        shadow-lg shadow-blue-100
+      "
+    >
+      <SidebarContent className="flex flex-col  bg-white">
+        <SidebarHeader className="px-14 py-3 border-none ">
+          <div className="flex items-center space-x-2">
+            <img src={IMAGES.navBarLogoDark} alt="Logo" className="h-12 w-auto" />
           </div>
         </SidebarHeader>
 
-        <SidebarGroup className="flex-1">
-          <SidebarGroupContent className="p-2">
+        <SidebarGroup className="flex-1 overflow-y-auto">
+          <SidebarGroupContent className="">
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.title}
-                    isActive={location.pathname === item.url}
-                  >
-                    <NavLink to={item.url}>
-                      <div className="flex min-w-[22px] items-center justify-center">
-                        <item.icon className="h-5 w-5" />
-                      </div>
-                      <span>{item.title}</span>
-                      {item.badge && (
+              {items.map((item) => {
+                const isActive = location.pathname === item.url
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    
+                    <NavLink
+                      to={item.url}
+                      className={`group flex items-center gap-2 rounded-md px-4 py-2 transition-colors
+                        ${
+                          isActive
+                            ? // Active styles
+                              "border-l-4 border-blue-600 bg-blue-50 text-blue-700 font-medium"
+                            : // Default & hover
+                              "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        }
+                      `}
+                    >
+                      <item.icon
+                        className={`h-5 w-5 flex-shrink-0 
+                          ${
+                            isActive
+                              ? "text-blue-600"
+                              : "text-gray-400 group-hover:text-gray-600"
+                          }
+                        `}
+                      />
+                      <span className="whitespace-nowrap">{item.title}</span>
+
+                      {item.badge !== undefined && (
                         <SidebarMenuBadge>
                           {item.badge}
                         </SidebarMenuBadge>
                       )}
                     </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -98,4 +98,3 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
-

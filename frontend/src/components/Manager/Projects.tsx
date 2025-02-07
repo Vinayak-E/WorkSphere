@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ScaleLoader } from 'react-spinners';
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, X, Calendar, ChevronLeft, ChevronRight, Search, Clock, Users, Building, ChevronDown, Pencil, CheckCircle, AlertCircle } from "lucide-react";
+import { PlusCircle, X, Calendar, ChevronLeft, ChevronRight, Search, Clock, Users, Building, ChevronDown, Pencil, CheckCircle, AlertCircle, Badge, Eye, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { RootState } from "@/redux/store";
 import { IEmployee } from "@/types/IEmployee";
 import ProjectStatusDropdown from "./ProjectStatusDropdown";
 import { ProjectService } from "@/services/employee/project.service";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 function isEmployee(userData: unknown): userData is IEmployee {
   return !!userData && typeof userData === 'object' && 'role' in userData;
@@ -109,12 +110,17 @@ const ProjectList = () => {
     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   };
 
+  const getStatusColor = (status: string) => {
+    const statusColors = {
+      'Completed': 'bg-green-100 text-green-800',
+      'In Progress': 'bg-blue-100 text-blue-800',
+      'Pending': 'bg-yellow-100 text-yellow-800',
+      'Delayed': 'bg-red-100 text-red-800'
+    };
+    return statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800';
+  };
 
-  const handleProjectClick = (projectId: string) => {
-    if (!projectId) {
-      console.error("Project ID is undefined");
-      return;
-    }
+  const handleViewDetails = (projectId: string) => {
     navigate(`/employee/projects/${projectId}`);
   };
 
@@ -131,8 +137,8 @@ const ProjectList = () => {
 
 
   return (
-    <Card className="w-full max-w-6xl mx-auto shadow-lg rounded">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl">
+      <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -200,13 +206,13 @@ const ProjectList = () => {
       <CardContent className="p-6">
         <div className="mb-6 bg-gray-50 p-4 rounded-xl shadow-sm">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-            <div className="flex items-center gap-2 flex-1 w-full">
-              <Search className="text-gray-500 w-5 h-5" />
+            <div className="flex items-center gap-2 flex-1 w-full relative">
+              <Search className="absolute left-3 text-gray-400 w-5 h-5" />
               <Input
                 placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full focus:ring-2 focus:ring-blue-500"
+                className="pl-10 w-full bg-white border-gray-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <Button
@@ -218,73 +224,92 @@ const ProjectList = () => {
             </Button>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {projects.map((project) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 ">
+        {projects.map((project) => (
             <Card
               key={project._id}
-              className="hover:shadow-lg transition-shadow cursor-pointer group"
-              onClick={() => handleProjectClick(project._id)}
+              className="hover:shadow-md transition-all duration-500 border-gray-200 rounded-xl"
             >
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                    {project.name}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <ProjectStatusDropdown
-                      status={project.status}
-                      onStatusChange={async (newStatus) => {
-                        try {
-                          const updatedProject = await ProjectService.updateProjectStatus(project._id, newStatus);
-                          setProjects(prevProjects => prevProjects.map(p =>
-                            p._id === project._id ? { ...p, status: updatedProject.status } : p
-                          ));
-                        } catch (error) {
-                          console.error('Error updating status:', error);
-                        }
-                      }}
-                    />
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditedProject(project);
-                        setIsOpen(true);
-                      }}
-                    >
-                      <Pencil className="w-4 h-4 text-gray-500 hover:text-blue-600" />
-                    </Button>
-                  </div>
-                </div>
-
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Building className="w-4 h-4 text-gray-400" />
-                    <span>{project.department?.name || 'No Department'}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-gray-400" />
-                    <span>{project.employees?.length || 0} members</span>
-                  </div>
-                  {project.deadline && (
-                    <div className="flex items-center gap-2 col-span-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span className={`${getDaysRemaining(project.deadline) < 0
-                          ? 'text-red-600'
-                          : getDaysRemaining(project.deadline) < 7
-                            ? 'text-yellow-600'
-                            : 'text-gray-600'
-                        }`}>
-                        {getDaysRemaining(project.deadline) < 0
-                          ? 'Overdue'
-                          : `${getDaysRemaining(project.deadline)} days remaining`}
-                      </span>
+              <CardContent className="p-6 rounded-xl">
+                <div className="flex flex-col space-y-4">
+                  {/* Header Section */}
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {project.name}
+                      </h3>
                     </div>
-                  )}
+                    <div className="flex items-center gap-2">
+                      <ProjectStatusDropdown
+                        status={project.status}
+                        onStatusChange={async (newStatus) => {
+                          try {
+                            const updatedProject = await ProjectService.updateProjectStatus(project._id, newStatus);
+                            setProjects(prevProjects => prevProjects.map(p =>
+                              p._id === project._id ? { ...p, status: updatedProject.status } : p
+                            ));
+                          } catch (error) {
+                            console.error('Error updating status:', error);
+                          }
+                        }}
+                      />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditedProject(project);
+                              setIsOpen(true);
+                            }}
+                          >
+                            <Pencil className="w-4 h-4 text-gray-500 hover:text-white" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit Project</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-600 text-sm line-clamp-2">
+                    {project.description}
+                  </p>
+
+     
+                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Building className="w-4 h-4 text-gray-400" />
+                      <span className="truncate">{project.department?.name || 'No Department'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-gray-400" />
+                      <span>{project.employees?.length || 0} members</span>
+                    </div>
+                    {project.deadline && (
+                      <div className="flex items-center gap-2 col-span-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span className={`${getDaysRemaining(project.deadline) < 0
+                          ? 'text-red-600 font-medium'
+                          : getDaysRemaining(project.deadline) < 7
+                            ? 'text-yellow-600 font-medium'
+                            : 'text-gray-600'
+                          }`}>
+                          {getDaysRemaining(project.deadline) < 0
+                            ? 'Overdue'
+                            : `${getDaysRemaining(project.deadline)} days remaining`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <Button variant='ghost'
+                className="w-full mt-4 rounded-[5px]  bg-primary/30 text-blue-800 hover:bg-primary transition-colors"
+                onClick={() => handleViewDetails(project._id)}
+              >
+                 View Details <ArrowRight className="w-4 h-4 ml-2" />
+               
+              </Button>
+              
                 </div>
               </CardContent>
             </Card>
@@ -330,3 +355,4 @@ const ProjectList = () => {
 };
 
 export default ProjectList;
+
