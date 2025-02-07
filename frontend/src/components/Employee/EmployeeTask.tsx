@@ -106,8 +106,8 @@ const EmployeeTaskList = () => {
   }
 
   return (
-    <Card className="w-full max-w-6xl mx-auto shadow-xl rounded-xl bg-white">
-    <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10 px-6 py-6">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl">
+    <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
           <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">

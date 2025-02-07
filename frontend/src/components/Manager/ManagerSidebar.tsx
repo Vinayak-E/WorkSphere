@@ -58,7 +58,7 @@ export function AppSidebar() {
     <Sidebar 
       variant="sidebar" 
       collapsible="icon"
-      className="border-r shadow-sm bg-white h-screen flex flex-col "
+      className=" drop-shadow-lg bg-white h-screen flex flex-col "
     > 
       <SidebarContent className="flex-1 bg-white">
         <SidebarHeader className="border-b-2 px-12 ">

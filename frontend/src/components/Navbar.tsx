@@ -45,7 +45,6 @@ const Navbar = () => {
   
   }, []);
 
-  // Mobile menu animation
   useEffect(() => {
     if (isMenuOpen) {
       const mobileMenuItems = document.querySelectorAll('.mobile-menu-item');
@@ -68,7 +67,7 @@ const Navbar = () => {
 
   return (
     
-    <nav className={`fixed w-full z-50 transition-all duration-300  ${ isScrolled ? "bg-card "  : "bg-transparent " }`}>
+    <nav className={`fixed w-screen z-50 transition-all duration-300  ${ isScrolled ? "bg-card "  : "bg-transparent " }`}>
       <div  ref={navRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="flex justify-between h-18 mt-2 mb-2 items-center">
           <div className="flex-shrink-0">
