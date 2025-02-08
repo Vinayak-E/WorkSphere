@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ScaleLoader } from 'react-spinners';
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, X, Calendar, ChevronLeft, ChevronRight, Search, Clock, Users, Building, ChevronDown, Pencil, CheckCircle, AlertCircle, Badge, Eye, ArrowRight } from "lucide-react";
+import { PlusCircle, X, Calendar, ChevronLeft, ChevronRight, Search, Clock, Users, Building, Pencil, AlertCircle, ArrowRight, CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,8 @@ const ProjectList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
   const projectsPerPage = 6;
   const { user } = useSelector((state: RootState) => state.auth);
   const employeeData = user?.userData;
@@ -67,6 +69,8 @@ const ProjectList = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Clear previous errors
+    setFormErrors({});
     try {
       if (editedProject) {
         const updatedProject = await ProjectController.updateProject(
@@ -81,8 +85,19 @@ const ProjectList = () => {
       setIsOpen(false);
       setNewProject({ name: "", description: "", status: "Pending", deadline: "" });
       setEditedProject(null);
-    } catch (error) {
-      console.error('Error saving project:', error);
+    } catch (error: any) {
+      // Attempt to parse validation errors
+      try {
+        const validationErrors = JSON.parse(error.message);
+        // Create an object with field names as keys and error messages as values.
+        const newErrors: Record<string, string> = {};
+        validationErrors.forEach((err: { path: string; message: string }) => {
+          newErrors[err.path] = err.message;
+        });
+        setFormErrors(newErrors);
+      } catch {
+        console.error('Error saving project:', error);
+      }
     }
   };
 
@@ -91,6 +106,7 @@ const ProjectList = () => {
     if (!isOpen) {
       setEditedProject(null);
       setNewProject({ name: "", description: "", status: "Pending", deadline: "" });
+      setFormErrors({});
     } else if (editedProject) {
       setNewProject({
         name: editedProject.name,
@@ -98,6 +114,7 @@ const ProjectList = () => {
         status: editedProject.status,
         deadline: editedProject.deadline ? new Date(editedProject.deadline).toISOString().split('T')[0] : ""
       });
+      setFormErrors({});
     }
   }, [isOpen, editedProject]);
 
@@ -110,15 +127,6 @@ const ProjectList = () => {
     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   };
 
-  const getStatusColor = (status: string) => {
-    const statusColors = {
-      'Completed': 'bg-green-100 text-green-800',
-      'In Progress': 'bg-blue-100 text-blue-800',
-      'Pending': 'bg-yellow-100 text-yellow-800',
-      'Delayed': 'bg-red-100 text-red-800'
-    };
-    return statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800';
-  };
 
   const handleViewDetails = (projectId: string) => {
     navigate(`/employee/projects/${projectId}`);
@@ -166,6 +174,7 @@ const ProjectList = () => {
                     required
                     className="focus:ring-2 focus:ring-blue-500"
                   />
+                    {formErrors.name && <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Description</label>
@@ -175,6 +184,7 @@ const ProjectList = () => {
                     required
                     className="focus:ring-2 focus:ring-blue-500"
                   />
+                   {formErrors.description && <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -193,6 +203,7 @@ const ProjectList = () => {
                       Deadline cannot be in the past
                     </p>
                   )}
+                   {formErrors.deadline && <p className="text-red-500 text-sm mt-1">{formErrors.deadline}</p>}
                 </div>
                 <Button type="submit" className="w-full">
                   {editedProject ? "Edit Project" : "Create New Project"}
@@ -225,7 +236,7 @@ const ProjectList = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 ">
-        {projects.map((project) => (
+          {projects.map((project) => (
             <Card
               key={project._id}
               className="hover:shadow-md transition-all duration-500 border-gray-200 rounded-xl"
@@ -275,7 +286,7 @@ const ProjectList = () => {
                     {project.description}
                   </p>
 
-     
+
                   <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
                     <div className="flex items-center gap-2">
                       <Building className="w-4 h-4 text-gray-400" />
@@ -286,30 +297,42 @@ const ProjectList = () => {
                       <span>{project.employees?.length || 0} members</span>
                     </div>
                     {project.deadline && (
-                      <div className="flex items-center gap-2 col-span-2">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        <span className={`${getDaysRemaining(project.deadline) < 0
-                          ? 'text-red-600 font-medium'
-                          : getDaysRemaining(project.deadline) < 7
-                            ? 'text-yellow-600 font-medium'
-                            : 'text-gray-600'
-                          }`}>
-                          {getDaysRemaining(project.deadline) < 0
-                            ? 'Overdue'
-                            : `${getDaysRemaining(project.deadline)} days remaining`}
-                        </span>
-                      </div>
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-gray-400" />
+                          <span
+                            className={
+                              getDaysRemaining(project.deadline) < 0
+                                ? 'text-red-600 font-medium'
+                                : getDaysRemaining(project.deadline) < 7
+                                  ? 'text-yellow-600 font-medium'
+                                  : 'text-gray-600'
+                            }
+                          >
+                            {getDaysRemaining(project.deadline) < 0
+                              ? 'Overdue'
+                              : `${getDaysRemaining(project.deadline)} days remaining`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+
+                          <CalendarIcon className="w-4 h-4 text-gray-400" />
+                          <span>{new Date(project.deadline).toLocaleDateString('en-GB')}</span>
+                        </div>
+                      </>
                     )}
                   </div>
 
+
+
                   <Button variant='ghost'
-                className="w-full mt-4 rounded-[5px]  bg-primary/30 text-blue-800 hover:bg-primary transition-colors"
-                onClick={() => handleViewDetails(project._id)}
-              >
-                 View Details <ArrowRight className="w-4 h-4 ml-2" />
-               
-              </Button>
-              
+                    className="w-full mt-4 rounded-[5px]  bg-primary/20 text-blue-700 hover:bg-primary transition-colors"
+                    onClick={() => handleViewDetails(project._id)}
+                  >
+                    View Details <ArrowRight className="w-4 h-4 ml-2" />
+
+                  </Button>
+
                 </div>
               </CardContent>
             </Card>

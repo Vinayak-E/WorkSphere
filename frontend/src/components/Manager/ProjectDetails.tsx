@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Users, Clock, Briefcase, ListChecks, PlusCircle, Pencil } from "lucide-react";
+import { ProjectController } from "@/controllers/employee/project.controller";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -31,6 +32,9 @@ const ProjectDetails = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+  const [tasks, setTasks] = useState<ITask[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -44,12 +48,14 @@ const ProjectDetails = () => {
     deadline: "",
   });
 
+
   useEffect(() => {
     const loadProject = async () => {
       try {
         const response = await ProjectService.getProjectById(id!);
         setProject(response.data.project);
         setDepartmentEmployees(response.data.departmentEmployees);
+        setTasks(response.data.tasks);
       } catch (error) {
         console.error("Error loading project:", error);
         navigate("/employee/projects");
@@ -60,21 +66,22 @@ const ProjectDetails = () => {
     loadProject();
   }, [id]);
 
+
+
   const handleCreateTask = async () => {
     try {
-      const createdTask = await ProjectService.createProjectTask(id!, newTask) as ITask;
+      const createdTask = await ProjectController.createTask(id!, newTask) as ITask;
       const formattedTask = {
         _id: createdTask._id,
         title: createdTask.title,
         description: createdTask.description,
         assignee: createdTask.assignee,
         deadline: createdTask.deadline,
+        status: createdTask.status,
       };
-      
-      setProject(prev => prev ? {
-        ...prev,
-        tasks: [...(prev.tasks || []), formattedTask],
-      } : null);
+
+
+      setTasks(prevTasks => [...prevTasks, formattedTask]);
 
       setIsCreateDialogOpen(false);
       setNewTask({
@@ -83,10 +90,22 @@ const ProjectDetails = () => {
         assignee: "",
         deadline: "",
       });
-    } catch (error) {
-      console.error("Error creating task:", error);
+    } catch (error: any) {
+      // Attempt to parse validation errors
+      try {
+        const validationErrors = JSON.parse(error.message);
+        // Create an object with field names as keys and error messages as values.
+        const newErrors: Record<string, string> = {};
+        validationErrors.forEach((err: { path: string; message: string }) => {
+          newErrors[err.path] = err.message;
+        });
+        setFormErrors(newErrors);
+      } catch {
+        console.error('Error saving project:', error);
+      }
     }
   };
+
 
   const handleEditClick = (task: ITask) => {
     setSelectedTask(task);
@@ -96,29 +115,38 @@ const ProjectDetails = () => {
       assignee: typeof task.assignee === 'object' ? task.assignee._id : task.assignee,
       deadline: new Date(task.deadline).toISOString().split('T')[0],
     });
+    setFormErrors({})
     setIsEditDialogOpen(true);
   };
 
   const handleUpdateTask = async () => {
     if (!selectedTask) return;
-    
+
     try {
-      const updatedTask = await ProjectService.updateProjectTask(id!, selectedTask._id, editTask);
-      
-      setProject(prev => prev ? {
-        ...prev,
-        tasks: prev.tasks.map(task => 
-          task._id === selectedTask._id ? {
-            ...task,
-            ...updatedTask,
-          } : task
-        ),
-      } : null);
+      const updatedTask = await ProjectController.updateTask(id!, selectedTask._id, editTask);
+
+      // Update the tasks state directly
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task._id === selectedTask._id ? { ...task, ...updatedTask } : task
+        )
+      );
 
       setIsEditDialogOpen(false);
       setSelectedTask(null);
-    } catch (error) {
-      console.error("Error updating task:", error);
+    } catch (error: any) {
+      // Attempt to parse validation errors
+      try {
+        const validationErrors = JSON.parse(error.message);
+        // Create an object with field names as keys and error messages as values.
+        const newErrors: Record<string, string> = {};
+        validationErrors.forEach((err: { path: string; message: string }) => {
+          newErrors[err.path] = err.message;
+        });
+        setFormErrors(newErrors);
+      } catch {
+        console.error('Error saving project:', error);
+      }
     }
   };
 
@@ -150,7 +178,10 @@ const ProjectDetails = () => {
               </CardTitle>
               <p className="text-gray-600 mt-2">{project.description}</p>
             </div>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Button onClick={() => {
+              setIsCreateDialogOpen(true);
+              setFormErrors({});
+            }}>
               <PlusCircle className="mr-2 h-4 w-4" /> Assign Task
             </Button>
           </div>
@@ -161,7 +192,7 @@ const ProjectDetails = () => {
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-gray-600" />
               <span className="font-medium">
-                Deadline: {new Date(project.deadline).toLocaleDateString()}
+                Deadline: {new Date(project.deadline).toLocaleDateString('en-GB')}
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -176,17 +207,16 @@ const ProjectDetails = () => {
             <div className="flex items-center gap-3">
               <ListChecks className="w-5 h-5 text-gray-600" />
               <span className="font-medium">
-                Total Tasks: {project.tasks?.length || 0}
+                Total Tasks: {tasks?.length || 0}
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                project.status === "Completed"
+              <span className={`px-3 py-1 rounded-full text-sm ${project.status === "Completed"
                   ? "bg-green-100 text-green-800"
                   : project.status === "In Progress"
                     ? "bg-yellow-100 text-yellow-800"
                     : "bg-gray-100 text-gray-800"
-              }`}>
+                }`}>
                 Status: {project.status}
               </span>
             </div>
@@ -195,7 +225,7 @@ const ProjectDetails = () => {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {project.tasks?.map((task) => (
+        {tasks?.map((task) => (
           <Card key={task._id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-2">
@@ -217,17 +247,17 @@ const ProjectDetails = () => {
                     ? task.assignee.name
                     : departmentEmployees.find((emp) => emp._id === task.assignee)?.name || task.assignee}
                 </span>
-                <span>Due: {new Date(task.deadline).toLocaleDateString()}</span>
+                <span>Due: {new Date(task.deadline).toLocaleDateString('en-GB')}</span>
               </div>
               <div className="mt-2">
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  task.status === "Completed"
+                <span className={`px-2 py-1 rounded-full text-xs ${task.status === "Completed"
                     ? "bg-green-100 text-green-800"
                     : task.status === "In Progress"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-gray-100 text-gray-800"
-                }`}>
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}>
                   {task.status}
+
                 </span>
               </div>
             </CardContent>
@@ -236,7 +266,13 @@ const ProjectDetails = () => {
       </div>
 
       {/* Create Task Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog
+        open={isCreateDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateDialogOpen(open);
+          if (!open) setFormErrors({});
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create New Task</DialogTitle>
@@ -248,6 +284,7 @@ const ProjectDetails = () => {
                 value={newTask.title}
                 onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
               />
+              {formErrors.title && <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>}
             </div>
             <div>
               <Label>Description</Label>
@@ -255,6 +292,7 @@ const ProjectDetails = () => {
                 value={newTask.description}
                 onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
               />
+              {formErrors.description && <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>}
             </div>
             <div>
               <Label>Assign To</Label>
@@ -273,6 +311,7 @@ const ProjectDetails = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {formErrors.assignee && <p className="text-red-500 text-sm mt-1">{formErrors.assignee}</p>}
             </div>
             <div>
               <Label>Deadline</Label>
@@ -282,6 +321,7 @@ const ProjectDetails = () => {
                 min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
               />
+              {formErrors.deadline && <p className="text-red-500 text-sm mt-1">{formErrors.deadline}</p>}
             </div>
             <Button onClick={handleCreateTask} className="w-full">
               Create Task
@@ -291,7 +331,13 @@ const ProjectDetails = () => {
       </Dialog>
 
       {/* Edit Task Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) setFormErrors({});
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Task</DialogTitle>
@@ -303,6 +349,8 @@ const ProjectDetails = () => {
                 value={editTask.title}
                 onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
               />
+              {formErrors.title && <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>}
+
             </div>
             <div>
               <Label>Description</Label>
@@ -310,6 +358,7 @@ const ProjectDetails = () => {
                 value={editTask.description}
                 onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
               />
+              {formErrors.description && <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>}
             </div>
             <div>
               <Label>Assign To</Label>
@@ -328,6 +377,7 @@ const ProjectDetails = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {formErrors.assignee && <p className="text-red-500 text-sm mt-1">{formErrors.assignee}</p>}
             </div>
             <div>
               <Label>Deadline</Label>
@@ -337,6 +387,7 @@ const ProjectDetails = () => {
                 min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setEditTask({ ...editTask, deadline: e.target.value })}
               />
+              {formErrors.deadline && <p className="text-red-500 text-sm mt-1">{formErrors.deadline}</p>}
             </div>
             <Button onClick={handleUpdateTask} className="w-full">
               Update Task

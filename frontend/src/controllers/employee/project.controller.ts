@@ -1,7 +1,7 @@
 
 import { ProjectService } from '@/services/employee/project.service';
-import { toast } from 'react-toastify';
-import { projectSchema } from '@/utils/validations';
+import { toast } from 'react-hot-toast';
+import { TaskFormData, projectSchema, taskSchema } from '@/utils/validations';
 import { ICreateProject , IProject, ProjectQueryParams } from '@/types/IProject';
 
 export class ProjectController {
@@ -13,7 +13,7 @@ export class ProjectController {
       this.handleError(error, 'fetch projects');
       throw error;
     }
-  }
+  } //ok
 
   static async getAllProjects(params?: ProjectQueryParams) {
     try {
@@ -35,7 +35,6 @@ export class ProjectController {
         }));
         throw new Error(JSON.stringify(errors));
       }
-      
       const newProject = await ProjectService.createProject(completeProjectData);
       toast.success('Project created successfully');
       return newProject;
@@ -43,7 +42,7 @@ export class ProjectController {
       this.handleError(error, 'create project');
       throw error;
     }
-  }
+  }//ok
 
 
 
@@ -59,14 +58,66 @@ export class ProjectController {
   }
   static async updateProject(projectId: string, updateData: Partial<IProject>) {
     try {
-      const updatedProject = await ProjectService.updateProject(projectId, updateData);
+      const completeProjectData = { ...updateData }
+      const validationResult = projectSchema.safeParse(completeProjectData);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(error => ({
+          path: error.path.join('.'),
+          message: error.message
+        }));
+        throw new Error(JSON.stringify(errors));
+      }
+      const updatedProject = await ProjectService.updateProject(projectId, completeProjectData);
       toast.success('Project updated successfully');
       return updatedProject 
     } catch (error) {
       this.handleError(error, 'update project');
       throw error;
     }
+  }//ok
+
+
+
+
+  static async createTask(projectId: string, taskData: TaskFormData) {
+    try {
+      const validationResult = taskSchema.safeParse(taskData);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(error => ({
+          path: error.path.join('.'),
+          message: error.message
+        }));
+        throw new Error(JSON.stringify(errors));
+      }
+      
+      const newTask = await ProjectService.createProjectTask(projectId, taskData);
+      toast.success('Task created successfully');
+      return newTask;
+    } catch (error) {
+      this.handleError(error, 'create task');
+      throw error;
+    }
   }
 
+
+  static async updateTask(projectId: string, taskId: string, taskData: TaskFormData) {
+    try {
+      const validationResult = taskSchema.safeParse(taskData);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(error => ({
+          path: error.path.join('.'),
+          message: error.message
+        }));
+        throw new Error(JSON.stringify(errors));
+      }
+      
+      const updatedTask = await ProjectService.updateProjectTask(projectId, taskId, taskData);
+      toast.success('Task updated successfully');
+      return updatedTask;
+    } catch (error) {
+      this.handleError(error, 'update task');
+      throw error;
+    }
+  }
 
 }

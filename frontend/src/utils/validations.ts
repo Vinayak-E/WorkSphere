@@ -118,3 +118,25 @@ export const projectSchema = z.object({
 });
 
 export type ProjectFormData = z.infer<typeof projectSchema>;
+
+
+
+
+
+
+
+export const taskSchema = z.object({
+  title: z.string().min(3, { message: 'Task title must be at least 3 characters' }),
+  description: z.string().min(5, { message: 'Task description must be at least 5 characters' }),
+  assignee: z.string().nonempty({ message: 'Assignee is required' }),
+  deadline: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid date format' })
+    .refine((dateString) => {
+      const today = new Date(new Date().toISOString().split('T')[0]);
+      const deadlineDate = new Date(dateString);
+      return deadlineDate >= today;
+    }, { message: 'Deadline cannot be in the past' }),
+});
+
+export type TaskFormData = z.infer<typeof taskSchema>;

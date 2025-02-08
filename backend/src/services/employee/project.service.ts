@@ -11,14 +11,12 @@ export class ProjectService {
       if (!projectData.manager) {
         throw new Error("Manager ID is required");
       }
-    
 
       const manager = await this.employeeRepository.getEmployeeById(connection, projectData.manager.toString());
       if (!manager) {
         throw new Error("Manager not found");
       }
     
-
       const departmentId = (manager.department as any)._id 
         ? (manager.department as any)._id.toString() 
         : manager.department.toString();
@@ -28,12 +26,9 @@ export class ProjectService {
         ...projectData,
         department: departmentId, 
         status: "Pending",
-        employees: [],
-        tasks: []
+        employees: []
       };
-    
-      console.log('Project data with department:', projectToCreate);
-    
+
       return this.projectRepository.createProject(connection, projectToCreate);
     }
     
@@ -63,28 +58,29 @@ export class ProjectService {
 
 
 
-      async getProjectDetails(connection: Connection, projectId: string): Promise<{project: IProject | null, departmentEmployees: IEmployee[]}> {
+      async getProjectDetails(connection: Connection, projectId: string): Promise<{project: IProject | null, tasks:ITask[],departmentEmployees: IEmployee[]}> {
         const project = await this.projectRepository.getProjectById(connection, projectId);
         
         if (!project) {
             throw new Error("Project not found");
         }
 
-
         const departmentId = project.department._id || project.department.toString();
-        
-
         const departmentEmployees = await this.employeeRepository.getEmployeesByDepartment(connection, departmentId);
+        const tasks = await this.projectRepository.getTasksByProjectId(connection, projectId);
 
         return {
             project,
+            tasks,
             departmentEmployees
         };
     }
     
+
       async addTask(connection: Connection, taskData: ITask): Promise<ITask | null> {
         return this.projectRepository.createTask(connection, taskData);
       }
+
 
 
       async updateProject( id:string, connection: Connection, updateData: IProject ): Promise<IProject> {
@@ -101,6 +97,8 @@ export class ProjectService {
           throw error;
       }
       }
+
+
       async updateProjectStatus( id:string, connection: Connection, status: string ): Promise<IProject> {
         try{
   
@@ -194,15 +192,7 @@ export class ProjectService {
         if (!project) {
           throw new Error("Project not found");
         }
-      
-        const taskExists = project.tasks.some(task =>
-          task._id.toString() === taskId
-        );
-        
-        if (!taskExists) {
-          throw new Error("Task not found in this project");
-        }
-      
+
 
         if (taskData.assignee) {
           const employee = await this.employeeRepository.getEmployeeById(connection, taskData.assignee.toString());
@@ -212,12 +202,7 @@ export class ProjectService {
         }
       
  
-        const updatedTask = await this.projectRepository.updateProjectTask(
-          connection,
-          projectId,
-          taskId,
-          taskData
-        );
+        const updatedTask = await this.projectRepository.updateProjectTask(connection,projectId,taskId,taskData);
       
         if (!updatedTask) {
           throw new Error("Failed to update task");

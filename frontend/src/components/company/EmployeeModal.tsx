@@ -155,7 +155,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             }
 
       
-            if (formData.address?.zipCode && !/^\d{5}(-\d{5,6})?$/.test(formData.address.zipCode)) {
+            if (formData.address?.zipCode && !/^\d{5,6}(-\d{5,6})?$/.test(formData.address.zipCode)) {
                 newErrors["address.zipCode"] = "Invalid ZIP code format";
             }
 

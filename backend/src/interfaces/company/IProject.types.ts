@@ -23,7 +23,6 @@ export interface ITask extends Document {
   description: string;
   project: Types.ObjectId;
   assignee: Types.ObjectId; 
-  priority: "Low" | "Medium" | "High";
   status: "To Do" | "In Progress" | "Completed";
   deadline?: Date;
   createdAt?: Date;
@@ -33,7 +32,8 @@ export interface ITask extends Document {
 export interface IProjectService {
   getManagerProjects( connection: Connection,options: GetProjectsOptions): Promise<{data: IProject[];totalPages: number;currentPage: number;}>;
   createProject(connection: Connection,projectData: IProject): Promise<IProject>;
-  getProjectDetails(connection: Connection, projectId: string): Promise<{project: IProject | null;departmentEmployees: IEmployee[]}>;
+  getProjectDetails(connection: Connection, projectId: string): Promise<{project: IProject | null;tasks:ITask[],departmentEmployees: IEmployee[]}>;
+  
   addTask(connection: Connection, taskData: ITask): Promise<ITask | null>;
   updateProject(id: string,connection: Connection,updateData: IProject): Promise<IProject>;
   updateProjectStatus(id: string,connection: Connection,status: string): Promise<IProject>;

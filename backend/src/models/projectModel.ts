@@ -9,7 +9,6 @@ export const projectSchema =  new Schema<IProject>({
     department: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
     manager: { type: mongoose.Schema.Types.ObjectId, ref: "Employee" }, 
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
-    tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }], 
     status: { type: String, enum: ["Pending", "In Progress", "Completed"], default: "Pending" },
     createdAt: { type: Date, default: Date.now },
   });

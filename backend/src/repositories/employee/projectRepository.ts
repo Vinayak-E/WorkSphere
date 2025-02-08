@@ -32,21 +32,15 @@ export class ProjectRepository {
     );
   }
 
-  async createProject(
-    connection: Connection,
-    projectData: Partial<IProject>
-  ): Promise<IProject> {
+
+  async createProject( connection: Connection, projectData: Partial<IProject>): Promise<IProject> {
     const projectModel = this.getProjectModel(connection);
     const project = new projectModel(projectData);
     return project.save();
   }
 
-  async getProjectsByManager(
-    connection: Connection,
-    query: any,
-    skip: number,
-    limit: number
-  ): Promise<IProject[]> {
+
+  async getProjectsByManager( connection: Connection, query: any, skip: number, limit: number ): Promise<IProject[]> {
     const projectModel = this.getProjectModel(connection);
     const employeeModel = this.getEmployeeModel(connection);
     const DepartmentModel = this.getDepartmentModel(connection);
@@ -65,10 +59,8 @@ export class ProjectRepository {
     return projectModel.countDocuments(query);
   }
 
-  async getProjectById(
-    connection: Connection,
-    projectId: string
-  ): Promise<IProject | null> {
+
+  async getProjectById( connection: Connection, projectId: string ): Promise<IProject | null> {
     const projectModel = this.getProjectModel(connection);
     const employeeModel = this.getEmployeeModel(connection);
     const taskModel = this.getTaskModel(connection);
@@ -78,24 +70,22 @@ export class ProjectRepository {
       .populate("department")
       .populate("manager")
       .populate("employees")
-      .populate("tasks")
       .exec();
   }
 
-  async createTask(
-    connection: Connection,
-    taskData: Partial<ITask>
-  ): Promise<ITask | null> {
+  async createTask( connection: Connection,taskData: Partial<ITask> ): Promise<ITask | null> {
     const taskModel = this.getTaskModel(connection);
     const projectModel = this.getProjectModel(connection);
     const employeeModel = this.getEmployeeModel(connection);
 
     const task = new taskModel(taskData);
+    console.log('task',task)
     const savedTask = await task.save();
+    console.log('savedTask',savedTask);
+    
     await projectModel.findByIdAndUpdate(
       savedTask.project,
       {
-        $push: { tasks: savedTask._id },
         $addToSet: { employees: savedTask.assignee },
       },
       { new: true }
@@ -248,5 +238,20 @@ export class ProjectRepository {
     }
 
     return updatedTask;
+  }
+
+  async getTasksByProjectId(
+    connection: Connection,
+    projectId: string,
+  ): Promise<ITask[]> {
+    const taskModel = this.getTaskModel(connection);
+    const projectModel = this.getProjectModel(connection);
+    const employeeModel = this.getEmployeeModel(connection)
+     return  taskModel.find({ project: projectId })
+    .populate("assignee", "name email")
+    .populate("project", "name")
+     .exec();  
+
+  
   }
 }

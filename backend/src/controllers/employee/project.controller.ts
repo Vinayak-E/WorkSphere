@@ -42,6 +42,8 @@ export class ProjectController {
     }
   };
 
+
+  
   createProject: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
     
@@ -72,6 +74,8 @@ export class ProjectController {
     }
   };
 
+
+
   projectDetails: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const tenantConnection = req.tenantConnection;
@@ -81,12 +85,13 @@ export class ProjectController {
         }
 
         const projectId = req.params.id;
-        const { project, departmentEmployees } = await this.projectService.getProjectDetails(tenantConnection, projectId);
+        const { project,tasks, departmentEmployees } = await this.projectService.getProjectDetails(tenantConnection, projectId);
         
         res.status(200).json({ 
             success: true, 
             data: {
                 project,
+                tasks,
                 departmentEmployees
             }
         });
@@ -94,6 +99,8 @@ export class ProjectController {
         next(error);
     }
 }
+
+
 addTask: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
    

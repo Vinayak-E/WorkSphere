@@ -20,7 +20,6 @@ interface ITask {
     name: string;
   };
   status: 'To Do' | 'In Progress' | 'Completed';
-  priority: 'Low' | 'Medium' | 'High';
   deadline: Date;
 }
 
@@ -161,11 +160,7 @@ const EmployeeTaskList = () => {
             key={task._id}
             className="group hover:shadow-lg transition-all duration-300 border-gray-100 hover:border-blue-100 relative overflow-hidden"
           >
-            <div className={`absolute top-0 left-0 w-1 h-full ${
-              task.priority === 'High' ? 'bg-red-500' :
-              task.priority === 'Medium' ? 'bg-yellow-500' :
-              'bg-green-500'
-            }`} />
+            <div className={`absolute top-0 left-0 w-1 h-full `} />
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4 gap-4">
                 <div className="flex-1">

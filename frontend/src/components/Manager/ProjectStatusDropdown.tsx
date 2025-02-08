@@ -33,7 +33,7 @@ const StatusButton = ({ status, className = '', disabled }) => {
   const Icon = config.icon;
 
   return (
-    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${config.baseStyle} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+    <div className={`inline-flex  items-center gap-1.5 px-3 py-1 rounded-full border ${config.baseStyle} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
       <Icon className="w-4 h-4" />
       <span className="text-sm font-medium">{status}</span>
     </div>
