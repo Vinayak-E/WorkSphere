@@ -191,16 +191,63 @@ export class ProjectRepository {
     limit: number
   ): Promise<IProject[]> {
     const projectModel = this.getProjectModel(connection);
-    const DepartmentModel = this.getDepartmentModel(connection);
-    const employeeModel = this.getEmployeeModel(connection);
-    return projectModel
-      .find(query)
-      .skip(skip)
-      .limit(limit)
-      .populate("department")
-      .populate("manager")
-      .populate("employees")
-      .exec();
+    
+    return projectModel.aggregate([
+      { $match: query },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'tasks', // Collection name for tasks
+          localField: '_id',
+          foreignField: 'project',
+          as: 'tasks'
+        }
+      },
+      {
+        $addFields: {
+          totalTasks: { $size: '$tasks' },
+          completedTasks: {
+            $size: {
+              $filter: {
+                input: '$tasks',
+                as: 'task',
+                cond: { $eq: ['$$task.status', 'Completed'] }
+              }
+            }
+          }
+        }
+      },
+      // Populate department
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'department',
+          foreignField: '_id',
+          as: 'department'
+        }
+      },
+      { $unwind: { path: '$department', preserveNullAndEmptyArrays: true } },
+      // Populate manager
+      {
+        $lookup: {
+          from: 'employees',
+          localField: 'manager',
+          foreignField: '_id',
+          as: 'manager'
+        }
+      },
+      { $unwind: { path: '$manager', preserveNullAndEmptyArrays: true } },
+      // Populate employees
+      {
+        $lookup: {
+          from: 'employees',
+          localField: 'employees',
+          foreignField: '_id',
+          as: 'employees'
+        }
+      }
+    ]).exec();
   }
 
   async countAllProjects(connection: Connection, query: any): Promise<number> {

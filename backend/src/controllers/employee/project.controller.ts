@@ -283,9 +283,9 @@ editProjectTask: RequestHandler = async (req: Request, res: Response, next: Next
         status: status !== "all" ? (status as string) : undefined,
         department: department !== "all" ? (department as string) : undefined,
       };
-
+      
       const result = await this.projectService.getAllProjects(tenantConnection, options);
-
+      console.log('result',result)
       res.status(200).json({
         success: true,
         data: result.data,

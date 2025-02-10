@@ -72,32 +72,41 @@ const ProjectList = () => {
   };
 
   const calculateProgress = (project: IProject) => {
+    if (project.status === "Completed") return 100;
+    if (project.totalTasks && project.totalTasks > 0) {
+      return ((project.completedTasks || 0) / project.totalTasks) * 100;
+    }
+    
+    // Fallback to timeline-based calculation
     if (!project.deadline || !project.createdAt) return 0;
-    if(project.status === 'Completed') return 100;
+    if (project.status === 'Completed') return 100;
+  
     const start = new Date(project.createdAt).getTime();
     const end = new Date(project.deadline).getTime();
     const now = Date.now();
-    const total = end - start;
-    const progress = now - start;
-    return Math.min(Math.max((progress / total) * 100, 0), 100);
+    
+    return Math.min(
+      ((now - start) / (end - start)) * 100,
+      100
+    );
   };
 
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
-    <Card className="border-0 shadow-lg rounded-xl overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-500 px-8 py-8">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl">
+      <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-2">
-            <CardTitle className="text-3xl font-bold text-white flex items-center gap-3">
-              <Calendar className="w-8 h-8" />
+            <CardTitle className="text-3xl font-bold  text-gray-800 flex items-center gap-3">
+              <Calendar className="w-8 h-8 text-blue-500" />
               Project Dashboard
             </CardTitle>
-            <p className="text-indigo-100">Manage and track company initiatives</p>
+            <p className=" text-gray-500">Manage and track company initiatives</p>
           </div>
           <div className="flex items-center gap-3">
-            <BarChart2 className="w-5 h-5 text-indigo-100" />
-            <span className="text-indigo-100">
+            <BarChart2 className="w-5 h-5 text-gray-600" />
+            <span className=" text-gray-600">
               {projects.length} Active Projects
             </span>
           </div>

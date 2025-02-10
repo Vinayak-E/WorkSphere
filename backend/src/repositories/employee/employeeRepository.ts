@@ -199,7 +199,6 @@ export class EmployeeRepository {
             const DepartmentModel = this.getDepartmentModel(connection)
             return await EmployeeModel.find({ 
                 department: departmentId,
-                 role: { $ne: 'MANAGER' } 
             })
             .populate('department')
             .select('name email role department')  

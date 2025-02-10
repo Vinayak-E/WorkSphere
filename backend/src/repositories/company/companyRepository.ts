@@ -159,7 +159,7 @@ export class CompanyRepository implements ICompanyRepository {
   ): Promise<{ leaves: ILeave[]; total: number }> {
     const skip = (page - 1) * limit;
 
-    let query: any = { status: "Pending" };
+    let query: any = {};
 
     if (startDate && endDate) {
       query.startDate = { $gte: new Date(startDate) };

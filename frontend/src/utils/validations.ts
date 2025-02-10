@@ -113,7 +113,7 @@ export type ProfileFormData = z.infer<typeof profileSchema>;
 export const projectSchema = z.object({
   name: z.string().min(3, 'Project name must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  status: z.enum(['Pending', 'In Progress', 'Completed']),
+  status: z.enum(['Pending', 'In Progress', 'Completed']).optional(),
   deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
 });
 

@@ -304,12 +304,14 @@ const ProjectDetails = () => {
                   <SelectValue placeholder="Select an employee" />
                 </SelectTrigger>
                 <SelectContent>
-                  {departmentEmployees.map((employee) => (
-                    <SelectItem key={employee._id} value={employee._id}>
-                      {employee.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+  {departmentEmployees
+    .filter((employee) => employee.role === "EMPLOYEE")
+    .map((employee) => (
+      <SelectItem key={employee._id} value={employee._id}>
+        {employee.name}
+      </SelectItem>
+    ))}
+</SelectContent>
               </Select>
               {formErrors.assignee && <p className="text-red-500 text-sm mt-1">{formErrors.assignee}</p>}
             </div>
@@ -370,12 +372,15 @@ const ProjectDetails = () => {
                   <SelectValue placeholder="Select an employee" />
                 </SelectTrigger>
                 <SelectContent>
-                  {departmentEmployees.map((employee) => (
-                    <SelectItem key={employee._id} value={employee._id}>
-                      {employee.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+  {departmentEmployees
+    .filter((employee) => employee.role === "EMPLOYEE")
+    .map((employee) => (
+      <SelectItem key={employee._id} value={employee._id}>
+        {employee.name}
+      </SelectItem>
+    ))}
+</SelectContent>
+
               </Select>
               {formErrors.assignee && <p className="text-red-500 text-sm mt-1">{formErrors.assignee}</p>}
             </div>
