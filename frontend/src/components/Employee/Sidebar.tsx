@@ -23,7 +23,7 @@ const items = [
   { title: "Dashboard",       url: "/employee",         icon: Home },
   { title: "Leaves",          url: "/employee/leaves",  icon: Calendar },
   { title: "Task Management", url: "/employee/tasks",   icon: FileText },
-  { title: "Messages",        url: "/messages",         icon: Inbox,    badge: 0 },
+  { title: "Messages",        url: "/employee/chat",    icon: Inbox,    badge: 0 },
   { title: "Reports",         url: "/analytics",        icon: BarChart },
   { title: "Settings",        url: "/employee/profile", icon: Settings },
 ]

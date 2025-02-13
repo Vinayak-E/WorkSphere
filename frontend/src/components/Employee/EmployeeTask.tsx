@@ -105,7 +105,7 @@ const EmployeeTaskList = () => {
   }
 
   return (
-    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
     <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -118,7 +118,7 @@ const EmployeeTaskList = () => {
       </div>
     </CardHeader>
 
-    <CardContent className="p-6">
+    <CardContent className="p-6 rounded-xl">
       <div className="mb-8 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div className="flex items-center gap-2 flex-1 relative">

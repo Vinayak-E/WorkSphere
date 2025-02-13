@@ -10,6 +10,7 @@ import { useSelector } from "react-redux"
 import ProjectList from "@/components/Manager/Projects"
 import ProjectDetails from "@/components/Manager/ProjectDetails"
 import EmployeeTaskList from "@/components/Employee/EmployeeTask"
+import ChatContainer from "@/components/chat/chat"
 
 const EmployeeRoutes = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -24,6 +25,7 @@ const EmployeeRoutes = () => {
           <Route path="/leaves" element={<EmployeeLeaves />} />
           <Route path="/profile" element={<EmployeeProfile />} />
           <Route path="/tasks" element={<EmployeeTaskList />} />
+          <Route path="/chat" element={<ChatContainer/>} />
          
         </Route>
       ) : (
@@ -34,6 +36,7 @@ const EmployeeRoutes = () => {
           <Route path="/profile" element={<EmployeeProfile />} />
           <Route path="/projects" element={<ProjectList />} />
           <Route path="/projects/:id" element={<ProjectDetails />} />
+          <Route path="/chat" element={<ChatContainer/>} />
         </Route>
       )}
     </Routes>

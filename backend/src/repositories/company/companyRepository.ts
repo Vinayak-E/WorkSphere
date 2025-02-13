@@ -273,7 +273,7 @@ export class CompanyRepository implements ICompanyRepository {
     query: any,
     employeesOnLeave: string[]
   ): Promise<void> {
-    const FULL_DAY_HOURS = 8;
+    const FULL_DAY_HOURS = 7;
     const MIN_HOURS = 0;
 
     await AttendanceModel.updateMany(

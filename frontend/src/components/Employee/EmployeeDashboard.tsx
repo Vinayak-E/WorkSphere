@@ -176,7 +176,7 @@ export default function EmployeeDashboard() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen mt-4">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

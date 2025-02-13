@@ -7,6 +7,7 @@ import indexRouter from './routes/indexRouter';
 import adminRoter from './routes/admin/adminRoutes';
 import companyRouter from './routes/company/companyRoutes'
 import emloyeeRouter from  './routes/employee/employeeRoutes'
+import chatRouter from './routes/employee/chatRoutes'
 import { errorHandler } from './middlewares/errorMiddleware';
 dotenv.config()
 
@@ -34,7 +35,7 @@ app.use('/admin',adminRoter)
 
 app.use('/company',companyRouter)
 app.use('/employee',emloyeeRouter)
-
+app.use('/chat', chatRouter)
 
 app.use(errorHandler);
 
