@@ -7,6 +7,8 @@ const messageSchema = new Schema({
     ref: 'Employee' 
   },
   content: { type: String, trim: true },
+  mediaUrl: { type: String, default: null },
+  type: { type: String, enum: ['text', 'image', 'video'], default: 'text' }, 
   chat: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Chat' 

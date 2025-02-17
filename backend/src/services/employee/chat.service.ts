@@ -83,14 +83,19 @@ export class ChatService {
     tenantConnection: mongoose.Connection,
     content: string,
     chatId: string,
-    senderId: string
+    senderId: string,
+    mediaUrl?: string,
+    type?:string
   ): Promise<IMessageDocument> {
+
     const newMessage = await this.chatRepository.createMessage(
       tenantConnection,
       {
         sender: senderId,
         content,
         chat: chatId,
+        mediaUrl: mediaUrl || null,
+        type
       }
     );
 

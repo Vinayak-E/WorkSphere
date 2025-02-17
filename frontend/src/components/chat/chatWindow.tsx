@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, MessageSquare } from 'lucide-react';
+import { Send, MessageSquare ,PlusCircle } from 'lucide-react';
+import MediaUpload from './MediaUpload';
 
 const ChatWindow = ({
   socket,
@@ -15,6 +16,7 @@ const ChatWindow = ({
   chatService,
 }) => {
   const [newMessage, setNewMessage] = useState('');
+  const [showMediaUpload, setShowMediaUpload] = useState(false);
   const typingTimeoutRef = useRef(null);
 
   const handleTyping = () => {
@@ -30,24 +32,35 @@ const ChatWindow = ({
     }, 3000);
   };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !socket || !selectedChat) return;
+  const sendMessage = async (mediaContent = null) => {
+    if ((!newMessage.trim() && !mediaContent) || !socket || !selectedChat) return;
+
     try {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       socket.emit('stop typing', selectedChat._id);
 
+      const messageContent = mediaContent ? {
+        type: mediaContent.type,
+        content: mediaContent.type === 'text' ? newMessage.trim() : '',
+        mediaUrl: mediaContent.url
+      } : {
+        type: 'text',
+        content: newMessage
+      };
+
       const payload = {
         tenantId: currentUser.tenantId,
-        content: newMessage,
+        ...messageContent,
         chat: selectedChat,
         sender: currentUser,
       };
       const messageToAdd = {
-        content: newMessage,
+        ...messageContent,
         sender: currentUser.userData,
         chat: selectedChat._id,
         createdAt: new Date().toISOString(),
       };
+
       setMessages(prev => [...prev, messageToAdd]);
       socket.emit('new message', payload);
       setNewMessage('');
@@ -59,6 +72,34 @@ const ChatWindow = ({
       console.error('Error sending message:', error);
     }
   };
+  const handleMediaSelect = async (mediaContent) => {
+    await sendMessage(mediaContent);
+    setShowMediaUpload(false);
+  };
+
+  const fixedSize = "w-80 h-60"; // Set a fixed width and height
+
+const renderMessage = (msg) => {
+  if (msg.type === 'image') {
+    return (
+      <img 
+        src={msg.mediaUrl} 
+        alt="Shared image" 
+        className={`${fixedSize} object-cover rounded-lg border-2 border-blue-500 cursor-pointer `}
+        onClick={() => window.open(msg.mediaUrl, '_blank')}
+      />
+    );
+  } else if (msg.type === 'video') {
+    return (
+      <video 
+        src={msg.mediaUrl} 
+        className={`${fixedSize} object-cover rounded-lg border-2 border-blue-500`} 
+        controls
+      />
+    );
+  }
+  return <p className="text-white">{msg.content}</p>;
+};
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50">
@@ -138,7 +179,7 @@ const ChatWindow = ({
                             : 'bg-white text-gray-900 rounded-bl-none shadow-sm'
                         }`}
                       >
-                        {msg.content}
+                          {renderMessage(msg)}
                       </div>
                       <div
                         className={`text-xs mt-1 ${
@@ -159,29 +200,37 @@ const ChatWindow = ({
 
           {/* Message Input */}
           <div className="p-4 bg-white border-t">
-            <div className="flex gap-2 items-center">
-              <Input
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  handleTyping();
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                placeholder="Type a message..."
-                className="flex-grow bg-gray-50 rounded-full px-4 py-2 focus:ring-blue-500"
-              />
-              <Button 
-                onClick={sendMessage} 
-                size="icon"
-                className="rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 flex items-center justify-center"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+        <div className="flex gap-2 items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowMediaUpload(true)}
+            className="rounded-full"
+          >
+            <PlusCircle className="h-5 w-5" />
+          </Button>
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              handleTyping();
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="Type a message..."
+            className="flex-grow bg-gray-50 rounded-full px-4 py-2"
+          />
+          <Button 
+            onClick={() => sendMessage()} 
+            size="icon"
+            className="rounded-full bg-blue-500 hover:bg-blue-600"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
         </>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
@@ -189,7 +238,16 @@ const ChatWindow = ({
           <p className="text-lg">Select a chat or start a new conversation</p>
         </div>
       )}
+       {showMediaUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <MediaUpload
+            onMediaSelect={handleMediaSelect}
+            onClose={() => setShowMediaUpload(false)}
+          />
+        </div>
+      )}
     </div>
+    
   );
 };
 

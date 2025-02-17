@@ -53,25 +53,38 @@ export const initializeSocket = (server: http.Server) => {
    
       try {
         console.log('data',data)
-        const { tenantId, content, chat, sender } = data;
-        if (!tenantId || !content || !chat || !sender) {
+        const { tenantId, type, content, mediaUrl, chat, sender } = data;
+        if (!tenantId || !chat || !sender || (!content && !mediaUrl)) {
           console.error("Incomplete message data received:", data);
           return;
         }
-
+  
         // Retrieve the tenant-specific database connection.
         const tenantConnection: mongoose.Connection = await getTenantConnection(tenantId);
         if (!tenantConnection) {
           console.error("Tenant connection not found for tenantId:", tenantId);
           return;
         }
-
+        const messageData: any = {
+          content: content || "", // Keep content empty for images
+          chatId: chat._id,
+          senderId: sender.userData._id,
+          type
+        };
+        if ((type === "image"  || type === "video" ) && mediaUrl) {
+          messageData.mediaUrl = mediaUrl;
+        } 
+      
+        
         // Save the message (this call handles both persisting the message and updating the chat's latest message).
         const savedMessage = await chatService.sendMessage(
           tenantConnection,
-          content,
-          chat._id,    // Ensure that chat._id is in the proper format (string or ObjectId as expected by your service)
-          sender.userData._id   // Similarly, sender._id should match expected type
+          messageData.content,
+          messageData.chatId,
+          messageData.senderId,
+          messageData.mediaUrl,
+          messageData.type
+          
         );
         console.log('savedMessage',savedMessage)
         // Broadcast the saved message based on chat type.

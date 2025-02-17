@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Users, MessageSquare } from 'lucide-react';
 
 const ChatSidebar = ({
   chats,
@@ -12,16 +12,15 @@ const ChatSidebar = ({
   chatSearchTerm,
   setChatSearchTerm,
   currentUser,
-  employees,         // Array of all employees
-  loadingEmployees,  // Boolean flag for loading state
-  startNewChat       // Function to start a new chat given an employee id
+  employees,
+  loadingEmployees,
+  startNewChat
 }) => {
-  // Local state for controlling the new chat modal and search inside the modal
   const [isNewChatOpen, setIsNewChatOpen] = useState(false);
   const [employeeSearchTerm, setEmployeeSearchTerm] = useState('');
   const [filteredEmployees, setFilteredEmployees] = useState([]);
+  const [activeTab, setActiveTab] = useState('chats');
 
-  // Filter employees (exclude the current user) based on the search term
   useEffect(() => {
     if (employees && employees.length > 0) {
       setFilteredEmployees(
@@ -34,13 +33,24 @@ const ChatSidebar = ({
     }
   }, [employeeSearchTerm, employees, currentUser]);
 
-  console.log('employees on sidebar', employees);
-  console.log('currentuser on sidebar', currentUser);
-  console.log('chats ', chats);
+  // Filter chats based on type and search term
+  const filteredItems = chats.filter((chat) => {
+    const otherUser = chat.users.find(
+      (u) => String(u._id) !== String(currentUser.userData._id)
+    );
+    const displayName = chat.isGroupChat
+      ? chat.name || chat.chatName || 'Unnamed Group'
+      : otherUser?.name || 'Unknown';
+    
+    const matchesSearch = displayName.toLowerCase().includes(chatSearchTerm.toLowerCase());
+    const matchesType = activeTab === 'groups' ? chat.isGroupChat : !chat.isGroupChat;
+    
+    return matchesSearch && matchesType;
+  });
 
   return (
     <div className="flex flex-col w-1/3 bg-white border-r">
-      {/* Chat List Header */}
+      {/* Header */}
       <div className="p-4 bg-gray-50 border-b">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Messages</h2>
@@ -53,29 +63,54 @@ const ChatSidebar = ({
             <Plus className="h-5 w-5" />
           </Button>
         </div>
+
         <Input
-          placeholder="Search chats..."
+          placeholder="Search messages..."
           value={chatSearchTerm}
           onChange={(e) => setChatSearchTerm(e.target.value)}
-          className="w-full bg-gray-100"
+          className="w-full bg-gray-100 mb-4"
           prefix={<Search className="h-4 w-4 text-gray-400" />}
         />
+
+        {/* Tabs */}
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+          <button
+            onClick={() => setActiveTab('chats')}
+            className={`flex-1 flex items-center justify-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'chats'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-blue-600'
+            }`}
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span>Chats</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('groups')}
+            className={`flex-1 flex items-center justify-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'groups'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-blue-600'
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            <span>Groups</span>
+          </button>
+        </div>
       </div>
 
-      {/* Chat List */}
+      {/* Chat/Group List */}
       <ScrollArea className="flex-1">
-        {chats.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">No chats available</div>
+        {filteredItems.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">
+            No {activeTab} available
+          </div>
         ) : (
           <div className="divide-y">
-            {chats.map((chat) => {
-              // Identify the other user in a one-on-one chat
+            {filteredItems.map((chat) => {
               const otherUser = chat.users.find(
                 (u) => String(u._id) !== String(currentUser.userData._id)
               );
-
-              // For group chat, use chat.name or chat.chatName (whichever is populated).
-              // For one-on-one, use the other user's name.
               const displayName = chat.isGroupChat
                 ? chat.name || chat.chatName || 'Unnamed Group'
                 : otherUser?.name || 'Unknown';
@@ -89,9 +124,8 @@ const ChatSidebar = ({
                   onClick={() => setSelectedChat(chat)}
                 >
                   <div className="flex items-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
-                      {chat.isGroupChat ? (
-                        // For group chats, fall back to displaying the first letter of the group name.
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
+                      {chat.isGroupChat ? ( 
                         <span className="text-white text-lg">{displayName[0] ?? '?'}</span>
                       ) : (
                         (() => {
@@ -139,7 +173,7 @@ const ChatSidebar = ({
       <Dialog open={isNewChatOpen} onOpenChange={setIsNewChatOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>New Chat</DialogTitle>
+            <DialogTitle>New {activeTab === 'groups' ? 'Group' : 'Chat'}</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
             <Input
@@ -177,7 +211,10 @@ const ChatSidebar = ({
                       </div>
                       <div className="ml-3">
                         <div className="font-medium">{employee.name}</div>
-                        <div className="text-sm text-gray-500">{employee.email}</div>
+                        <div className="text-sm text-gray-500">
+                                  {employee.role.charAt(0).toUpperCase() + employee.role.slice(1).toLowerCase()}
+                                </div>
+                              <div className="text-sm text-gray-500">{employee.email}</div>
                       </div>
                     </div>
                   ))}

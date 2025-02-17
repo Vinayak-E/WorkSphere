@@ -74,6 +74,8 @@ export class ChatRepository {
       sender: string;
       content: string;
       chat: string;
+      mediaUrl:string | null;
+      type? :string;
     }
   ): Promise<IMessageDocument> {
     const EmployeeModel = this.getEmployeeModel(tenantConnection);

@@ -145,7 +145,7 @@ const ProjectList = () => {
 
 
   return (
-    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
       <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">

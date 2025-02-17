@@ -12,9 +12,9 @@ const ManagerLayout = () => {
         <div className="flex flex-col flex-1 overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100">
           <Header />
           <main className="flex-1 overflow-auto bg-gray-">
-            <div className="container mx-auto p-6">
+
               <Outlet />
-            </div>
+    
           </main>
         </div>
       </div>
