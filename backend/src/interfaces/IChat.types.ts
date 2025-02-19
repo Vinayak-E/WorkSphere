@@ -16,7 +16,7 @@ export interface IMessageDocument extends Document {
   sender: mongoose.Types.ObjectId;
   content: string;
   chat:  mongoose.Types.ObjectId;
-  readBy: mongoose.Types.ObjectId[];
+  isRead : boolean
   createdAt: Date;
   updatedAt: Date;
 }

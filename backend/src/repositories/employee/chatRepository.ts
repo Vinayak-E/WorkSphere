@@ -129,6 +129,69 @@ export class ChatRepository {
     return await MessageModel.find({ chat: chatId })
       .populate("sender", "name profilePic")
       .populate("chat")
-      .sort({ createdAt: 1 }); // Sorting by creation time (oldest first)
+      .sort({ createdAt: 1 }); 
+  }
+  async findByIdAndUpdate(
+    tenantConnection: mongoose.Connection,
+    messageId: string
+  ): Promise<void> {
+    const MessageModel = getMessageModel(tenantConnection);
+    await MessageModel.findByIdAndUpdate(
+      messageId,
+      { isRead: true },
+      { new: true }
+    );
+  }
+
+
+
+
+  async addUserToGroup(
+    tenantConnection: mongoose.Connection,
+    chatId: string,
+    userId: string
+  ): Promise<IChatDocument | null> {
+    const ChatModel = getChatModel(tenantConnection);
+    const EmployeeModel = this.getEmployeeModel(tenantConnection)
+    return await ChatModel.findByIdAndUpdate(
+      chatId,
+      {
+        $addToSet: { users: userId }  
+      },
+      { new: true }  // Returns the updated document
+    )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+  }
+
+  async removeUserFromGroup(
+    tenantConnection: mongoose.Connection,
+    chatId: string,
+    userId: string
+  ): Promise<IChatDocument | null> {
+    const ChatModel = getChatModel(tenantConnection);
+    const EmployeeModel = this.getEmployeeModel(tenantConnection)
+    return await ChatModel.findByIdAndUpdate(
+      chatId,
+      {
+        $pull: { users: userId }  
+      },
+      { new: true }  
+    )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+  }
+
+  async getChatMembers(
+    tenantConnection: mongoose.Connection,
+    chatId: string
+  ): Promise<IEmployee[]> {
+    const ChatModel = getChatModel(tenantConnection);
+    const EmployeeModel = this.getEmployeeModel(tenantConnection)
+    const chat = await ChatModel.findById(chatId).populate("users", "-password");
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+    return chat.users as unknown as IEmployee[];
   }
 }

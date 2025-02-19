@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { IChatDocument, IMessageDocument } from '../../interfaces/IChat.types';
 import { ChatRepository } from '../../repositories/employee/chatRepository';
 import { EmployeeRepository } from '../../repositories/employee/employeeRepository';
+import { IEmployee } from '../../interfaces/company/IEmployee.types';
 
 export class ChatService {
   constructor(private readonly chatRepository: ChatRepository,private readonly employeeRepository:EmployeeRepository) {}
@@ -154,4 +155,65 @@ export class ChatService {
   ): Promise<IMessageDocument[]> {
     return await this.chatRepository.findMessagesForChat(tenantConnection, chatId);
   }
+
+
+  async markMessageAsRead(  tenantConnection: mongoose.Connection, messageId :string, readerId :string) {
+
+           const message = await this.chatRepository.findByIdAndUpdate(tenantConnection,messageId)
+           return message;
+          
+  }
+
+  async addToGroup(
+    tenantConnection: mongoose.Connection,
+    chatId: string,
+    userId: string
+  ): Promise<IChatDocument | null> {
+    const updatedChat = await this.chatRepository.addUserToGroup(
+      tenantConnection,
+      chatId,
+      userId
+    );
+
+    if (!updatedChat) {
+      throw new Error("Chat not found or update failed");
+    }
+
+    return await this.chatRepository.findChatById(
+      tenantConnection,
+      updatedChat._id,
+      ["users", "groupAdmin"]
+    );
+  }
+
+  async removeFromGroup(
+    tenantConnection: mongoose.Connection,
+    chatId: string,
+    userId: string
+  ): Promise<IChatDocument | null> {
+    const updatedChat = await this.chatRepository.removeUserFromGroup(
+      tenantConnection,
+      chatId,
+      userId
+    );
+
+    if (!updatedChat) {
+      throw new Error("Chat not found or update failed");
+    }
+
+    return await this.chatRepository.findChatById(
+      tenantConnection,
+      updatedChat._id,
+      ["users", "groupAdmin"]
+    );
+  }
+
+  async getChatMembers(
+    tenantConnection: mongoose.Connection,
+    chatId: string
+  ): Promise<IEmployee[]> {
+    return await this.chatRepository.getChatMembers(tenantConnection, chatId);
+  }
+
 }
+

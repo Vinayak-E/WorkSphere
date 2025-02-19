@@ -70,7 +70,6 @@ export class ChatController {
       
 
       const { users, name } = req.body;
-     
       const adminEmail = req.user?.email;
 
       if (!users || !name) {
@@ -89,12 +88,14 @@ export class ChatController {
 
       }
 
+
       const groupChat = await this.chatService.createGroupChat(
         tenantConnection,
         users,
         name,
         adminEmail,
       );
+      console.log('group',groupChat)
 
       res.status(200).json({
         success: true,

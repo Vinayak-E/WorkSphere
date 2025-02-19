@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, Plus, Users, MessageSquare } from 'lucide-react';
-
+import { Search, Plus, Users, MessageSquare, Check } from 'lucide-react';
+import { chatService } from '@/services/employee/chat.service';
 const ChatSidebar = ({
   chats,
   selectedChat,
@@ -12,14 +12,65 @@ const ChatSidebar = ({
   chatSearchTerm,
   setChatSearchTerm,
   currentUser,
+  loadChats,
   employees,
   loadingEmployees,
-  startNewChat
+  startNewChat,
+  onlineUsers,
+
 }) => {
   const [isNewChatOpen, setIsNewChatOpen] = useState(false);
   const [employeeSearchTerm, setEmployeeSearchTerm] = useState('');
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [activeTab, setActiveTab] = useState('chats');
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [groupName, setGroupName] = useState('');
+
+  const handleCreateGroup = async () => {
+    if (!groupName || selectedUsers.length < 2) {
+      // Could add a toast notification here
+      return;
+    }
+    const groupMemberIds = [
+      ...selectedUsers.map(user => user._id),
+      currentUser.userData._id
+    ];
+    
+    try {
+      const response = await chatService.createGroupChat(
+        groupName,
+        groupMemberIds
+      );
+      await loadChats();
+      setSelectedChat(response.data);
+      setIsNewChatOpen(false);
+      resetGroupForm();
+    } catch (error) {
+      console.error('Error creating group:', error);
+      // Could add error toast notification here
+    }
+  };
+
+  const resetGroupForm = () => {
+    setSelectedUsers([]);
+    setGroupName('');
+    setEmployeeSearchTerm('');
+  };
+
+  const toggleUserSelection = (employee) => {
+    setSelectedUsers(prev => {
+      const isSelected = prev.find(u => u._id === employee._id);
+      if (isSelected) {
+        return prev.filter(u => u._id !== employee._id);
+      }
+      return [...prev, employee];
+    });
+  };
+
+  const handleCloseDialog = () => {
+    setIsNewChatOpen(false);
+    resetGroupForm();
+  };
 
   useEffect(() => {
     if (employees && employees.length > 0) {
@@ -33,7 +84,6 @@ const ChatSidebar = ({
     }
   }, [employeeSearchTerm, employees, currentUser]);
 
-  // Filter chats based on type and search term
   const filteredItems = chats.filter((chat) => {
     const otherUser = chat.users.find(
       (u) => String(u._id) !== String(currentUser.userData._id)
@@ -54,14 +104,17 @@ const ChatSidebar = ({
       <div className="p-4 bg-gray-50 border-b">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Messages</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsNewChatOpen(true)}
-            className="hover:bg-gray-200 rounded-full"
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
+          {(activeTab === 'chats' ||
+            (activeTab === 'groups' && currentUser.userData.role === 'MANAGER')) && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsNewChatOpen(true)}
+              className="hover:bg-gray-200 rounded-full"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          )}
         </div>
 
         <Input
@@ -99,7 +152,7 @@ const ChatSidebar = ({
         </div>
       </div>
 
-      {/* Chat/Group List */}
+      {/* Chat List */}
       <ScrollArea className="flex-1">
         {filteredItems.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
@@ -114,6 +167,7 @@ const ChatSidebar = ({
               const displayName = chat.isGroupChat
                 ? chat.name || chat.chatName || 'Unnamed Group'
                 : otherUser?.name || 'Unknown';
+              const isOnline = !chat.isGroupChat && onlineUsers.includes(otherUser?._id);
 
               return (
                 <div
@@ -124,27 +178,32 @@ const ChatSidebar = ({
                   onClick={() => setSelectedChat(chat)}
                 >
                   <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
-                      {chat.isGroupChat ? ( 
-                        <span className="text-white text-lg">{displayName[0] ?? '?'}</span>
-                      ) : (
-                        (() => {
-                          if (otherUser?.profilePicture) {
-                            return (
-                              <img
-                                src={otherUser.profilePicture}
-                                alt={otherUser.name}
-                                className="w-full h-full object-cover rounded-full"
-                              />
-                            );
-                          } else {
-                            return (
-                              <span className="text-white text-lg">
-                                {otherUser?.name[0] ?? '?'}
-                              </span>
-                            );
-                          }
-                        })()
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
+                        {chat.isGroupChat ? (
+                          <span className="text-white text-lg">{displayName[0] ?? '?'}</span>
+                        ) : (
+                          (() => {
+                            if (otherUser?.profilePicture) {
+                              return (
+                                <img
+                                  src={otherUser.profilePicture}
+                                  alt={otherUser.name}
+                                  className="w-full h-full object-cover rounded-full"
+                                />
+                              );
+                            } else {
+                              return (
+                                <span className="text-white text-lg">
+                                  {otherUser?.name[0] ?? '?'}
+                                </span>
+                              );
+                            }
+                          })()
+                        )}
+                      </div>
+                      {isOnline && (
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
                       )}
                     </div>
                     <div className="ml-3 flex-1">
@@ -169,13 +228,22 @@ const ChatSidebar = ({
         )}
       </ScrollArea>
 
-      {/* New Chat Dialog */}
-      <Dialog open={isNewChatOpen} onOpenChange={setIsNewChatOpen}>
+      {/* New Chat/Group Dialog */}
+      <Dialog open={isNewChatOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>New {activeTab === 'groups' ? 'Group' : 'Chat'}</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
+            {activeTab === 'groups' && (
+              <Input
+                placeholder="Group Name"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                className="mb-4"
+              />
+            )}
+            
             <Input
               placeholder="Search employees..."
               value={employeeSearchTerm}
@@ -183,7 +251,32 @@ const ChatSidebar = ({
               className="mb-4"
               prefix={<Search className="h-4 w-4 text-gray-400" />}
             />
-            <ScrollArea className="h-[400px] pr-4">
+
+            {activeTab === 'groups' && (
+              <div className="mb-4">
+                <div className="text-sm text-gray-500 mb-2">
+                  Selected Users ({selectedUsers.length}):
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedUsers.map((user) => (
+                    <div
+                      key={user._id}
+                      className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm flex items-center"
+                    >
+                      {user.name}
+                      <button
+                        onClick={() => toggleUserSelection(user)}
+                        className="ml-2 hover:text-blue-900"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <ScrollArea className="h-[300px] pr-4">
               {loadingEmployees ? (
                 <div className="text-center text-gray-500 py-4">Loading employees...</div>
               ) : (
@@ -191,11 +284,20 @@ const ChatSidebar = ({
                   {filteredEmployees.map((employee) => (
                     <div
                       key={employee._id}
-                      className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors
+                        ${activeTab === 'groups'
+                          ? selectedUsers.find(u => u._id === employee._id)
+                            ? 'bg-blue-50'
+                            : 'hover:bg-gray-50'
+                          : 'hover:bg-gray-50'
+                        }`}
                       onClick={() => {
-                        startNewChat(employee._id);
-                        setIsNewChatOpen(false);
-                        setEmployeeSearchTerm('');
+                        if (activeTab === 'groups') {
+                          toggleUserSelection(employee);
+                        } else {
+                          startNewChat(employee._id);
+                          handleCloseDialog();
+                        }
                       }}
                     >
                       <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
@@ -209,18 +311,32 @@ const ChatSidebar = ({
                           <span className="text-white text-lg">{employee.name[0]}</span>
                         )}
                       </div>
-                      <div className="ml-3">
+                      <div className="ml-3 flex-1">
                         <div className="font-medium">{employee.name}</div>
                         <div className="text-sm text-gray-500">
-                                  {employee.role.charAt(0).toUpperCase() + employee.role.slice(1).toLowerCase()}
-                                </div>
-                              <div className="text-sm text-gray-500">{employee.email}</div>
+                          {employee.role.charAt(0).toUpperCase() + employee.role.slice(1).toLowerCase()}
+                        </div>
+                        <div className="text-sm text-gray-500">{employee.email}</div>
                       </div>
+                      {activeTab === 'groups' && selectedUsers.find(u => u._id === employee._id) && (
+                        <Check className="h-5 w-5 text-blue-600" />
+                      )}
                     </div>
                   ))}
                 </div>
               )}
             </ScrollArea>
+
+            {activeTab === 'groups' && (
+              <div className="mt-4 flex justify-end">
+                <Button
+                  onClick={handleCreateGroup}
+                  disabled={!groupName || selectedUsers.length < 2}
+                >
+                  Create Group
+                </Button>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

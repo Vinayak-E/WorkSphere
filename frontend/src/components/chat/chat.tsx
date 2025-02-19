@@ -13,11 +13,10 @@ const ChatContainer = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [chatSearchTerm, setChatSearchTerm] = useState('');
   const [employees, setEmployees] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]); 
   const [loadingEmployees, setLoadingEmployees] = useState(true);
   const currentUser = useSelector((state) => state.auth.user);
   const messageAreaRef = useRef(null);
-  console.log("current user in main chat component", currentUser);
-
 
   // Load chats when component mounts
   useEffect(() => {
@@ -41,6 +40,7 @@ const ChatContainer = () => {
   const loadChats = async () => {
     try {
       const response = await chatService.getChats();
+        console.log("Chats API response:", response.data);
       setChats(response.data);
     } catch (error) {
       console.error('Error loading chats:', error);
@@ -73,35 +73,38 @@ const ChatContainer = () => {
 
   // Handle an incoming new message via socket
   const handleNewMessage = useCallback((newMessage) => {
-    console.log('Received new message:', newMessage._doc);
-    
-    setMessages(prev => [...prev, newMessage._doc]);
+    const messageData = newMessage._doc || newMessage;
+    console.log('new message Received',newMessage)
+    setMessages(prev => [...prev, messageData]);
     
     // Scroll to bottom after new message
     if (messageAreaRef.current) {
       messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
     }
   
-    // Update the chats list to show latest message
+    // Update chats list with new message
     setChats(prev => {
       const updatedChats = prev.map(chat => {
-        if (chat._id === newMessage.chat) {
+        if (chat._id === (messageData.chat._id || messageData.chatId)) {
           return {
             ...chat,
-            latestMessage: newMessage
+            latestMessage: {
+              ...messageData,
+              isRead: selectedChat?._id === (messageData.chat._id || messageData.chatId)
+            }
           };
         }
         return chat;
       });
   
-      // Sort chats to bring the most recent to top
+      // Sort chats by latest message
       return updatedChats.sort((a, b) => {
         const dateA = a.latestMessage ? new Date(a.latestMessage.createdAt) : new Date(0);
         const dateB = b.latestMessage ? new Date(b.latestMessage.createdAt) : new Date(0);
         return dateB - dateA;
       });
     });
-  }, []); // Remove selectedChat dependency
+  }, [selectedChat]);
 
     // Set up socket connection (runs once on mount)
     useEffect(() => {
@@ -112,6 +115,11 @@ const ChatContainer = () => {
         newSocket.on('connect', () =>
           console.log('Connected to socket server', newSocket.id)
         );
+        newSocket.emit("setup", currentUser.userData);
+
+        newSocket.on('online users', (users) => {
+          setOnlineUsers(users);
+        });
         newSocket.on('message received', handleNewMessage);
         newSocket.on('typing', () => setIsTyping(true));
         newSocket.on('stop typing', () => setIsTyping(false));
@@ -123,11 +131,11 @@ const ChatContainer = () => {
             newSocket.off('stop typing');
             newSocket.disconnect();
           };
-        }, [handleNewMessage]); // Add handleNewMessage as dependency
+        }, [handleNewMessage,currentUser.userData]); 
       
   useEffect(() => {
     if (selectedChat && socket) {
-      // Join the room corresponding to the selected chat
+     
       socket.emit("join chat", selectedChat._id);
     }
   }, [selectedChat, socket]);
@@ -149,7 +157,7 @@ const ChatContainer = () => {
     // For group chats, assume chat.chatName is available.
     // For one-on-one chats, display the other user's name.
     const chatName = chat.isGroupChat
-      ? chat.chatName
+      ? chat.name
       : chat.users.find((user) => user._id !== currentUser.userData._id)?.name;
     return chatName.toLowerCase().includes(chatSearchTerm.toLowerCase());
   });
@@ -167,16 +175,21 @@ const ChatContainer = () => {
         employees={employees}
         loadingEmployees={loadingEmployees}
         startNewChat={startNewChat}
+        onlineUsers={onlineUsers}
       />
       <ChatWindow
         socket={socket}
         selectedChat={selectedChat}
+        setSelectedChat={setSelectedChat} 
         messages={messages}
         setMessages={setMessages}
         isTyping={isTyping}
         messageAreaRef={messageAreaRef}
         currentUser={currentUser}
         chatService={chatService}
+        onlineUsers={onlineUsers} 
+        employees={employees} 
+        setChats={setChats} 
       />
     </div>
   );

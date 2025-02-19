@@ -13,10 +13,7 @@ const messageSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Chat' 
   },
-  readBy: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Employee' 
-  }]
+  isRead:  { type: Boolean, default: false },
 }, { 
   timestamps: true,
   toJSON: { virtuals: true },

@@ -9,6 +9,7 @@ import { logout } from '@/redux/slices/authSlice'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '@/api/axios'
 import { IEmployee } from "@/types/IEmployee"
+import GlobalNotification from "../chat/GlobalNotification"
 
 export function Header() {
   const [imageError, setImageError] = useState(false)
@@ -34,16 +35,7 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative hover:bg-gray-100"
-          >
-            <Bell className="h-5 w-5 text-gray-600" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 text-[10px] font-medium text-white flex items-center justify-center">
-              3
-            </span>
-          </Button>
+        <GlobalNotification />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

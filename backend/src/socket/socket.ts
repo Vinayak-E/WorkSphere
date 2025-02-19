@@ -26,7 +26,7 @@ export const initializeSocket = (server: http.Server) => {
       allowedHeaders: ["Content-Type", "Authorization"],
     },
   });
-
+  const onlineUsers = new Map();
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
@@ -66,10 +66,11 @@ export const initializeSocket = (server: http.Server) => {
           return;
         }
         const messageData: any = {
-          content: content || "", // Keep content empty for images
+          content: content || "", 
           chatId: chat._id,
           senderId: sender.userData._id,
-          type
+          type,
+          isRead:false
         };
         if ((type === "image"  || type === "video" ) && mediaUrl) {
           messageData.mediaUrl = mediaUrl;
@@ -90,9 +91,22 @@ export const initializeSocket = (server: http.Server) => {
         // Broadcast the saved message based on chat type.
         socket.to(chat._id).emit("message received", {
             ...savedMessage,
-            sender: sender.userData  // Include the complete sender info
+            sender: sender.userData,
+            chat: chat._id   // Include the complete sender info
           });
         console.log(`Message broadcast to room ${chat._id}`);
+
+        const chatMembers = await chatService.getChatMembers(tenantConnection, chat._id);
+        console.log('chatmembers',chatMembers)
+        chatMembers.forEach(member => {
+          if (member._id !== sender.userData._id && onlineUsers.has(member._id)) {
+            io.to(onlineUsers.get(member._id)).emit("new_notification", {
+              ...savedMessage,
+              sender: sender.userData,
+              chat: chat._id
+            });
+          }
+        });
       } catch (error) {
         console.error("Error handling new message:", error);
         socket.emit("error", { message: "Failed to process your message." });
@@ -112,10 +126,126 @@ export const initializeSocket = (server: http.Server) => {
       }
     });
 
-    // Event: disconnect
-    socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
-    });
+    
+    
+    socket.on("message read", async (data) => {
+      try {
+        const { messageId, chatId, readerId, tenantId } = data;
+        console.log('data at message read',data)
+        
+        // Get tenant connection
+        const tenantConnection = await getTenantConnection(tenantId);
+        if (!tenantConnection) {
+          console.error("Tenant connection not found for tenantId:", tenantId);
+          return;
+        }
+        
+        // Update message read status in database
+        await chatService.markMessageAsRead(
+          tenantConnection,
+          messageId,
+          readerId
+          );
+          
+          // Broadcast to all users in the chat that the message was read
+          io.to(chatId).emit("message read update", {
+            messageId,
+            isRead :true,
+            chatId
+          });
+        } catch (error) {
+          console.error("Error handling message read:", error);
+        }
+      });
+      socket.on("setup", (userData) => {
+        onlineUsers.set(userData._id, socket.id);
+        // Broadcast the updated online users list to all clients.
+        io.emit("online users", Array.from(onlineUsers.keys()));
+      });
+
+
+      socket.on("add group member", async (data) => {
+        try {
+          const { chatId, userId, tenantId } = data;
+          
+          // Get tenant connection
+          const tenantConnection = await getTenantConnection(tenantId);
+          if (!tenantConnection) {
+            console.error("Tenant connection not found for tenantId:", tenantId);
+            return;
+          }
+      
+          // Add member to group
+          const updatedChat = await chatService.addToGroup(
+            tenantConnection,
+            chatId,
+            userId
+          );
+      
+          // Broadcast to all users in the chat that a new member was added
+          socket.to(chatId).emit("group member added", {
+            chat: updatedChat,
+            userId: userId
+          });
+      
+          // Send acknowledgment back to sender
+          socket.emit("group member added", {
+            chat: updatedChat,
+            userId: userId
+          });
+        } catch (error) {
+          console.error("Error adding group member:", error);
+          socket.emit("error", { message: "Failed to add member to group." });
+        }
+      });
+      
+      socket.on("remove group member", async (data) => {
+        try {
+          const { chatId, userId, tenantId } = data;
+          
+          // Get tenant connection
+          const tenantConnection = await getTenantConnection(tenantId);
+          if (!tenantConnection) {
+            console.error("Tenant connection not found for tenantId:", tenantId);
+            return;
+          }
+      
+          // Remove member from group
+          const updatedChat = await chatService.removeFromGroup(
+            tenantConnection,
+            chatId,
+            userId
+          );
+      
+          // Broadcast to all users in the chat that a member was removed
+          socket.to(chatId).emit("group member removed", {
+            chat: updatedChat,
+            userId: userId
+          });
+      
+          // Send acknowledgment back to sender
+          socket.emit("group member removed", {
+            chat: updatedChat,
+            userId: userId
+          });
+        } catch (error) {
+          console.error("Error removing group member:", error);
+          socket.emit("error", { message: "Failed to remove member from group." });
+        }
+      });
+    
+      // Event: disconnect
+      socket.on("disconnect", () => {
+        // Find the userId by socket.id.
+        for (const [userId, sId] of onlineUsers.entries()) {
+          if (sId === socket.id) {
+            onlineUsers.delete(userId);
+            break;
+          }
+        }
+        io.emit("online users", Array.from(onlineUsers.keys()));
+        console.log("User disconnected:", socket.id);
+      });
   });
 
   return io;
