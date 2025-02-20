@@ -28,7 +28,7 @@ const ChatSidebar = ({
 
   const handleCreateGroup = async () => {
     if (!groupName || selectedUsers.length < 2) {
-      // Could add a toast notification here
+
       return;
     }
     const groupMemberIds = [
@@ -47,7 +47,7 @@ const ChatSidebar = ({
       resetGroupForm();
     } catch (error) {
       console.error('Error creating group:', error);
-      // Could add error toast notification here
+
     }
   };
 

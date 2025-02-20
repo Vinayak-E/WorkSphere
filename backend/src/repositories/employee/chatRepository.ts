@@ -158,7 +158,7 @@ export class ChatRepository {
       {
         $addToSet: { users: userId }  
       },
-      { new: true }  // Returns the updated document
+      { new: true } 
     )
     .populate("users", "-password")
     .populate("groupAdmin", "-password");

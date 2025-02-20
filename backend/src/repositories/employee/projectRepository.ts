@@ -198,7 +198,7 @@ export class ProjectRepository {
       { $limit: limit },
       {
         $lookup: {
-          from: 'tasks', // Collection name for tasks
+          from: 'tasks', 
           localField: '_id',
           foreignField: 'project',
           as: 'tasks'
@@ -218,7 +218,7 @@ export class ProjectRepository {
           }
         }
       },
-      // Populate department
+   
       {
         $lookup: {
           from: 'departments',
@@ -228,7 +228,7 @@ export class ProjectRepository {
         }
       },
       { $unwind: { path: '$department', preserveNullAndEmptyArrays: true } },
-      // Populate manager
+    
       {
         $lookup: {
           from: 'employees',
@@ -238,7 +238,7 @@ export class ProjectRepository {
         }
       },
       { $unwind: { path: '$manager', preserveNullAndEmptyArrays: true } },
-      // Populate employees
+    
       {
         $lookup: {
           from: 'employees',

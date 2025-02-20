@@ -30,7 +30,7 @@ export class ChatService {
       return existingChat;
     }
 
-    // Create new chat
+
     const chatData = {
       name: "sender",
       isGroupChat: false,

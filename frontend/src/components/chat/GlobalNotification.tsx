@@ -46,16 +46,13 @@ const GlobalNotification = () => {
         }, 5000);
       }
     };
-
-    // Listen for message read updates
     const handleMessageReadUpdate = ({ messageId, chatId }) => {
       setNotifications(prev => 
         prev.filter(notification => 
           !(notification.id === messageId || notification.chatId === chatId)
         )
       );
-      
-      // If the toast is showing a notification that was just read, hide it
+   
       if (latestNotification && 
          (latestNotification.id === messageId || latestNotification.chatId === chatId)) {
         setShowToast(false);
@@ -72,7 +69,7 @@ const GlobalNotification = () => {
   }, [socket, currentUser.userData._id, latestNotification]);
 
   const handleNotificationClick = (notification) => {
-    // Remove all notifications for this chat
+
     setNotifications(prev =>
       prev.filter(n => n.chatId !== notification.chatId)
     );
@@ -81,7 +78,6 @@ const GlobalNotification = () => {
     navigate(`/employee/chat?chatId=${notification.chatId}`);
   };
 
-  // Add handler to remove notifications when URL changes to chat
   useEffect(() => {
     const handleURLChange = () => {
       const chatIdMatch = window.location.href.match(/chatId=([^&]*)/);
@@ -92,11 +88,8 @@ const GlobalNotification = () => {
         );
       }
     };
-
-    // Call once on mount to handle initial URL
     handleURLChange();
 
-    // Add event listener for URL changes
     window.addEventListener('popstate', handleURLChange);
     return () => window.removeEventListener('popstate', handleURLChange);
   }, []);

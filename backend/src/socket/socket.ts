@@ -10,12 +10,7 @@ const employeeRepository = new EmployeeRepository()
 const chatRepository = new ChatRepository();
 const chatService = new ChatService(chatRepository,employeeRepository);
 
-/**
- * Initializes the Socket.io server with robust event handling.
- *
- * @param server - The underlying HTTP server.
- * @returns The Socket.io server instance.
- */
+
 export const initializeSocket = (server: http.Server) => {
   const io = new Server(server, {
     cors: {
@@ -91,7 +86,7 @@ export const initializeSocket = (server: http.Server) => {
         socket.to(chat._id).emit("message received", {
             ...savedMessage,
             sender: sender.userData,
-            chat: chat._id   // Include the complete sender info
+            chat: chat._id  
           });
         console.log(`Message broadcast to room ${chat._id}`);
 
@@ -104,7 +99,7 @@ export const initializeSocket = (server: http.Server) => {
     });
 
     chatMembers.forEach(member => {
-      // Convert ObjectId to string for comparison
+     
       const memberIdString = member._id.toString();
       const memberSocketId = onlineUsers.get(memberIdString);
 
@@ -156,7 +151,6 @@ export const initializeSocket = (server: http.Server) => {
         const { messageId, chatId, readerId, tenantId } = data;
         console.log('data at message read',data)
         
-        // Get tenant connection
         const tenantConnection = await getTenantConnection(tenantId);
         if (!tenantConnection) {
           console.error("Tenant connection not found for tenantId:", tenantId);
@@ -191,7 +185,7 @@ export const initializeSocket = (server: http.Server) => {
         try {
           const { chatId, userId, tenantId } = data;
           
-          // Get tenant connection
+
           const tenantConnection = await getTenantConnection(tenantId);
           if (!tenantConnection) {
             console.error("Tenant connection not found for tenantId:", tenantId);
@@ -226,7 +220,6 @@ export const initializeSocket = (server: http.Server) => {
         try {
           const { chatId, userId, tenantId } = data;
           
-          // Get tenant connection
           const tenantConnection = await getTenantConnection(tenantId);
           if (!tenantConnection) {
             console.error("Tenant connection not found for tenantId:", tenantId);

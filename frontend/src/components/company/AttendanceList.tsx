@@ -51,7 +51,7 @@ const AttendanceList = () => {
   const formatWorkHours = (hours) => {
     if (!hours) return '0h 0m';
     
-    // Convert the decimal hours to hours and minutes
+
     const wholeHours = Math.floor(hours);
     const minutes = Math.round((hours - wholeHours) * 60);
     

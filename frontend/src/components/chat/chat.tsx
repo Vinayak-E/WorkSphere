@@ -18,12 +18,10 @@ const ChatContainer = () => {
   const currentUser = useSelector((state) => state.auth.user);
   const messageAreaRef = useRef(null);
 
-  // Load chats when component mounts
   useEffect(() => {
     loadChats();
   }, []);
 
-  // Load messages when a chat is selected
   useEffect(() => {
     if (selectedChat) {
       setMessages([]);
@@ -31,12 +29,10 @@ const ChatContainer = () => {
     }
   }, [selectedChat]);
 
-  // Load all employees when component mounts
   useEffect(() => {
     loadEmployees();
   }, []);
 
-  // Fetch chat list from backend
   const loadChats = async () => {
     try {
       const response = await chatService.getChats();
@@ -47,10 +43,9 @@ const ChatContainer = () => {
     }
   };
 
-  // Fetch messages for a specific chat
   const loadMessages = async (chatId) => {
     try {
-      // Changed getMessages to getChatMessages
+   
       const response = await chatService.getChatMessages(chatId);
       setMessages(response.data);
     } catch (error) {
@@ -58,7 +53,6 @@ const ChatContainer = () => {
     }
   };
 
-  // Fetch employees for new chat creation
   const loadEmployees = async () => {
     try {
       setLoadingEmployees(true);
@@ -71,18 +65,16 @@ const ChatContainer = () => {
     }
   };
 
-  // Handle an incoming new message via socket
   const handleNewMessage = useCallback((newMessage) => {
     const messageData = newMessage._doc || newMessage;
     console.log('new message Received',newMessage)
     setMessages(prev => [...prev, messageData]);
-    
-    // Scroll to bottom after new message
+
     if (messageAreaRef.current) {
       messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
     }
   
-    // Update chats list with new message
+  
     setChats(prev => {
       const updatedChats = prev.map(chat => {
         if (chat._id === (messageData.chat._id || messageData.chatId)) {
@@ -96,8 +88,7 @@ const ChatContainer = () => {
         }
         return chat;
       });
-  
-      // Sort chats by latest message
+
       return updatedChats.sort((a, b) => {
         const dateA = a.latestMessage ? new Date(a.latestMessage.createdAt) : new Date(0);
         const dateB = b.latestMessage ? new Date(b.latestMessage.createdAt) : new Date(0);
@@ -106,7 +97,7 @@ const ChatContainer = () => {
     });
   }, [selectedChat]);
 
-    // Set up socket connection (runs once on mount)
+    
     useEffect(() => {
         const newSocket = io('http://localhost:5000', {
           withCredentials: true,
@@ -140,7 +131,6 @@ const ChatContainer = () => {
     }
   }, [selectedChat, socket]);
 
-  // Function to start a new chat by selecting an employee
   const startNewChat = async (employeeId) => {
     try {
       const response = await chatService.createChat(employeeId);
@@ -152,10 +142,8 @@ const ChatContainer = () => {
     }
   };
 
-  // Filter chats based on the chat search term
   const filteredChats = chats.filter((chat) => {
-    // For group chats, assume chat.chatName is available.
-    // For one-on-one chats, display the other user's name.
+ 
     const chatName = chat.isGroupChat
       ? chat.name
       : chat.users.find((user) => user._id !== currentUser.userData._id)?.name;

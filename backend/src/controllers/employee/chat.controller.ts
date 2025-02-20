@@ -19,7 +19,6 @@ export class ChatController {
             return
           }
       
-          // Check that req.user exists
           if (!req.user) {
              res.status(401).json({
               success: false,
@@ -29,7 +28,7 @@ export class ChatController {
           }
       
           const { userId } = req.body;
-          const currentUserEmail = req.user.email; // Now safe to use
+          const currentUserEmail = req.user.email;
       
           if (!userId) {
             res.status(400).json({
@@ -120,8 +119,6 @@ export class ChatController {
         });
         return;
       }
-  
-      // Check user authentication
       if (!req.user?.email) {
         res.status(401).json({
           success: false,
@@ -129,8 +126,6 @@ export class ChatController {
         });
         return;
       }
-  
-      // Get current user's details
       const currentUser = await this.chatService.getCurrentUser(
         tenantConnection,
         req.user.email
@@ -144,7 +139,6 @@ export class ChatController {
         return;
       }
   
-      // Get all chats for the user
       const chats = await this.chatService.getAllChats(
         tenantConnection,
         currentUser._id

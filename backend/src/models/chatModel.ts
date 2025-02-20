@@ -22,7 +22,6 @@ const chatSchema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Create the model for each tenant connection
 export const getChatModel = (connection: mongoose.Connection) => {
   return connection.model<IChatDocument>('Chat', chatSchema);
 };

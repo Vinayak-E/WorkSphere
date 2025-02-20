@@ -160,7 +160,6 @@ const ChatComponent = () => {
       setMessages(prev => [...prev, response.data]);
       setNewMessage('');
 
-      // Update chat list to show latest message
       setChats(prev => {
         const updatedChats = [...prev];
         const chatIndex = updatedChats.findIndex(chat => chat._id === selectedChat._id);
