@@ -15,7 +15,8 @@ import {
   FileText,
   Inbox,
   BarChart,
-  Settings
+  Settings,
+  Video
 } from "lucide-react"
 import IMAGES from "@/assets/images/image"
 
@@ -23,8 +24,8 @@ const items = [
   { title: "Dashboard",       url: "/employee",         icon: Home },
   { title: "Leaves",          url: "/employee/leaves",  icon: Calendar },
   { title: "Projects",        url: "/employee/projects",icon: FileText },
-  { title: "Messages",        url: "/employee/chat",         icon: Inbox,    badge: 0 },
-  { title: "Reports",         url: "/analytics",        icon: BarChart },
+  { title: "Messages",        url: "/employee/chat",    icon: Inbox,    badge: 0 },
+  { title: "Meetings",         url: "/employee/meeting",icon: Video },
   { title: "Settings",        url: "/employee/profile", icon: Settings },
 ]
 

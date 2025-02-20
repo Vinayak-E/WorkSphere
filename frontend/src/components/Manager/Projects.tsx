@@ -86,10 +86,10 @@ const ProjectList = () => {
       setNewProject({ name: "", description: "", status: "Pending", deadline: "" });
       setEditedProject(null);
     } catch (error: any) {
-      // Attempt to parse validation errors
+      
       try {
         const validationErrors = JSON.parse(error.message);
-        // Create an object with field names as keys and error messages as values.
+
         const newErrors: Record<string, string> = {};
         validationErrors.forEach((err: { path: string; message: string }) => {
           newErrors[err.path] = err.message;

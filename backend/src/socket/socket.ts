@@ -6,7 +6,6 @@ import { ChatRepository } from "../repositories/employee/chatRepository";
 import { EmployeeRepository } from "../repositories/employee/employeeRepository";
 import { connectTenantDB  as getTenantConnection } from "../configs/db.config";
 
-
 const employeeRepository = new EmployeeRepository()
 const chatRepository = new ChatRepository();
 const chatService = new ChatService(chatRepository,employeeRepository);
@@ -86,7 +85,7 @@ export const initializeSocket = (server: http.Server) => {
           messageData.mediaUrl,
           messageData.type
           
-        );
+        )
         console.log('savedMessage',savedMessage)
         // Broadcast the saved message based on chat type.
         socket.to(chat._id).emit("message received", {
@@ -96,17 +95,41 @@ export const initializeSocket = (server: http.Server) => {
           });
         console.log(`Message broadcast to room ${chat._id}`);
 
-        const chatMembers = await chatService.getChatMembers(tenantConnection, chat._id);
-        console.log('chatmembers',chatMembers)
-        chatMembers.forEach(member => {
-          if (member._id !== sender.userData._id && onlineUsers.has(member._id)) {
-            io.to(onlineUsers.get(member._id)).emit("new_notification", {
-              ...savedMessage,
-              sender: sender.userData,
-              chat: chat._id
-            });
-          }
+       
+    const chatMembers = await chatService.getChatMembers(tenantConnection, chat._id);
+    console.log('Attempting to send notifications to members:', {
+      totalMembers: chatMembers.length,
+      onlineUsers: Array.from(onlineUsers.entries()),
+      sender: sender.userData._id
+    });
+
+    chatMembers.forEach(member => {
+      // Convert ObjectId to string for comparison
+      const memberIdString = member._id.toString();
+      const memberSocketId = onlineUsers.get(memberIdString);
+
+      console.log('Processing member notification:', {
+        memberId: memberIdString,
+        memberSocketId,
+        isOnline: !!memberSocketId,
+        isSender: memberIdString === sender.userData._id
+      });
+
+      if (memberIdString !== sender.userData._id && memberSocketId) {
+        console.log('Emitting notification to socket:', memberSocketId);
+        io.to(memberSocketId).emit("new_notification", {
+          _id: savedMessage._id.toString(),
+          sender: {
+            ...sender.userData,
+            _id: sender.userData._id.toString()
+          },
+          chat: chat._id.toString(),
+          content: savedMessage.content,
+          createdAt: savedMessage.createdAt,
+         
         });
+      }
+    });
       } catch (error) {
         console.error("Error handling new message:", error);
         socket.emit("error", { message: "Failed to process your message." });

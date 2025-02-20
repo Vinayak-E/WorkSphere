@@ -13,6 +13,7 @@ export interface IChatDocument extends Document {
 }
 
 export interface IMessageDocument extends Document {
+  _id :mongoose.Types.ObjectId
   sender: mongoose.Types.ObjectId;
   content: string;
   chat:  mongoose.Types.ObjectId;
