@@ -1,4 +1,4 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Connection, Document } from "mongoose";
 
 
 export interface IMeetModel extends Document {
@@ -13,5 +13,6 @@ export interface IMeetModel extends Document {
   updatedAt: Date;
 }
 export interface IMeetService {
-    
+  getMeetings(tenantConnection: Connection, filters: any, userId: any): Promise<IMeetModel[]>
+  createMeeting(tenantConnection: Connection, meetData: any): Promise<IMeetModel>
 }

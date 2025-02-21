@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { Calendar, PlusCircle, Users, Video, Pencil, Clock, Search, X, ArrowRight } from "lucide-react";
 import { RootState } from "@/redux/store";
 import { meetService } from "@/services/employee/meet.service";
+import { chatService } from "@/services/employee/chat.service";
 import { toast } from "react-toastify";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface Member {
   _id: string;
@@ -26,22 +43,21 @@ interface Meeting {
 const MeetingManagement: React.FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [employees, setEmployees] = useState<Member[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [showMemberModal, setShowMemberModal] = useState(false);
-  const [currentMeeting, setCurrentMeeting] = useState<string | null>(null);
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [newMeeting, setNewMeeting] = useState({
+  const [searchQuery, setSearchQuery] = useState("");
+  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
+  const [meetingForm, setMeetingForm] = useState({
     meetTitle: "",
     meetDate: "",
     meetTime: "",
     isDaily: false,
     members: [] as string[],
   });
-  
+
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const isManager = currentUser?.role === "MANAGER";
-  
+
   useEffect(() => {
     fetchMeetings();
     if (isManager) {
@@ -55,35 +71,52 @@ const MeetingManagement: React.FC = () => {
       const res = await meetService.getMeetings();
       setMeetings(res.data);
     } catch (error) {
-      console.error("Error fetching meetings", error);
       toast.error("Failed to load meetings");
     } finally {
       setLoading(false);
     }
   };
+  const filteredMeetings = meetings.filter(meeting =>
+    meeting.meetTitle.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
 
   const fetchEmployees = async () => {
     try {
-      // Assuming you have an employeeService similar to meetService
-      const res = await fetch('/api/employees');
-      const data = await res.json();
-      setEmployees(data.data || []);
+      const res = await chatService.getAllEmployees();
+      setEmployees(res.data || []);
     } catch (error) {
-      console.error("Error fetching employees", error);
+      toast.error("Failed to fetch employees");
     }
   };
 
   const handleCreateMeeting = async () => {
     try {
       setLoading(true);
-      await meetService.createMeeting(newMeeting);
+      await meetService.createMeeting(meetingForm);
       toast.success("Meeting created successfully");
       fetchMeetings();
-      setShowModal(false);
+      setShowCreateModal(false);
       resetForm();
     } catch (error) {
-      console.error("Error creating meeting", error);
       toast.error("Failed to create meeting");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditMeeting = async () => {
+    if (!editingMeeting) return;
+    
+    try {
+      setLoading(true);
+      await meetService.updateMeeting(editingMeeting._id, meetingForm);
+      toast.success("Meeting updated successfully");
+      fetchMeetings();
+      setShowEditModal(false);
+      setEditingMeeting(null);
+    } catch (error) {
+      toast.error("Failed to update meeting");
     } finally {
       setLoading(false);
     }
@@ -97,7 +130,6 @@ const MeetingManagement: React.FC = () => {
         toast.success("Meeting deleted successfully");
         fetchMeetings();
       } catch (error) {
-        console.error("Error deleting meeting", error);
         toast.error("Failed to delete meeting");
       } finally {
         setLoading(false);
@@ -105,42 +137,8 @@ const MeetingManagement: React.FC = () => {
     }
   };
 
-  const handleAddMembers = async () => {
-    if (!currentMeeting) return;
-    
-    try {
-      setLoading(true);
-      for (const memberId of selectedMembers) {
-        await meetService.addMemberToMeeting(currentMeeting, memberId);
-      }
-      toast.success("Members added successfully");
-      fetchMeetings();
-      setShowMemberModal(false);
-      setSelectedMembers([]);
-    } catch (error) {
-      console.error("Error adding members", error);
-      toast.error("Failed to add members");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRemoveMember = async (meetingId: string, memberId: string) => {
-    try {
-      setLoading(true);
-      await meetService.removeMemberFromMeeting(meetingId, memberId);
-      toast.success("Member removed successfully");
-      fetchMeetings();
-    } catch (error) {
-      console.error("Error removing member", error);
-      toast.error("Failed to remove member");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const resetForm = () => {
-    setNewMeeting({
+    setMeetingForm({
       meetTitle: "",
       meetDate: "",
       meetTime: "",
@@ -149,243 +147,215 @@ const MeetingManagement: React.FC = () => {
     });
   };
 
-  const openMemberModal = (meetingId: string) => {
-    setCurrentMeeting(meetingId);
-    setShowMemberModal(true);
-  };
-
-  const handleMemberSelection = (memberId: string) => {
-    setSelectedMembers(prev => {
-      if (prev.includes(memberId)) {
-        return prev.filter(id => id !== memberId);
-      }
-      return [...prev, memberId];
+  const openEditModal = (meeting: Meeting) => {
+    setEditingMeeting(meeting);
+    setMeetingForm({
+      meetTitle: meeting.meetTitle,
+      meetDate: meeting.meetDate,
+      meetTime: meeting.meetTime,
+      isDaily: meeting.isDaily,
+      members: meeting.members.map(m => m._id),
     });
+    setShowEditModal(true);
   };
 
   const joinMeeting = (meetId: string) => {
-    // Integrate with ZegoCloud UI Kit
-    // Example: navigate to the meeting page with the meetId
     window.location.href = `/join-meeting?meetId=${meetId}`;
   };
 
   return (
-    <div className="p-4 md:p-8">
-      {/* Title and Manager Button */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl md:text-2xl font-semibold">Meetings</h2>
-        {isManager && (
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            onClick={() => setShowModal(true)}
-          >
-            Create New Meeting
-          </button>
-        )}
-      </div>
-
-      {/* Meeting List */}
-      {loading && <div className="text-center py-4">Loading...</div>}
-      
-      {!loading && meetings.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No meetings scheduled. {isManager && "Create one to get started!"}
-        </div>
-      )}
-      
-      {!loading && meetings.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border p-2 text-left">Title</th>
-                <th className="border p-2 text-left">Date</th>
-                <th className="border p-2 text-left">Time</th>
-                <th className="border p-2 text-left">Type</th>
-                <th className="border p-2 text-left">Members</th>
-                <th className="border p-2 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {meetings.map((meeting) => (
-                <tr key={meeting._id} className="border hover:bg-gray-50">
-                  <td className="border p-2">{meeting.meetTitle}</td>
-                  <td className="border p-2">{new Date(meeting.meetDate).toLocaleDateString()}</td>
-                  <td className="border p-2">{meeting.meetTime}</td>
-                  <td className="border p-2">{meeting.isDaily ? "Daily" : "One-time"}</td>
-                  <td className="border p-2">
-                    <div className="flex flex-wrap gap-1">
-                      {meeting.members.map(member => (
-                        <div key={member._id} className="flex items-center bg-blue-100 px-2 py-1 rounded text-sm">
-                          {member.name}
-                          {isManager && (
-                            <button 
-                              className="ml-1 text-red-500 hover:text-red-700"
-                              onClick={() => handleRemoveMember(meeting._id, member._id)}
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                      {isManager && (
-                        <button 
-                          className="text-blue-600 hover:text-blue-800 px-2 py-1 text-sm"
-                          onClick={() => openMemberModal(meeting._id)}
-                        >
-                          + Add
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                  <td className="border p-2">
-                    <div className="flex space-x-2">
-                      <button
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-                        onClick={() => joinMeeting(meeting.meetId)}
-                      >
-                        Join
-                      </button>
-                      {isManager && (
-                        <button
-                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
-                          onClick={() => handleDeleteMeeting(meeting._id)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Modal for Creating Meeting */}
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-96 max-w-full">
-            <h3 className="text-lg font-semibold mb-4">Create New Meeting</h3>
-            <input
-              type="text"
-              placeholder="Meeting Title"
-              className="w-full p-2 border rounded mb-2"
-              value={newMeeting.meetTitle}
-              onChange={(e) => setNewMeeting({ ...newMeeting, meetTitle: e.target.value })}
-            />
-            <input
-              type="date"
-              className="w-full p-2 border rounded mb-2"
-              value={newMeeting.meetDate}
-              onChange={(e) => setNewMeeting({ ...newMeeting, meetDate: e.target.value })}
-            />
-            <input
-              type="time"
-              className="w-full p-2 border rounded mb-2"
-              value={newMeeting.meetTime}
-              onChange={(e) => setNewMeeting({ ...newMeeting, meetTime: e.target.value })}
-            />
-            <div className="flex items-center mb-4">
-              <input
-                type="checkbox"
-                id="isDaily"
-                className="mr-2"
-                checked={newMeeting.isDaily}
-                onChange={(e) => setNewMeeting({ ...newMeeting, isDaily: e.target.checked })}
-              />
-              <label htmlFor="isDaily">Daily Meeting</label>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block mb-2">Select Members:</label>
-              <div className="max-h-40 overflow-y-auto border rounded p-2">
-                {employees.map(emp => (
-                  <div key={emp._id} className="flex items-center mb-1">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
+      <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-blue-600" />
+              Meetings
+            </CardTitle>
+            <p className="text-sm text-gray-500">Schedule and manage your meetings efficiently</p>
+          </div>
+          {isManager && (
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button className="shadow-md hover:shadow-lg transition-shadow">
+                  <PlusCircle size={18} className="mr-2" /> New Meeting
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="text-lg">
+                    {editingMeeting ? "Edit Meeting" : "Create New Meeting"}
+                  </DialogTitle>
+                </DialogHeader>
+                <form className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Meeting Title</label>
+                    <Input
+                      value={meetingForm.meetTitle}
+                      onChange={(e) => setMeetingForm({ ...meetingForm, meetTitle: e.target.value })}
+                      required
+                      className="focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Date</label>
+                    <Input
+                      type="date"
+                      value={meetingForm.meetDate}
+                      onChange={(e) => setMeetingForm({ ...meetingForm, meetDate: e.target.value })}
+                      required
+                      className="focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Time</label>
+                    <Input
+                      type="time"
+                      value={meetingForm.meetTime}
+                      onChange={(e) => setMeetingForm({ ...meetingForm, meetTime: e.target.value })}
+                      required
+                      className="focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex items-center">
                     <input
                       type="checkbox"
-                      id={`emp-${emp._id}`}
-                      checked={newMeeting.members.includes(emp._id)}
-                      onChange={() => {
-                        const updatedMembers = newMeeting.members.includes(emp._id)
-                          ? newMeeting.members.filter(id => id !== emp._id)
-                          : [...newMeeting.members, emp._id];
-                        setNewMeeting({ ...newMeeting, members: updatedMembers });
-                      }}
+                      id="isDaily"
+                      checked={meetingForm.isDaily}
+                      onChange={(e) => setMeetingForm({ ...meetingForm, isDaily: e.target.checked })}
                       className="mr-2"
                     />
-                    <label htmlFor={`emp-${emp._id}`}>{emp.name}</label>
+                    <label htmlFor="isDaily">Daily Meeting</label>
                   </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex justify-end mt-4">
-              <button
-                className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2 hover:bg-gray-600"
-                onClick={() => {
-                  setShowModal(false);
-                  resetForm();
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                onClick={handleCreateMeeting}
-                disabled={loading}
-              >
-                {loading ? "Creating..." : "Create"}
-              </button>
-            </div>
-          </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Select Members</label>
+                    <div className="max-h-40 overflow-y-auto border rounded-lg p-2">
+                      {employees.map((emp) => (
+                        <div key={emp._id} className="flex items-center mb-1">
+                          <input
+                            type="checkbox"
+                            id={`emp-${emp._id}`}
+                            checked={meetingForm.members.includes(emp._id)}
+                            onChange={() => {
+                              const updatedMembers = meetingForm.members.includes(emp._id)
+                                ? meetingForm.members.filter((id) => id !== emp._id)
+                                : [...meetingForm.members, emp._id];
+                              setMeetingForm({
+                                ...meetingForm,
+                                members: updatedMembers,
+                              });
+                            }}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`emp-${emp._id}`}>{emp.name}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    onClick={editingMeeting ? handleEditMeeting : handleCreateMeeting}
+                  >
+                    {editingMeeting ? "Update Meeting" : "Create Meeting"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
-      )}
+      </CardHeader>
 
-      {/* Modal for Adding Members */}
-      {showMemberModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-96 max-w-full">
-            <h3 className="text-lg font-semibold mb-4">Add Members to Meeting</h3>
-            
-            <div className="max-h-60 overflow-y-auto border rounded p-2 mb-4">
-              {employees.map(emp => (
-                <div key={emp._id} className="flex items-center mb-1">
-                  <input
-                    type="checkbox"
-                    id={`add-emp-${emp._id}`}
-                    checked={selectedMembers.includes(emp._id)}
-                    onChange={() => handleMemberSelection(emp._id)}
-                    className="mr-2"
-                  />
-                  <label htmlFor={`add-emp-${emp._id}`}>{emp.name}</label>
-                </div>
-              ))}
+      <CardContent className="p-6">
+        <div className="mb-6 bg-gray-50 p-4 rounded-xl shadow-sm">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <div className="flex items-center gap-2 flex-1 w-full relative">
+              <Search className="absolute left-3 text-gray-400 w-5 h-5" />
+              <Input
+                placeholder="Search meetings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-full bg-white border-gray-200 focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            
-            <div className="flex justify-end mt-4">
-              <button
-                className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2 hover:bg-gray-600"
-                onClick={() => {
-                  setShowMemberModal(false);
-                  setSelectedMembers([]);
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                onClick={handleAddMembers}
-                disabled={loading || selectedMembers.length === 0}
-              >
-                {loading ? "Adding..." : "Add Members"}
-              </button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => setSearchQuery("")}
+              className="flex items-center gap-2 w-full md:w-auto"
+            >
+              <X className="w-4 h-4" /> Clear
+            </Button>
           </div>
         </div>
-      )}
-    </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {filteredMeetings.map((meeting) => (
+            <Card
+              key={meeting._id}
+              className="hover:shadow-md transition-all duration-500 border-gray-200 rounded-xl"
+            >
+              <CardContent className="p-6 rounded-xl">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {meeting.meetTitle}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {meeting.isDaily ? "Daily Meeting" : "One-time Meeting"}
+                      </p>
+                    </div>
+                    {isManager && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingMeeting(meeting);
+                          setIsOpen(true);
+                        }}
+                      >
+                        <Pencil className="w-4 h-4 text-gray-500 hover:text-blue-600" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      <span>{meeting.meetTime}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span>{new Date(meeting.meetDate).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2 col-span-2">
+                      <Users className="w-4 h-4 text-gray-400" />
+                      <span>{meeting.members.length} members</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      className="w-full rounded-[5px] bg-primary/20 text-blue-700 hover:bg-primary transition-colors"
+                      onClick={() => joinMeeting(meeting.meetId)}
+                    >
+                      Join Meeting <Video className="w-4 h-4 ml-2" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full rounded-[5px] bg-primary/20 text-blue-700 hover:bg-primary transition-colors"
+                    >
+                      View Details <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
