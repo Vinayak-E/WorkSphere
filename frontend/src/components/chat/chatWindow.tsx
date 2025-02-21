@@ -56,31 +56,31 @@ const ChatWindow = ({
             content: newMessage,
           };
 
-      // Generate a temporary ID and include it in the payload.
+
       const tempId = Date.now().toString();
       const payload = {
         tenantId: currentUser.tenantId,
         ...messageContent,
         chat: selectedChat,
         sender: currentUser,
-        tempId, // Pass the temporary id so the server can echo it back if desired.
+        tempId, 
       };
 
-      // Optimistically add the message using the temporary ID.
+
       const messageToAdd = {
         ...messageContent,
         sender: currentUser.userData,
         chat: selectedChat._id,
         createdAt: new Date().toISOString(),
         isRead: false,
-        _id: tempId, // Temporary ID until updated by server response.
+        _id: tempId, 
       };
 
       setMessages(prev => [...prev, messageToAdd]);
 
-      // Emit the new message with an acknowledgment callback.
+     
       socket.emit('new message', payload, (savedMessage) => {
-        // Update the temporary message with the actual message from the server.
+
         setMessages(prevMessages =>
           prevMessages.map(msg =>
             msg._id === tempId ? { ...savedMessage, sender: currentUser.userData } : msg
@@ -117,7 +117,7 @@ const ChatWindow = ({
       );
   
       if (unreadMessages.length > 0) {
-        // Add a flag to prevent repeated marking of the same messages
+    
         unreadMessages.forEach(msg => {
           if (!msg._beingMarkedAsRead) {
             msg._beingMarkedAsRead = true;
@@ -125,7 +125,7 @@ const ChatWindow = ({
               messageId: msg._id,
               chatId: selectedChat._id,
               tenantId: currentUser.tenantId,
-              readerId: currentUser.userData._id // Add reader ID
+              readerId: currentUser.userData._id 
             });
           }
         });
@@ -136,7 +136,6 @@ const ChatWindow = ({
     if (!socket) return;
   
     const handleMessageReadUpdate = ({ messageId, isRead, chatId }) => {
-      // Only update if it's for our current chat
       if (selectedChat && selectedChat._id === chatId) {
         setMessages(prevMessages =>
           prevMessages.map(msg =>
@@ -144,8 +143,8 @@ const ChatWindow = ({
           )
         );
       }
+
       
-      // Also update the chat list to show read status
       setChats(prevChats => 
         prevChats.map(chat => {
           if (chat._id === chatId && chat.latestMessage && chat.latestMessage._id === messageId) {
@@ -160,6 +159,7 @@ const ChatWindow = ({
           return chat;
         })
       );
+      console.log('chat latest',chat.latestMessage)
     };
   
     socket.on('message read update', handleMessageReadUpdate);

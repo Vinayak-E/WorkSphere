@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
 import { IMeetModel } from "../interfaces/IMeet.types";
 
 
@@ -28,9 +27,6 @@ const MeetSchema = new Schema<IMeetModel>(
     }],
     meetId: {
       type: String,
-      default: () => uuidv4(),
-      unique: true,
-      index: true,
     },
     createdBy: {
       type: Schema.Types.ObjectId,

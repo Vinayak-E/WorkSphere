@@ -67,7 +67,7 @@ const ChatContainer = () => {
 
   const handleNewMessage = useCallback((newMessage) => {
     const messageData = newMessage._doc || newMessage;
-    console.log('new message Received',newMessage)
+    console.log('new message Received',newMessage._doc)
     setMessages(prev => [...prev, messageData]);
 
     if (messageAreaRef.current) {

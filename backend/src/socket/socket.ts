@@ -53,7 +53,7 @@ export const initializeSocket = (server: http.Server) => {
           return;
         }
   
-        // Retrieve the tenant-specific database connection.
+       
         const tenantConnection: mongoose.Connection = await getTenantConnection(tenantId);
         if (!tenantConnection) {
           console.error("Tenant connection not found for tenantId:", tenantId);

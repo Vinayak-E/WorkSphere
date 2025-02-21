@@ -36,10 +36,6 @@ const companySchema = new Schema<ICompanyDocument>(
 
 );
 
-companySchema.index({ email: 1 }, { unique: true });
-companySchema.index({ companyName: 'text', description: 'text' });
-
-
 
 
 
