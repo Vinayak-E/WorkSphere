@@ -1,6 +1,7 @@
 import mongoose, { Connection, connection } from "mongoose";
 import { EmployeeRepository } from "../../repositories/employee/employeeRepository";
 import { MeetRepository } from "../../repositories/employee/meetRepository";
+import { generateMeetingId } from "../../helpers/helperFunctions";
 
 
 
@@ -9,26 +10,37 @@ export class MeetService {
     constructor(private readonly meetRepository: MeetRepository,private readonly employeeRepository:EmployeeRepository) {}
   
 
-    async getMeetings(tenantConnection:Connection,filters: any, userId: string |mongoose.Types.ObjectId) {
-
+    async getMeetings(
+        tenantConnection: Connection,
+        filters: any,
+        userId: string | mongoose.Types.ObjectId,
+        page: number,
+        pageSize: number
+    ) {
         const userFilter = {
             $or: [
-                { createdBy: new mongoose.Types.ObjectId(userId) },  // Meetings created by user
-                { members: new mongoose.Types.ObjectId(userId) }     // Meetings where user is a member
+                { createdBy: new mongoose.Types.ObjectId(userId) },
+                { members: new mongoose.Types.ObjectId(userId) }
             ]
         };
-
+    
         // Combine with existing filters
         const combinedFilters = {
             ...filters,
             ...userFilter
         };
-
-        return await this.meetRepository.getMeetings(tenantConnection,combinedFilters);
+    
+        const [meetings, total] = await Promise.all([
+            this.meetRepository.getMeetings(tenantConnection, combinedFilters, page, pageSize),
+            this.meetRepository.getTotalMeetingsCount(tenantConnection, combinedFilters)
+        ]);
+    
+        return { meetings, total };
     }
 
-    async createMeeting(tenantConnection:Connection,meetData: any) {
-        return await this.meetRepository.createNewMeet(tenantConnection,meetData);
-    }
-
+    async createMeeting(tenantConnection: Connection, meetData: any) {
+        meetData.meetId = generateMeetingId();
+        console.log("meetData", meetData);
+        return await this.meetRepository.createNewMeet(tenantConnection, meetData);
+      }
 }

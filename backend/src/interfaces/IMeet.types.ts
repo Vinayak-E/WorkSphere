@@ -5,7 +5,6 @@ export interface IMeetModel extends Document {
   meetTitle: string;
   meetDate: Date;
   meetTime: string;
-  isDaily: boolean;
   members: mongoose.Types.ObjectId[];
   meetId: string;
   createdBy: mongoose.Types.ObjectId;
@@ -13,6 +12,9 @@ export interface IMeetModel extends Document {
   updatedAt: Date;
 }
 export interface IMeetService {
-  getMeetings(tenantConnection: Connection, filters: any, userId: any): Promise<IMeetModel[]>
+  getMeetings(tenantConnection: Connection, filters: any, userId: string | mongoose.Types.ObjectId, page: number, pageSize: number): Promise<{
+    meetings: IMeetModel[];
+    total: number;
+}>
   createMeeting(tenantConnection: Connection, meetData: any): Promise<IMeetModel>
 }

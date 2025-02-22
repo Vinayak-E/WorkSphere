@@ -11,17 +11,28 @@ export class MeetRepository {
     }
 
 
-
     async getMeetings(
         tenantConnection: mongoose.Connection,
-        filters: any
+        filters: any,
+        page: number,
+        pageSize: number
     ): Promise<IMeetModel[]> {
         const MeetModel = this.getMeetModel(tenantConnection);
         
         return await MeetModel.find(filters)
             .populate('members', 'name email')
             .populate('createdBy', 'name email')
-            .sort({ meetDate: 1, meetTime: 1 });
+            .sort({ meetDate: 1, meetTime: 1 })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+    }
+    
+    async getTotalMeetingsCount(
+        tenantConnection: mongoose.Connection,
+        filters: any
+    ): Promise<number> {
+        const MeetModel = this.getMeetModel(tenantConnection);
+        return await MeetModel.countDocuments(filters);
     }
 
     async createNewMeet(

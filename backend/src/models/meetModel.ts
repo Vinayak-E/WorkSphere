@@ -17,10 +17,7 @@ const MeetSchema = new Schema<IMeetModel>(
       type: String,
       required: [true, "Meeting time is required"],
     },
-    isDaily: {
-      type: Boolean,
-      default: false,
-    },
+
     members: [{
       type: Schema.Types.ObjectId,
       ref: 'Employee',

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Calendar, PlusCircle, Users, Video, Pencil, Clock, Search, X, ArrowRight } from "lucide-react";
+import { Calendar, PlusCircle, Users, Video, Pencil, Clock, Search, X, ArrowRight, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { RootState } from "@/redux/store";
 import { meetService } from "@/services/employee/meet.service";
 import { chatService } from "@/services/employee/chat.service";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast"
 import {
   Card,
   CardContent,
@@ -20,25 +20,27 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Meeting, Member } from "@/types/IMeeting";
+import { useNavigate } from "react-router-dom";
 
-interface Member {
-  _id: string;
-  name: string;
-  email: string;
-}
 
-interface Meeting {
-  _id: string;
-  meetTitle: string;
-  meetDate: string;
-  meetTime: string;
-  isDaily: boolean;
-  members: Member[];
-  meetId: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
+
+
 
 const MeetingManagement: React.FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -51,13 +53,17 @@ const MeetingManagement: React.FC = () => {
     meetTitle: "",
     meetDate: "",
     meetTime: "",
-    isDaily: false,
     members: [] as string[],
   });
-
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [dateFilter, setDateFilter] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const pageSize = 10;
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const isManager = currentUser?.role === "MANAGER";
-
+const navigate = useNavigate()
   useEffect(() => {
     fetchMeetings();
     if (isManager) {
@@ -68,18 +74,34 @@ const MeetingManagement: React.FC = () => {
   const fetchMeetings = async () => {
     try {
       setLoading(true);
-      const res = await meetService.getMeetings();
+      const params = {
+        page,
+        pageSize,
+        dateFilter,
+        startDate: customStartDate,
+        endDate: customEndDate
+      };
+      const res = await meetService.getMeetings(params);
       setMeetings(res.data);
+      setTotalPages(Math.ceil(res.total / pageSize));
     } catch (error) {
       toast.error("Failed to load meetings");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleDateFilterChange = (value: string) => {
+    setDateFilter(value);
+    setPage(1);
+    if (value !== "custom") {
+      setCustomStartDate("");
+      setCustomEndDate("");
+    }
+  };
   const filteredMeetings = meetings.filter(meeting =>
     meeting.meetTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
 
   const fetchEmployees = async () => {
     try {
@@ -90,13 +112,14 @@ const MeetingManagement: React.FC = () => {
     }
   };
 
-  const handleCreateMeeting = async () => {
+  const handleCreateMeeting = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       setLoading(true);
       await meetService.createMeeting(meetingForm);
       toast.success("Meeting created successfully");
       fetchMeetings();
-      setShowCreateModal(false);
+      setIsOpen(false);
       resetForm();
     } catch (error) {
       toast.error("Failed to create meeting");
@@ -105,7 +128,8 @@ const MeetingManagement: React.FC = () => {
     }
   };
 
-  const handleEditMeeting = async () => {
+  const handleEditMeeting = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!editingMeeting) return;
     
     try {
@@ -113,8 +137,9 @@ const MeetingManagement: React.FC = () => {
       await meetService.updateMeeting(editingMeeting._id, meetingForm);
       toast.success("Meeting updated successfully");
       fetchMeetings();
-      setShowEditModal(false);
+      setIsOpen(false);
       setEditingMeeting(null);
+      resetForm();
     } catch (error) {
       toast.error("Failed to update meeting");
     } finally {
@@ -142,7 +167,6 @@ const MeetingManagement: React.FC = () => {
       meetTitle: "",
       meetDate: "",
       meetTime: "",
-      isDaily: false,
       members: [],
     });
   };
@@ -153,16 +177,12 @@ const MeetingManagement: React.FC = () => {
       meetTitle: meeting.meetTitle,
       meetDate: meeting.meetDate,
       meetTime: meeting.meetTime,
-      isDaily: meeting.isDaily,
       members: meeting.members.map(m => m._id),
     });
-    setShowEditModal(true);
+    setIsOpen(true);
   };
 
-  const joinMeeting = (meetId: string) => {
-    window.location.href = `/join-meeting?meetId=${meetId}`;
-  };
-
+  
   return (
     <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
       <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
@@ -187,7 +207,7 @@ const MeetingManagement: React.FC = () => {
                     {editingMeeting ? "Edit Meeting" : "Create New Meeting"}
                   </DialogTitle>
                 </DialogHeader>
-                <form className="space-y-4">
+                <form onSubmit={editingMeeting ? handleEditMeeting : handleCreateMeeting} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Meeting Title</label>
                     <Input
@@ -217,16 +237,7 @@ const MeetingManagement: React.FC = () => {
                       className="focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="isDaily"
-                      checked={meetingForm.isDaily}
-                      onChange={(e) => setMeetingForm({ ...meetingForm, isDaily: e.target.checked })}
-                      className="mr-2"
-                    />
-                    <label htmlFor="isDaily">Daily Meeting</label>
-                  </div>
+            
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Select Members</label>
                     <div className="max-h-40 overflow-y-auto border rounded-lg p-2">
@@ -255,9 +266,9 @@ const MeetingManagement: React.FC = () => {
                   <Button 
                     type="submit" 
                     className="w-full"
-                    onClick={editingMeeting ? handleEditMeeting : handleCreateMeeting}
+                    disabled={loading}
                   >
-                    {editingMeeting ? "Update Meeting" : "Create Meeting"}
+                    {loading ? "Processing..." : (editingMeeting ? "Update Meeting" : "Create Meeting")}
                   </Button>
                 </form>
               </DialogContent>
@@ -278,81 +289,142 @@ const MeetingManagement: React.FC = () => {
                 className="pl-10 w-full bg-white border-gray-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            <Select value={dateFilter} onValueChange={handleDateFilterChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Meetings</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="tomorrow">Tomorrow</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
+            {dateFilter === "custom" && (
+              <div className="flex gap-2">
+                <Input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="w-auto"
+                />
+                <Input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="w-auto"
+                />
+              </div>
+            )}
             <Button
               variant="outline"
-              onClick={() => setSearchQuery("")}
+              onClick={() => {
+                setSearchQuery("");
+                setDateFilter("all");
+                setCustomStartDate("");
+                setCustomEndDate("");
+              }}
               className="flex items-center gap-2 w-full md:w-auto"
             >
-              <X className="w-4 h-4" /> Clear
+              <X className="w-4 h-4" /> Clear Filters
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {filteredMeetings.map((meeting) => (
-            <Card
-              key={meeting._id}
-              className="hover:shadow-md transition-all duration-500 border-gray-200 rounded-xl"
-            >
-              <CardContent className="p-6 rounded-xl">
-                <div className="flex flex-col space-y-4">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        {meeting.meetTitle}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        {meeting.isDaily ? "Daily Meeting" : "One-time Meeting"}
-                      </p>
-                    </div>
-                    {isManager && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setEditingMeeting(meeting);
-                          setIsOpen(true);
-                        }}
-                      >
-                        <Pencil className="w-4 h-4 text-gray-500 hover:text-blue-600" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span>{meeting.meetTime}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Meeting Title</TableHead>
+                <TableHead>Date & Time</TableHead>
+                <TableHead>Members</TableHead>
+                <TableHead>Actions</TableHead>
+                <TableHead className="text-right">Join</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredMeetings.map((meeting) => (
+                <TableRow key={meeting._id}>
+                  <TableCell className="font-medium">{meeting.meetTitle}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
                       <span>{new Date(meeting.meetDate).toLocaleDateString()}</span>
+                      <span className="text-sm text-gray-500">{meeting.meetTime}</span>
                     </div>
-                    <div className="flex items-center gap-2 col-span-2">
+                  </TableCell>
+                 
+                  <TableCell>
+                    <div className="flex items-center gap-1">
                       <Users className="w-4 h-4 text-gray-400" />
-                      <span>{meeting.members.length} members</span>
+                      <span>{meeting.members.length}</span>
                     </div>
-                  </div>
-
-                  <div className="flex gap-2">
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {isManager && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEditModal(meeting)}
+                            className="text-gray-600 hover:text-gray-800"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteMeeting(meeting._id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
                     <Button
-                      variant="ghost"
-                      className="w-full rounded-[5px] bg-primary/20 text-blue-700 hover:bg-primary transition-colors"
-                      onClick={() => joinMeeting(meeting.meetId)}
+                     onClick={() =>
+                      navigate(`/employee/video-call?roomID=${meeting.meetId}`)
+                    }
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
                     >
                       Join Meeting <Video className="w-4 h-4 ml-2" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full rounded-[5px] bg-primary/20 text-blue-700 hover:bg-primary transition-colors"
-                    >
-                      View Details <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-gray-500">
+            Showing {((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, meetings.length)} of {meetings.length} meetings
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-sm">
+              Page {page} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -9,16 +9,14 @@ export class MeetController {
         try {
             const tenantConnection = req.tenantConnection;
             if (!tenantConnection) {
-               res.status(500).json({
-                success: false,
-                message: "Tenant connection not established"
-              });
-              return
+                res.status(500).json({
+                    success: false,
+                    message: "Tenant connection not established"
+                });
+                return;
             }
-            const filters: any = {};
-             const userId = req.userId
-
-     
+    
+            const userId = req.userId;
             if (!userId) {
                 res.status(401).json({
                     success: false,
@@ -26,17 +24,90 @@ export class MeetController {
                 });
                 return;
             }
-
-            if (req.query.date) {
-                filters.meetDate = new Date(req.query.date as string);
+            console.log('oiiiiiiiiiiiiiiiiiiiiiiiii');
+            
+    
+            // Parse query parameters
+            const page = parseInt(req.query.page as string) || 1;
+            const pageSize = parseInt(req.query.pageSize as string) || 10;
+            const dateFilter = req.query.dateFilter as string;
+            const startDate = req.query.startDate as string;
+            const endDate = req.query.endDate as string;
+            const searchQuery = req.query.searchQuery as string;
+    
+            // Create filters object
+            const filters: any = {};
+    
+            // Apply date filters
+            if (dateFilter) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+    
+                switch (dateFilter) {
+                    case 'today':
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        filters.meetDate = {
+                            $gte: today,
+                            $lt: tomorrow
+                        };
+                        break;
+                    case 'tomorrow':
+                        const tomorrowStart = new Date(today);
+                        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+                        const dayAfterTomorrow = new Date(today);
+                        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+                        filters.meetDate = {
+                            $gte: tomorrowStart,
+                            $lt: dayAfterTomorrow
+                        };
+                        break;
+                    case 'week':
+                        const weekEnd = new Date(today);
+                        weekEnd.setDate(weekEnd.getDate() + 7);
+                        filters.meetDate = {
+                            $gte: today,
+                            $lt: weekEnd
+                        };
+                        break;
+                    case 'custom':
+                        if (startDate && endDate) {
+                            const endDateTime = new Date(endDate);
+                            endDateTime.setHours(23, 59, 59, 999);
+                            filters.meetDate = {
+                                $gte: new Date(startDate),
+                                $lte: endDateTime
+                            };
+                        }
+                        break;
+                }
             }
-            
-            const meetings = await this.meetService.getMeetings(tenantConnection,filters, userId);
-            
+    
+            // Apply search query if present
+            if (searchQuery) {
+                filters.meetTitle = { $regex: searchQuery, $options: 'i' };
+            }
+                 
+console.log("filters",filters)
+console.log("page",page)
+console.log(pageSize,"pagesixw");
+
+
+            const { meetings, total } = await this.meetService.getMeetings(
+                tenantConnection,
+                filters,
+                userId,
+                page,
+                pageSize
+            );
+            console.log("res",meetings,total)
             res.status(200).json({
                 success: true,
-                count: meetings.length,
-                data: meetings
+                data: meetings,
+                total,
+                page,
+                pageSize,
+                totalPages: Math.ceil(total / pageSize)
             });
         } catch (error) {
             next(error);
