@@ -45,4 +45,5 @@ router.patch('/projects/:id/status',projectController.updateProjectStatus);
 router.get('/tasks',projectController.getEmployeeTasks)
 router.patch('/tasks/:id/status',projectController. updateTaskStatus)
 router.put('/projects/:projectId/tasks/:taskId', projectController.editProjectTask);
+router.get('/department',employeeController.getDepartmentEmployees)
 export default router;

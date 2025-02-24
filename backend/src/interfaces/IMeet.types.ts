@@ -17,4 +17,6 @@ export interface IMeetService {
     total: number;
 }>
   createMeeting(tenantConnection: Connection, meetData: any): Promise<IMeetModel>
+  updateMeeting(tenantConnection: Connection, meetingId: string, meetingData: any): Promise<IMeetModel | null>
+  deleteMeeting(tenantConnection:Connection ,meetingId:string ):Promise<IMeetModel | null>
 }

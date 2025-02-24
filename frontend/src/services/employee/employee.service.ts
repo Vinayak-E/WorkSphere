@@ -58,4 +58,9 @@ export class ProfileService {
     toast.success('status updated successfully');
     return response.data.data;
   }
+  static async getDepartmentEmployees() {
+    const response = await api.get('/employee/department');
+  console.log(response.data,"dddddddddddddddddd")
+    return response.data
+  }
 }

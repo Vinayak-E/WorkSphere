@@ -42,4 +42,18 @@ export class MeetRepository {
         const MeetModel = this.getMeetModel(tenantConnection);
         return await MeetModel.create(meetData);
     }
+    async updateMeet(
+        tenantConnection: mongoose.Connection,
+        id: string,
+        updateData: any
+      ): Promise<IMeetModel | null> {
+        const MeetModel = this.getMeetModel(tenantConnection);
+        return await MeetModel.findByIdAndUpdate(id, updateData, { new: true });
+      }
+
+      async deleteMeeting(tenantConnection: Connection, meetingId: string) {
+        const MeetModel =  this.getMeetModel(tenantConnection);
+        return await MeetModel.findByIdAndDelete(meetingId);
+      }
+      
 }

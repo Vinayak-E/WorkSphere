@@ -26,4 +26,20 @@ export const meetService = {
     const response = await api.post("/meetings", meetingData);
     return response.data;
   },
+  updateMeeting: async (id: string, meetingData: any) => {
+    try {
+      const response = await api.put(`/meetings/${id}`, meetingData);
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to update meeting: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  },
+
+  deleteMeeting :async (meetingId :string) =>{
+    try{
+       await api.delete(`/meetings/${meetingId}`)
+    } catch (error) {
+      throw new Error(`Failed to Delete meeting: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 };

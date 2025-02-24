@@ -19,5 +19,7 @@ router.use(verifyAuth)
 
 router.get('/', meetController.getMeetings);
 router.post('/', meetController.createMeeting);
+router.put('/:id', meetController.updateMeeting);
+router.delete('/:id', meetController.deleteMeeting);
 
 export default router;

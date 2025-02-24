@@ -206,6 +206,38 @@ async getLeaves(
     }
 }
 
+async getDepartmentEmployees(
+    connection: Connection,
+    userEmail: string
+  ): Promise<IEmployee[]> {
+    try {
+   
+      const currentEmployee = await this.employeeRepository.getEmployeeByEmail(
+        connection,
+        userEmail
+      );
 
+      if (!currentEmployee || !currentEmployee.department) {
+        throw new Error("Employee or department not found");
+      }
+      
+      const departmentId = currentEmployee.department._id
+      
+      console.log("departmentId",departmentId)
+      const departmentEmployees = await this.employeeRepository.getEmployeesByDepartment(
+          connection,
+          departmentId
+          );
+          
+          console.log('departmentEmplopyees',departmentEmployees)
+      return departmentEmployees.filter(emp => emp.email !== userEmail);
 
+    } catch (error) {
+      console.error("Error in EmployeeService.getDepartmentEmployees:", error);
+      throw error;
+    }
   }
+}
+
+
+  

@@ -149,4 +149,50 @@ console.log(pageSize,"pagesixw");
             next(error);
         }
     };
+
+    updateMeeting = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const tenantConnection = req.tenantConnection;
+            if (!tenantConnection) {
+                res.status(500).json({
+                    success: false,
+                    message: "Tenant connection not established"
+                });
+                return;
+            }
+            const meetingId = req.params.id;
+            const meetingData = req.body;
+            console.log('meetingId', meetingId);
+            console.log('meetingData', meetingData);
+    
+            const updatedMeeting = await this.meetService.updateMeeting(tenantConnection, meetingId, meetingData);
+            res.status(200).json({
+                success: true,
+                data: updatedMeeting,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+    deleteMeeting = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const tenantConnection = req.tenantConnection;
+          if (!tenantConnection) {
+            res.status(500).json({
+              success: false,
+              message: "Tenant connection not established"
+            });
+            return;
+          }
+          const meetingId = req.params.id;
+          await this.meetService.deleteMeeting(tenantConnection, meetingId);
+          res.status(200).json({
+            success: true,
+            message: "Meeting deleted successfully"
+          });
+        } catch (error) {
+          next(error);
+        }
+    
+}
 }

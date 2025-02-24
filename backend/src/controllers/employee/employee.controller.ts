@@ -279,5 +279,47 @@ applyLeave: RequestHandler = async (req, res, next) => {
   }
 };
 
+getDepartmentEmployees: RequestHandler = async (
+  req: Request,
+  res: Response, 
+  next: NextFunction
+) => {
+  try {
+    const tenantConnection = req.tenantConnection;
+    
+    if (!tenantConnection) {
+      res.status(500).json({
+        success: false,
+        message: "Tenant connection not established"
+      });
+      return;
+    }
 
+    const userEmail = req.user?.email;
+    if (!userEmail) {
+      res.status(401).json({
+        success: false,
+        message: "User not authenticated"
+      });
+      return;
+    }
+
+    const employees = await this.employeeService.getDepartmentEmployees(
+      tenantConnection,
+      userEmail
+    );
+
+    res.status(200).json({
+      success: true,
+      data: employees
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
 }
+
+
+
+

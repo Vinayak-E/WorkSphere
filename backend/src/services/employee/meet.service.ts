@@ -43,4 +43,20 @@ export class MeetService {
         console.log("meetData", meetData);
         return await this.meetRepository.createNewMeet(tenantConnection, meetData);
       }
+
+      async updateMeeting(
+        tenantConnection: Connection,
+        meetingId: string,
+        meetingData: any
+      ) {
+     console.log("dag",meetingId,meetingData);
+     
+        return await this.meetRepository.updateMeet(tenantConnection, meetingId, meetingData);
+      }
+
+      async deleteMeeting(tenantConnection: Connection, meetingId: string) {
+        return await this.meetRepository.deleteMeeting(tenantConnection, meetingId);
+      }
+
+
 }
