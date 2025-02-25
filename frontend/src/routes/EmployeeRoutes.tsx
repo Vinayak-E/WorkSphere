@@ -12,6 +12,7 @@ import ProjectDetails from "@/components/Manager/ProjectDetails"
 import EmployeeTaskList from "@/components/Employee/EmployeeTask"
 import ChatContainer from "@/components/chat/chat"
 import MeetingManagement from "@/components/Meeting/MeetingTable"
+import VideoCall from "@/components/Meeting/VideoCall"
 
 const EmployeeRoutes = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -28,6 +29,7 @@ const EmployeeRoutes = () => {
           <Route path="/tasks" element={<EmployeeTaskList />} />
           <Route path="/chat" element={<ChatContainer/>} />
           <Route path="/meeting" element={<MeetingManagement/>} />
+          <Route path="/video-call" element={<VideoCall />} />
          
         </Route>
       ) : (
@@ -40,6 +42,7 @@ const EmployeeRoutes = () => {
           <Route path="/projects/:id" element={<ProjectDetails />} />
           <Route path="/chat" element={<ChatContainer/>} />
           <Route path="/meeting" element={<MeetingManagement/>} />
+          <Route path="/video-call" element={<VideoCall />} />
         </Route>
       )}
     </Routes>

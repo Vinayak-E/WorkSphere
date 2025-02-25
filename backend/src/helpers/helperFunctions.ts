@@ -73,3 +73,13 @@ export function generateEmployeeId(): string {
   const randomDigits = Math.floor(100000 + Math.random() * 900000);
   return `EMP${randomDigits}`;
 }
+
+
+export function generateMeetingId(length: number = 8): string {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}

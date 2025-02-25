@@ -7,14 +7,14 @@ const Layout = () => {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
-        <AppSidebar />
+        <AppSidebar  />
      
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex flex-col flex-1 overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100">
           <Header />
-          <main className="flex-1 overflow-auto bg-gray-50">
-            <div className="container mx-auto p-6">
+          <main className="flex-1 overflow-auto bg-gray-">
+
               <Outlet />
-            </div>
+    
           </main>
         </div>
       </div>

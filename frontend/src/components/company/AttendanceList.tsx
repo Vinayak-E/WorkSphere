@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -74,15 +74,18 @@ const AttendanceList = () => {
   };
 
   return (
-    <Card className="w-full max-w-7xl mx-auto shadow-lg rounded">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
+      <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <Calendar className="w-6 h-6 text-blue-600" />
               Attendance List
             </CardTitle>
-            <p className="text-sm text-gray-500">Monitor employee attendance and working hours</p>
+            <CardDescription className="text-sm text-gray-500">
+            Monitor employee attendance and working hours
+            </CardDescription>
+           
           </div>
         </div>
       </CardHeader>

@@ -1,5 +1,6 @@
 import mongoose, { Connection } from "mongoose";
 import { IAttendance, ILeave } from "./IAttendance.types";
+import { IDepartment } from "./IDepartment.types";
 
 export interface IEmployee extends Document {
   _id: string;
@@ -11,7 +12,7 @@ export interface IEmployee extends Document {
   role: string;
   gender: string;
   status: string;
-  department: mongoose.Schema.Types.ObjectId;
+  department: IDepartment;
   dob: Date; 
   salary: number; 
   workMode: "Remote" | "On-Site" | "Hybrid"; 
@@ -82,5 +83,6 @@ export interface IEmployeeService {
   getAttendanceStatus(connection: Connection, employeeId: string): Promise<IAttendance | null>
   getLeaves(connection: Connection, email: string, page: number, limit: number, startDate?: string, endDate?: string): Promise<{leaves: ILeave[];total: number}>
   applyLeave(connection: Connection, email: string, startDate: string, endDate: string, reason: string): Promise<ILeave>
+  getDepartmentEmployees(connection: Connection, userEmail: string): Promise<IEmployee[]>
  }
  

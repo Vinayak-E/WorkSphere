@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {   Calendar, ChevronLeft, ChevronRight, Search, Clock, Users, ListTodo, AlertCircle, BadgeInfo, CheckCircle, BarChart2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProjectController } from "@/controllers/employee/project.controller";
@@ -93,16 +93,16 @@ const ProjectList = () => {
 
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
-    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
       <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <CardTitle className="text-3xl font-bold  text-gray-800 flex items-center gap-3">
-              <Calendar className="w-8 h-8 text-blue-500" />
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-blue-600" />
               Project Dashboard
             </CardTitle>
-            <p className=" text-gray-500">Manage and track company initiatives</p>
+            <CardDescription className="text-sm text-gray-500">Manage and track company initiatives
+            </CardDescription>
           </div>
           <div className="flex items-center gap-3">
             <BarChart2 className="w-5 h-5 text-gray-600" />
@@ -113,8 +113,8 @@ const ProjectList = () => {
         </div>
       </CardHeader>
 
-      <CardContent className="p-8">
-        <div className="mb-8 bg-gray-50 p-6 rounded-xl space-y-6 border border-gray-100">
+      <CardContent className="p-6">
+        <div className="mb-6 bg-gray-50 p-4 rounded-xl space-y-6 border border-gray-100">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -291,7 +291,7 @@ const ProjectList = () => {
         )}
       </CardContent>
     </Card>
-  </div>
+ 
 );
 };
 
