@@ -1,21 +1,22 @@
 import { NavLink } from "react-router-dom"
-import { Calendar, Home, Inbox,  Settings, Users, FileText, BarChart } from "lucide-react"
+import { Calendar, Home, Inbox,  Settings, Users, FileText, BarChart, Video } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
+  SidebarMenuBadge,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
+
 import IMAGES from "@/assets/images/image"
 
 const items = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "/company",
     icon: Home,
   },
   {
@@ -44,6 +45,7 @@ const items = [
     icon: Inbox,
      badge: 0,
   },
+  { title: "Meetings",         url: "/company/meeting",icon: Video },
   {
     title: "Settings",
     url: "/company/profile",
@@ -54,42 +56,69 @@ const items = [
 export function AppSidebar() {
   return (
   
-    <Sidebar variant="sidebar" collapsible="icon" className="border-r bg-white h-screen flex flex-col"> 
-      <SidebarContent className="flex-1"> 
-        <div className="flex h-16 items-center border-b px-6">
-          <img src={IMAGES.navBarLogoDark} alt="Company Logo" className="h-12" />
+    <Sidebar
+    variant="sidebar"
+    collapsible="icon"
+    className="
+      min-h-screen 
+      border-none 
+      bg-white 
+    
+      shadow-lg shadow-blue-100
+    "
+  >
+    <SidebarContent className="flex flex-col  bg-white">
+      <SidebarHeader className="px-14 py-3 border-none ">
+        <div className="flex items-center space-x-2">
+          <img src={IMAGES.navBarLogoDark} alt="Logo" className="h-12 w-auto" />
         </div>
+      </SidebarHeader>
 
-        <SidebarGroup className="flex-1">
-          <SidebarGroupContent className="p-2">
-            <SidebarMenu>
-              {items.map((item) => (
+      <SidebarGroup className="flex-1 overflow-y-auto">
+        <SidebarGroupContent className="">
+          <SidebarMenu>
+            {items.map((item) => {
+              const isActive = location.pathname === item.url
+              return (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={({ isActive }) =>
-                        cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                          isActive && "bg-gray-100 text-gray-900"
-                        )
+                  
+                  <NavLink
+                    to={item.url}
+                    className={`group flex items-center gap-2 rounded-md px-4 py-2 transition-colors
+                      ${
+                        isActive
+                          ? // Active styles
+                            "border-l-4 border-blue-600 bg-blue-50 text-blue-700 font-medium"
+                          : // Default & hover
+                            "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                       }
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                      {item.badge && (
-                        <span className="ml-auto rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-600">
-                          {item.badge}
-                        </span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
+                    `}
+                  >
+                    <item.icon
+                      className={`h-5 w-5 flex-shrink-0 
+                        ${
+                          isActive
+                            ? "text-blue-600"
+                            : "text-gray-400 group-hover:text-gray-600"
+                        }
+                      `}
+                    />
+                    <span className="whitespace-nowrap">{item.title}</span>
+
+                    {item.badge !== undefined && (
+                      <SidebarMenuBadge>
+                        {item.badge}
+                      </SidebarMenuBadge>
+                    )}
+                  </NavLink>
+            
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
+  </Sidebar>
   )
 }

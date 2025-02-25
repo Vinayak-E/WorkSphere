@@ -8,10 +8,9 @@ import { RootState } from '@/redux/store'
 import { logout } from '@/redux/slices/authSlice'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '@/api/axios'
-import { Icompany } from "@/types/types"
 
 export function Header() {
-  const [imageError, setImageError] = useState(false)
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { user } = useSelector((state: RootState) => state.auth)
@@ -27,7 +26,7 @@ export function Header() {
   }
 
   return (
-    <header className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-100">
+    <header className="border-b border-gray-100 bg-gradient-to-r from-blue-100 to-blue-200">
       <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
           <SidebarTrigger className="-ml-2 mr-2 text-gray-600 hover:text-gray-900" />

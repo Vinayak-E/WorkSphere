@@ -14,7 +14,6 @@ import {
   Calendar,
   FileText,
   Inbox,
-  BarChart,
   Settings,
   Video
 } from "lucide-react"

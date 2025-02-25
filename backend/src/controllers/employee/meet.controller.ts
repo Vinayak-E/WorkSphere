@@ -132,10 +132,19 @@ console.log(pageSize,"pagesixw");
                 });
                 return;
             }
-          
+            if (!req.user) {
+                res.status(401).json({
+                    success: false,
+                    message: "User not authenticated"
+                });
+                return;
+            }
+            console.log("role",req.user.role)
+            const createdByModel = req.user.role === "COMPANY" ? "Company" : "Employee";
             const meetingData = {
                 ...req.body,
-                createdBy: new mongoose.Types.ObjectId(req.userId)
+                createdBy: new mongoose.Types.ObjectId(req.userId),
+                createdByModel
             };
           
             const newMeeting = await this.meetService.createMeeting(tenantConnection,meetingData);

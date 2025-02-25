@@ -6,9 +6,6 @@ import OtpVerification from "../pages/OtpVerification";
 import ResetPassword from "../pages/ResetPassword";
 import AdminRoutes from "./AdminRoutes";
 import ProtectedRoute from "./ProtectedRoute";
-import Layout from "@/components/company/CompanyLayout";
-import Departments from "@/components/company/Departments";
-import Home from "@/components/company/Home";
 import HomePage from "../pages/Home";
 import CompanyRoutes from "./CompanyRoutes";
 import EmployeeRoutes from "./EmployeeRoutes";
@@ -28,14 +25,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/admin" element={<AdminLogin/>} />
       <Route path= '/passwordChange' element ={<PasswordChange />} />
 
-      <Route element={
-        <ProtectedRoute>
-          <Layout />
-        </ProtectedRoute>
-      }>
-        <Route path="/dashboard" element={<Departments />} />
-        <Route path="/home" element={<Home />} />
-      </Route>
+     
 
       <Route path="/admin/*" element={
         

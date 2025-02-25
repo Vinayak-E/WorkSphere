@@ -8,6 +8,7 @@ export interface IMeetModel extends Document {
   members: mongoose.Types.ObjectId[];
   meetId: string;
   createdBy: mongoose.Types.ObjectId;
+  createdByModel: 'Employee' | 'Company';
   createdAt: Date;
   updatedAt: Date;
 }

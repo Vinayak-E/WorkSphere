@@ -27,8 +27,13 @@ const MeetSchema = new Schema<IMeetModel>(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'Employee',
       required: true,
+      refPath: 'createdByModel'
+    },
+    createdByModel: {
+      type: String,
+      required: true,
+      enum: ['Employee', 'Company']
     }
   },
   { timestamps: true }

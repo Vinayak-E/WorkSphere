@@ -3,13 +3,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Plus, Loader2, Search, Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Loader2, Search, Edit, ChevronLeft, ChevronRight, Calendar, X } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,} from "@/components/ui/alert-dialog";
 import { toast } from "react-toastify";
 import api from "@/api/axios";
 
 import EmployeeForm from "./EmployeeModal";
+import { ScaleLoader } from "react-spinners";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -271,13 +272,24 @@ const MyTeam = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <ScaleLoader color="#3B82F6" />
+      </div>
+    );
+  }
+
   return (
-    <Card className="w-full max-w-6xl mx-auto">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold">My Team</CardTitle>
-            <CardDescription className="mt-2">
+    <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
+      <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-blue-600" />
+              My Team
+            </CardTitle>
+            <CardDescription className="text-sm text-gray-500">
               Manage your company's Employee Details
             </CardDescription>
           </div>
@@ -318,17 +330,26 @@ const MyTeam = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <CardContent>
+      <CardContent className="p-6">
         {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search employees..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+        <div className="mb-6 bg-gray-50 p-4 rounded-xl shadow-sm">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <div className="flex items-center gap-2 flex-1 w-full relative">
+              <Search className="absolute left-3 text-gray-400 w-5 h-5" />
+              <Input
+                placeholder="Search projects..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-full bg-white border-gray-200 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setSearchQuery("")}
+              className="flex items-center gap-2 w-full md:w-auto"
+            >
+              <X className="w-4 h-4" /> Clear
+            </Button>
           </div>
         </div>
 

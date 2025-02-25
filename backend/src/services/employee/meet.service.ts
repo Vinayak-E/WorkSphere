@@ -24,7 +24,7 @@ export class MeetService {
             ]
         };
     
-        // Combine with existing filters
+       
         const combinedFilters = {
             ...filters,
             ...userFilter
@@ -34,12 +34,13 @@ export class MeetService {
             this.meetRepository.getMeetings(tenantConnection, combinedFilters, page, pageSize),
             this.meetRepository.getTotalMeetingsCount(tenantConnection, combinedFilters)
         ]);
-    
+         console.log('meetings',meetings)
         return { meetings, total };
     }
 
     async createMeeting(tenantConnection: Connection, meetData: any) {
         meetData.meetId = generateMeetingId();
+        
         console.log("meetData", meetData);
         return await this.meetRepository.createNewMeet(tenantConnection, meetData);
       }

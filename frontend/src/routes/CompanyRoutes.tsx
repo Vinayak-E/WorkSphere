@@ -7,6 +7,8 @@ import AttendanceList from '@/components/company/AttendanceList'
 import CompanyProfilePage from '@/components/company/CompanyProfilePage'
 import ProjectList from '@/components/company/ProjectList'
 import CompanyProjectDetails from '@/components/company/ProjectDetails'
+import MeetingManagement from '@/components/Meeting/MeetingTable'
+import VideoCall from '@/components/Meeting/VideoCall'
 
 
 const CompanyRoutes = () => {
@@ -20,7 +22,8 @@ const CompanyRoutes = () => {
         <Route path='/attendance' element={<AttendanceList/>}/>
         <Route path='/projects' element={<ProjectList/>}/>
         <Route path="/projects/:id" element={<CompanyProjectDetails />} />
-        
+        <Route path="/meeting" element={<MeetingManagement/>} />
+        <Route path="/video-call" element={<VideoCall />} />
         </Route>
     </Routes>
     )
