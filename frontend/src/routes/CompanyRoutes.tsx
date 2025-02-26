@@ -8,7 +8,8 @@ import CompanyProfilePage from '@/components/company/CompanyProfilePage'
 import ProjectList from '@/components/company/ProjectList'
 import CompanyProjectDetails from '@/components/company/ProjectDetails'
 import MeetingManagement from '@/components/Meeting/MeetingTable'
-import VideoCall from '@/components/Meeting/VideoCall'
+import VideoCall from '../components/Meeting/VideoCall'
+import ChatContainer from '@/components/chat/chat'
 
 
 const CompanyRoutes = () => {
@@ -22,6 +23,7 @@ const CompanyRoutes = () => {
         <Route path='/attendance' element={<AttendanceList/>}/>
         <Route path='/projects' element={<ProjectList/>}/>
         <Route path="/projects/:id" element={<CompanyProjectDetails />} />
+        <Route path="/chat" element={<ChatContainer/>} />
         <Route path="/meeting" element={<MeetingManagement/>} />
         <Route path="/video-call" element={<VideoCall />} />
         </Route>
@@ -30,3 +32,4 @@ const CompanyRoutes = () => {
   }
   
   export default CompanyRoutes
+  

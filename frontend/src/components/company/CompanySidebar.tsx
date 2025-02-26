@@ -41,7 +41,7 @@ const items = [
   },
   {
     title: "Messages",
-    url: "/messages",
+    url: "/company/chat",
     icon: Inbox,
      badge: 0,
   },
