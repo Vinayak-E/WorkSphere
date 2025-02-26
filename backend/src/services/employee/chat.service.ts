@@ -10,21 +10,17 @@ export class ChatService {
   async createChat(
     tenantConnection: mongoose.Connection,
     userId: string,
-    currentUserEmail: string
+    currentUserId: string
   ): Promise<IChatDocument | null> {
 
-    const user = await this.employeeRepository.getEmployeeByEmail(tenantConnection,currentUserEmail)
-      
-    if (!user) {
-        throw new Error("User not found.");
-      }
+ 
     
-     const currentUserId = user._id
     const existingChat = await this.chatRepository.findExistingChat(
       tenantConnection,
       currentUserId,
       userId
     );
+      console.log("exit",existingChat);
 
     if (existingChat) {
       return existingChat;
@@ -145,6 +141,7 @@ export class ChatService {
     if (!chats) {
       throw new Error("Error retrieving chats");
     }
+    console.log('chats',chats)
   
     return chats;
   }

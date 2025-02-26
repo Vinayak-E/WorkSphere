@@ -27,7 +27,7 @@ export interface IChatService {
     createChat(
         tenantConnection: mongoose.Connection,
         userId: mongoose.Types.ObjectId | string,      
-        currentUserEmail: string
+        currentUserId: string
       ): Promise<IChatDocument | null>;
     
       createGroupChat(

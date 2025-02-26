@@ -43,7 +43,6 @@ export class ManageEmployeeController {
                 return
             }
             const employeeData: ICreateEmployee = req.body;
-           console.log("employeeData",employeeData);
            
             const newEmployee = await this.companyService.addEmployee(employeeData, tenantConnection,tenantId);
 
@@ -71,9 +70,7 @@ export class ManageEmployeeController {
           }
     
           const { id } = req.params;
-        
-          console.log('reqId at updateemploye',req.params)
-          console.log('req.body at updateemploye',req.body)
+
     
           if (!id) {
              res.status(400).json({

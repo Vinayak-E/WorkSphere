@@ -207,7 +207,5 @@ export class EmployeeRepository {
             throw error;
         }
     }
-
-    
     
 }

@@ -114,7 +114,7 @@ addTask: RequestHandler = async (req: Request, res: Response, next: NextFunction
     const taskData = { ...req.body, project: projectId };
 
     const newTask = await this.projectService.addTask(tenantConnection, taskData);
-    console.log('new Task',newTask)
+
     res.status(201).json({ success: true, data: newTask });
   } catch (error) {
     next(error);
@@ -162,8 +162,7 @@ editProjectTask: RequestHandler = async (req: Request, res: Response, next: Next
 
     const { projectId, taskId } = req.params;
     const taskData = req.body;
-     console.log('req.body',req.body)
-     console.log('req.params',req.params)
+
     const updatedTask = await this.projectService.updateProjectTask(
       tenantConnection,
       projectId,
@@ -195,7 +194,7 @@ editProjectTask: RequestHandler = async (req: Request, res: Response, next: Next
     }
      const projectId = req.params.id
      const {status} = req.body
-     console.log('rq body',req.body)
+  
     const newProject = await this.projectService.updateProjectStatus(projectId,tenantConnection, status);
     
     res.status(201).json({
@@ -211,7 +210,7 @@ editProjectTask: RequestHandler = async (req: Request, res: Response, next: Next
     try {
       const tenantConnection = req.tenantConnection;
       const { employeeId, page = '1', limit = '10', search = '', status = '' } = req.query;
-        console.log("req.queery",req.query)
+
       if (!tenantConnection || !employeeId) {
          res.status(400).json({
           success: false,
@@ -285,7 +284,7 @@ editProjectTask: RequestHandler = async (req: Request, res: Response, next: Next
       };
       
       const result = await this.projectService.getAllProjects(tenantConnection, options);
-      console.log('result',result)
+
       res.status(200).json({
         success: true,
         data: result.data,

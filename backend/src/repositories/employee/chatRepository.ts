@@ -7,11 +7,17 @@ import { Connection } from 'mongoose';
 import { IEmployee } from '../../interfaces/company/IEmployee.types';
 import { Model } from 'mongoose';
 import Employee from '../../models/employeeModel';
+import { ICompanyDocument } from '../../interfaces/company/company.types';
+import Company from '../../models/companyModel';
 
 export class ChatRepository {
 
     private getEmployeeModel(connection: Connection): Model<IEmployee> {
         return connection.models.Employee || connection.model<IEmployee>("Employee", Employee.schema);
+    }
+    private getCompanyModel(connection: Connection): Model<ICompanyDocument> {
+      return ( connection.models.Company || connection.model<ICompanyDocument>("Company", Company.schema)
+      );
     }
 
   async findExistingChat(
@@ -21,6 +27,7 @@ export class ChatRepository {
   ): Promise<IChatDocument | null> {
     const MessageModel = getMessageModel(tenantConnection);
     const ChatModel = getChatModel(tenantConnection);
+    const EmployeeModel = this.getEmployeeModel(tenantConnection)
 
     return ChatModel.findOne({
       isGroupChat: false,
