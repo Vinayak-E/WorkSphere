@@ -17,28 +17,54 @@ const GroupMembersModal = ({
   onRemoveMember
 }) => {
   const [activeTab, setActiveTab] = useState('members');
+  const [message, setMessage] = useState(null); 
 
-  // Filter out current group members from all users
+  const isGroupAdmin = groupChat.groupAdmin?.adminId._id === currentUser._id;
+
   const nonMembers = allUsers.filter(
-    user => !groupChat.users.some(member => member._id === user._id)
+    user => !groupChat.users.some(member => (member.userId?._id || member._id).toString() === user._id.toString())
   );
 
+  const handleAddMember = async (userId) => {
+    try {
+      await onAddMember(userId);
+      setMessage({ type: 'success', text: 'Member added successfully!' });
+      setTimeout(() => setMessage(null), 3000); 
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to add member.' });
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    try {
+      await onRemoveMember(userId);
+      setMessage({ type: 'success', text: 'Member removed successfully!' });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to remove member.' });
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
   const renderUserItem = (user, isGroupMember) => {
-    const isOnline = onlineUsers.includes(user._id);
-    
+    const userData = user.userId || user;
+    const isOnline = onlineUsers.includes(userData._id.toString());
+    const isAdmin = userData._id.toString() === groupChat.groupAdmin?.adminId._id.toString();
+
     return (
-      <div key={user._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+      <div key={userData._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-              {user.profilePicture ? (
+              {userData.profilePicture ? (
                 <img
-                  src={user.profilePicture}
-                  alt={user.name}
+                  src={userData.profilePicture}
+                  alt={userData.name}
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                user.name[0]
+                userData.name?.[0] || "?"
               )}
             </div>
             <span
@@ -47,17 +73,22 @@ const GroupMembersModal = ({
               }`}
             />
           </div>
-          <div>
-            <h3 className="font-medium text-gray-900">{user.name}</h3>
-            <p className="text-sm text-gray-500">{user.email}</p>
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-gray-900">{userData.name}</h3>
+            {isAdmin && (
+              <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                Admin
+              </span>
+            )}
+            <p className="text-sm text-gray-500">{userData.email}</p>
           </div>
         </div>
         
-        {user._id !== currentUser._id && (
+        {isGroupAdmin && userData._id.toString() !== currentUser._id.toString() && (
           <Button
             variant={isGroupMember ? "destructive" : "default"}
             size="sm"
-            onClick={() => isGroupMember ? onRemoveMember(user._id) : onAddMember(user._id)}
+            onClick={() => isGroupMember ? handleRemoveMember(userData._id) : handleAddMember(userData._id)}
             className="flex items-center gap-2"
           >
             {isGroupMember ? (
@@ -103,6 +134,12 @@ const GroupMembersModal = ({
             </div>
           </div>
 
+          {message && (
+            <div className={`p-4 text-center ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              {message.text}
+            </div>
+          )}
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
             <div className="px-6 border-b">
               <TabsList className="w-full justify-start gap-4">
@@ -110,10 +147,12 @@ const GroupMembersModal = ({
                   <Users className="h-4 w-4" />
                   Members
                 </TabsTrigger>
-                <TabsTrigger value="add" className="flex items-center gap-2">
-                  <UserPlus className="h-4 w-4" />
-                  Add Members
-                </TabsTrigger>
+                {isGroupAdmin && (
+                  <TabsTrigger value="add" className="flex items-center gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    Add Members
+                  </TabsTrigger>
+                )}
               </TabsList>
             </div>
 
@@ -124,11 +163,13 @@ const GroupMembersModal = ({
                 </div>
               </TabsContent>
               
-              <TabsContent value="add" className="m-0">
-                <div className="space-y-2">
-                  {nonMembers.map(user => renderUserItem(user, false))}
-                </div>
-              </TabsContent>
+              {isGroupAdmin && (
+                <TabsContent value="add" className="m-0">
+                  <div className="space-y-2">
+                    {nonMembers.map(user => renderUserItem(user, false))}
+                  </div>
+                </TabsContent>
+              )}
             </ScrollArea>
           </Tabs>
         </div>

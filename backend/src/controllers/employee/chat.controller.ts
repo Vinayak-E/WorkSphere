@@ -41,7 +41,8 @@ export class ChatController {
           const chat = await this.chatService.createChat(
             tenantConnection,
             userId,
-            currentUserId
+            currentUserId,
+            req.user.role
           );
       
           res.status(200).json({
@@ -71,20 +72,12 @@ export class ChatController {
       const { users, name } = req.body;
       const adminEmail = req.user?.email;
 
-      if (!users || !name) {
-        res.status(400).json({
-          success: false,
-          message: "Please provide all required fields"
+      if (!req.user|| !users || !name || !adminEmail) {
+         res.status(400).json({
+        success: false,
+          message: "Please provide all required fields",
         });
-        return;
-      }
-      if(!adminEmail){
-        res.status(400).json({
-            success: false,
-            message: "Please provide all required fields"
-          });
-          return;
-
+        return
       }
 
 
@@ -93,6 +86,7 @@ export class ChatController {
         users,
         name,
         adminEmail,
+        req.user.role
       );
 
 

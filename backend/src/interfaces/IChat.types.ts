@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 import { IEmployee } from './company/IEmployee.types';
+import { ICompanyDocument } from './company/company.types';
 
 export interface IChatDocument extends Document {
     _id: mongoose.Types.ObjectId;
@@ -24,20 +25,10 @@ export interface IMessageDocument extends Document {
 
 
 export interface IChatService {
-    createChat(
-        tenantConnection: mongoose.Connection,
-        userId: mongoose.Types.ObjectId | string,      
-        currentUserId: string
-      ): Promise<IChatDocument | null>;
-    
-      createGroupChat(
-        tenantConnection: mongoose.Connection,
-        users: (mongoose.Types.ObjectId | string)[],
-        name: string,
-        adminEmail: string
-      ): Promise<IChatDocument | null>;
+      createChat(tenantConnection: mongoose.Connection, userId: string, currentUserId: string, currentUserRole: string): Promise<IChatDocument | null>
+      createGroupChat(tenantConnection: mongoose.Connection, users: string[], name: string, adminEmail: string, adminRole: string): Promise<IChatDocument | null>
       getAllChats(tenantConnection: mongoose.Connection, userId: string): Promise<IChatDocument[]>
-      getCurrentUser(tenantConnection: mongoose.Connection, email: string): Promise<IEmployee>
+      getCurrentUser(tenantConnection: mongoose.Connection, email: string): Promise<IEmployee |ICompanyDocument>
       getChatMessages(tenantConnection: mongoose.Connection, chatId: string): Promise<IMessageDocument[]>
 }
    

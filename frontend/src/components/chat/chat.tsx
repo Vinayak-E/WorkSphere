@@ -44,6 +44,7 @@ const ChatContainer = () => {
   const loadMessages = async (chatId) => {
     try {
       const response = await chatService.getChatMessages(chatId);
+      console.log('load messages',response)
       setMessages(response.data);
     } catch (error) {
       console.error(`Error loading messages for chat ${chatId}:`, error);
@@ -68,9 +69,7 @@ const ChatContainer = () => {
       console.log('New message received:', newMessage._doc);
       setMessages((prev) => [...prev, messageData]);
 
-      if (messageAreaRef.current) {
-        messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
-      }
+ 
 
       setChats((prev) => {
         const updatedChats = prev.map((chat) => {
@@ -129,9 +128,15 @@ const ChatContainer = () => {
   };
 
   const filteredChats = chats.filter((chat) => {
-    const chatName = chat.isGroupChat
-      ? chat.name
-      : chat.users.find((user) => user._id !== currentUser.userData._id)?.name;
+    let chatName;
+    if (chat.isGroupChat) {
+      chatName = chat.name || 'Unnamed Group';
+    } else {
+      const otherUser = chat.users.find(
+        (user) => user.userId._id.toString() !== currentUser.userData._id.toString()
+      );
+      chatName = otherUser ? otherUser.userId.name : 'Unknown User';
+    }
     return chatName.toLowerCase().includes(chatSearchTerm.toLowerCase());
   });
 
