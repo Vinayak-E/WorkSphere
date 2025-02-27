@@ -3,38 +3,58 @@ import { IChatDocument, IMessageDocument } from '../../interfaces/IChat.types';
 import { ChatRepository } from '../../repositories/employee/chatRepository';
 import { EmployeeRepository } from '../../repositories/employee/employeeRepository';
 import { IEmployee } from '../../interfaces/company/IEmployee.types';
-
+import { ICompanyDocument } from '../../interfaces/company/company.types';
 export class ChatService {
-  constructor(private readonly chatRepository: ChatRepository,private readonly employeeRepository:EmployeeRepository) {}
+  constructor(
+    private readonly chatRepository: ChatRepository,
+    private readonly employeeRepository: EmployeeRepository
+  ) {}
+
+  // Determine user type based on role
+  private determineUserModel(role: string): 'Employee' | 'Company' {
+    return role === 'COMPANY' ? 'Company' : 'Employee'; // Adjust based on your role definitions
+  }
+
+  // Helper to get user model by ID
+  private async getUserModelById(
+    tenantConnection: mongoose.Connection,
+    userId: string
+  ): Promise<'Employee' | 'Company'> {
+    const employeeModel = this.chatRepository.getEmployeeModel(tenantConnection);
+    const companyModel = this.chatRepository.getCompanyModel(tenantConnection);
+    const employee = await employeeModel.findById(userId);
+    if (employee) return 'Employee';
+    const company = await companyModel.findById(userId);
+    if (company) return 'Company';
+    throw new Error('User not found');
+  }
 
   async createChat(
     tenantConnection: mongoose.Connection,
     userId: string,
-    currentUserEmail: string
+    currentUserId: string,
+    currentUserRole: string
   ): Promise<IChatDocument | null> {
+    const currentUserModel = this.determineUserModel(currentUserRole);
+    const otherUserModel = await this.getUserModelById(tenantConnection, userId);
 
-    const user = await this.employeeRepository.getEmployeeByEmail(tenantConnection,currentUserEmail)
-      
-    if (!user) {
-        throw new Error("User not found.");
-      }
-    
-     const currentUserId = user._id
     const existingChat = await this.chatRepository.findExistingChat(
       tenantConnection,
       currentUserId,
-      userId
+      userId,
+      currentUserModel,
+      otherUserModel
     );
 
-    if (existingChat) {
-      return existingChat;
-    }
-
+    if (existingChat) return existingChat;
 
     const chatData = {
-      name: "sender",
+      name: 'sender',
       isGroupChat: false,
-      users: [currentUserId, userId],
+      users: [
+        { userId: currentUserId, userModel: currentUserModel },
+        { userId, userModel: otherUserModel },
+      ],
     };
 
     const createdChat = await this.chatRepository.createNewChat(
@@ -45,7 +65,7 @@ export class ChatService {
     return await this.chatRepository.findChatById(
       tenantConnection,
       createdChat._id,
-      ["users"]
+      ['users.userId']
     );
   }
 
@@ -54,29 +74,37 @@ export class ChatService {
     users: string[],
     name: string,
     adminEmail: string,
+    adminRole: string
   ): Promise<IChatDocument | null> {
+    const admin = await this.employeeRepository.getEmployeeByEmail(
+      tenantConnection,
+      adminEmail
+    );
+    if (!admin) throw new Error('Admin not found');
+    const adminId = admin._id;
+    const adminModel = this.determineUserModel(adminRole);
 
-    const user = await this.employeeRepository.getEmployeeByEmail(tenantConnection,adminEmail)
-      
-    if (!user) {
-        throw new Error("User not found.");
-      }
+    const usersWithModels = await Promise.all(
+      users.map(async (userId) => ({
+        userId,
+        userModel: await this.getUserModelById(tenantConnection, userId),
+      }))
+    );
 
-      const adminId = user._id
     const groupChat = await this.chatRepository.createNewChat(
       tenantConnection,
       {
         name,
-        users,
+        users: usersWithModels,
         isGroupChat: true,
-        groupAdmin: adminId,
+        groupAdmin: { adminId, adminModel },
       }
     );
 
     return await this.chatRepository.findChatById(
       tenantConnection,
       groupChat._id,
-      ["users", "groupAdmin"]
+      ['users.userId', 'groupAdmin.adminId']
     );
   }
 
@@ -85,67 +113,64 @@ export class ChatService {
     content: string,
     chatId: string,
     senderId: string,
+    senderRole: string,
     mediaUrl?: string,
-    type?:string
+    type?: string
   ): Promise<IMessageDocument> {
-
+    console.log('senderrole',senderRole)
+    const senderModel = this.determineUserModel(senderRole);
+    console.log('senderModel',senderModel)
     const newMessage = await this.chatRepository.createMessage(
       tenantConnection,
       {
-        sender: senderId,
+        sender: { senderId, senderModel },
         content,
         chat: chatId,
         mediaUrl: mediaUrl || null,
-        type
+        type: type || 'text',
       }
     );
 
     await this.chatRepository.updateChatLatestMessage(
       tenantConnection,
       chatId,
-      newMessage._id as mongoose.Types.ObjectId
+      newMessage._id
     );
-  
+
     const message = await this.chatRepository.findMessageById(
       tenantConnection,
-      newMessage._id as mongoose.Types.ObjectId
+      newMessage._id
     );
-  
-    if (!message) {
-      throw new Error("Message not found after creation.");
-    }
-  
+    if (!message) throw new Error('Message not found after creation');
+
     return message;
   }
-  
+
   async getCurrentUser(
     tenantConnection: mongoose.Connection,
     email: string
-  ) {
-    const user = await this.employeeRepository.getEmployeeByEmail(tenantConnection, email);
-    if (!user) {
-      throw new Error("User not found");
-    }
-    return user;
+  ): Promise<IEmployee | ICompanyDocument> {
+    const employee = await this.employeeRepository.getEmployeeByEmail(
+      tenantConnection,
+      email
+    );
+    if (employee) return employee;
+    const companyModel = this.chatRepository.getCompanyModel(tenantConnection);
+    const company = await companyModel.findOne({ email });
+    if (company) return company;
+    throw new Error('User not found');
   }
 
   async getAllChats(
     tenantConnection: mongoose.Connection,
     userId: string
   ): Promise<IChatDocument[]> {
-    if (!userId) {
-      throw new Error("User ID is required");
-    }
-  
+    if (!userId) throw new Error('User ID is required');
     const chats = await this.chatRepository.findUserChats(
       tenantConnection,
       userId
     );
-  
-    if (!chats) {
-      throw new Error("Error retrieving chats");
-    }
-  
+    if (!chats) throw new Error('Error retrieving chats');
     return chats;
   }
 
@@ -156,12 +181,12 @@ export class ChatService {
     return await this.chatRepository.findMessagesForChat(tenantConnection, chatId);
   }
 
-
-  async markMessageAsRead(  tenantConnection: mongoose.Connection, messageId :string, readerId :string) {
-
-           const message = await this.chatRepository.findByIdAndUpdate(tenantConnection,messageId)
-           return message;
-          
+  async markMessageAsRead(
+    tenantConnection: mongoose.Connection,
+    messageId: string,
+    readerId: string
+  ): Promise<void> {
+    await this.chatRepository.findByIdAndUpdate(tenantConnection, messageId);
   }
 
   async addToGroup(
@@ -169,20 +194,18 @@ export class ChatService {
     chatId: string,
     userId: string
   ): Promise<IChatDocument | null> {
+    const userModel = await this.getUserModelById(tenantConnection, userId);
     const updatedChat = await this.chatRepository.addUserToGroup(
       tenantConnection,
       chatId,
-      userId
+      { userId, userModel }
     );
-
-    if (!updatedChat) {
-      throw new Error("Chat not found or update failed");
-    }
+    if (!updatedChat) throw new Error('Chat not found or update failed');
 
     return await this.chatRepository.findChatById(
       tenantConnection,
       updatedChat._id,
-      ["users", "groupAdmin"]
+      ['users.userId', 'groupAdmin.adminId']
     );
   }
 
@@ -196,24 +219,19 @@ export class ChatService {
       chatId,
       userId
     );
-
-    if (!updatedChat) {
-      throw new Error("Chat not found or update failed");
-    }
+    if (!updatedChat) throw new Error('Chat not found or update failed');
 
     return await this.chatRepository.findChatById(
       tenantConnection,
       updatedChat._id,
-      ["users", "groupAdmin"]
+      ['users.userId', 'groupAdmin.adminId']
     );
   }
 
   async getChatMembers(
     tenantConnection: mongoose.Connection,
     chatId: string
-  ): Promise<IEmployee[]> {
+  ): Promise<(IEmployee | ICompanyDocument)[]> {
     return await this.chatRepository.getChatMembers(tenantConnection, chatId);
   }
-
 }
-

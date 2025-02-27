@@ -24,7 +24,7 @@ export class MeetController {
                 });
                 return;
             }
-            console.log('oiiiiiiiiiiiiiiiiiiiiiiiii');
+       
             
     
             // Parse query parameters
@@ -87,10 +87,6 @@ export class MeetController {
             if (searchQuery) {
                 filters.meetTitle = { $regex: searchQuery, $options: 'i' };
             }
-                 
-console.log("filters",filters)
-console.log("page",page)
-console.log(pageSize,"pagesixw");
 
 
             const { meetings, total } = await this.meetService.getMeetings(
@@ -100,7 +96,7 @@ console.log(pageSize,"pagesixw");
                 page,
                 pageSize
             );
-            console.log("res",meetings,total)
+  
             res.status(200).json({
                 success: true,
                 data: meetings,
@@ -139,7 +135,7 @@ console.log(pageSize,"pagesixw");
                 });
                 return;
             }
-            console.log("role",req.user.role)
+      
             const createdByModel = req.user.role === "COMPANY" ? "Company" : "Employee";
             const meetingData = {
                 ...req.body,
@@ -171,8 +167,7 @@ console.log(pageSize,"pagesixw");
             }
             const meetingId = req.params.id;
             const meetingData = req.body;
-            console.log('meetingId', meetingId);
-            console.log('meetingData', meetingData);
+       
     
             const updatedMeeting = await this.meetService.updateMeeting(tenantConnection, meetingId, meetingData);
             res.status(200).json({

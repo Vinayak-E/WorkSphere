@@ -30,7 +30,6 @@ export class CompanyController {
         }
     
         const updateData: ICompanyDocument = req.body;
-      console.log('req.body at controller',updateData)
           const updatedEmployee= await this.companyService.updateProfile(
             id,
             tenantConnection,

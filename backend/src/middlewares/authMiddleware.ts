@@ -109,7 +109,7 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
         return;
       }
       req.userId = userData._id;
-      console.log("req.userId from auth middleware", req.userId);
+   
     }
 
     next();

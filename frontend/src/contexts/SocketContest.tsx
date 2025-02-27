@@ -12,23 +12,27 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const currentUser = useSelector((state: any) => state.auth.user);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:5000', {
-      withCredentials: true,
-    });
 
-    newSocket.on('connect', () => {
-      console.log('Socket connected:', newSocket.id);
-      if (currentUser?.userData) {
-        newSocket.emit('setup', currentUser.userData);
-      }
-    });
+    if (currentUser) {
+      const newSocket = io('http://localhost:5000', {
+        withCredentials: true,
+      });
 
-    setSocket(newSocket);
+      newSocket.on('connect', () => {
+        console.log('Socket connected:', newSocket.id);
+        if (currentUser?.userData) {
+          newSocket.emit('setup', currentUser.userData);
+        }
+      });
 
-    return () => {
-      newSocket.disconnect();
-    };
+      setSocket(newSocket);
+
+      return () => {
+        newSocket.disconnect();
+      };
+    }
   }, [currentUser?.userData]);
+
 
   return (
     <SocketContext.Provider value={socket}>

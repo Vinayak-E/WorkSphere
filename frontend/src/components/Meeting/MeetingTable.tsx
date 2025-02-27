@@ -301,8 +301,7 @@ const MeetingManagement: React.FC = () => {
               Schedule and manage your meetings efficiently
             </p>
           </div>
-          {isManager ||
-            (isCompany && (
+          {(isManager || isCompany) && (
               <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
                   <Button
@@ -468,7 +467,7 @@ const MeetingManagement: React.FC = () => {
                   </form>
                 </DialogContent>
               </Dialog>
-            ))}
+            )}
         </div>
       </CardHeader>
 

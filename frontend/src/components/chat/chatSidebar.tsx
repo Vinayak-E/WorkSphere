@@ -160,70 +160,74 @@ const ChatSidebar = ({
           </div>
         ) : (
           <div className="divide-y">
-            {filteredItems.map((chat) => {
-              const otherUser = chat.users.find(
-                (u) => String(u._id) !== String(currentUser.userData._id)
-              );
-              const displayName = chat.isGroupChat
-                ? chat.name || chat.chatName || 'Unnamed Group'
-                : otherUser?.name || 'Unknown';
-              const isOnline = !chat.isGroupChat && onlineUsers.includes(otherUser?._id);
+           {filteredItems.map((chat) => {
+  const otherUser = chat.users.find(
+    (u) => String(u.userId._id) !== String(currentUser.userData._id)
+  );
+  const displayName = chat.isGroupChat
+    ? chat.name || chat.chatName || 'Unnamed Group'
+    : otherUser?.userId?.name || 'Unknown';
+  const isOnline = !chat.isGroupChat && otherUser && onlineUsers.includes(otherUser.userId._id);
 
-              return (
-                <div
-                  key={chat._id}
-                  className={`p-4 cursor-pointer transition-colors ${
-                    selectedChat?._id === chat._id ? 'bg-blue-50' : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedChat(chat)}
-                >
-                  <div className="flex items-center">
-                    <div className="relative">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
-                        {chat.isGroupChat ? (
-                          <span className="text-white text-lg">{displayName[0] ?? '?'}</span>
-                        ) : (
-                          (() => {
-                            if (otherUser?.profilePicture) {
-                              return (
-                                <img
-                                  src={otherUser.profilePicture}
-                                  alt={otherUser.name}
-                                  className="w-full h-full object-cover rounded-full"
-                                />
-                              );
-                            } else {
-                              return (
-                                <span className="text-white text-lg">
-                                  {otherUser?.name[0] ?? '?'}
-                                </span>
-                              );
-                            }
-                          })()
-                        )}
-                      </div>
-                      {isOnline && (
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                      )}
-                    </div>
-                    <div className="ml-3 flex-1">
-                      <div className="font-medium">{displayName}</div>
-                      <div className="text-sm text-gray-500 truncate">
-                        {chat.latestMessage?.content || 'No messages yet'}
-                      </div>
-                    </div>
-                    {chat.latestMessage && (
-                      <div className="text-xs text-gray-400">
-                        {new Date(chat.latestMessage.createdAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
+  return (
+    <div
+      key={chat._id}
+      className={`p-4 cursor-pointer transition-colors ${
+        selectedChat?._id === chat._id ? 'bg-blue-50' : 'hover:bg-gray-50'
+      }`}
+      onClick={() => setSelectedChat(chat)}
+    >
+      <div className="flex items-center">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
+            {chat.isGroupChat ? (
+              <span className="text-white text-lg">
+                {displayName && typeof displayName === 'string' ? displayName[0] : '?'}
+              </span>
+            ) : (
+              (() => {
+                if (otherUser?.userId?.profilePicture) {
+                  return (
+                    <img
+                      src={otherUser.userId.profilePicture}
+                      alt={otherUser.userId.name || 'Unknown'}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  );
+                } else {
+                  return (
+                    <span className="text-white text-lg">
+                      {otherUser?.userId?.name && typeof otherUser.userId.name === 'string'
+                        ? otherUser.userId.name[0]
+                        : '?'}
+                    </span>
+                  );
+                }
+              })()
+            )}
+          </div>
+          {isOnline && (
+            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+          )}
+        </div>
+        <div className="ml-3 flex-1">
+          <div className="font-medium">{displayName}</div>
+          <div className="text-sm text-gray-500 truncate">
+            {chat.latestMessage?.content || 'No messages yet'}
+          </div>
+        </div>
+        {chat.latestMessage && (
+          <div className="text-xs text-gray-400">
+            {new Date(chat.latestMessage.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
             })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+})}
           </div>
         )}
       </ScrollArea>

@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, PopulateOptions } from "mongoose";
 
 
 export interface IUser extends Document {
@@ -27,4 +27,15 @@ export interface IUserRepository{
   createUser(user: Partial<IUser>, options?: any): Promise<IUser>;
   findByEmail(email:string): Promise<IUser | null>;
   resetPassword(email: string, password: string): Promise<void>
+}
+
+
+export interface IBaseRepository<T extends Document> {
+  create(data: Partial<T>): Promise<T>;
+  findById(id: string): Promise<T | null>;
+  findAll(query?: Record<string, any>): Promise<T[]>;
+  findOne(query: Record<string, any>): Promise<T | null>;
+  update(id: string, data: Partial<T>): Promise<T | null>;
+  delete(id: string): Promise<T | null>;
+  findByIdAndPopulate(id: string, populateFields: (string | PopulateOptions)[]): Promise<T | null>;
 }

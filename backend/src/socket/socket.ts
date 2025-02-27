@@ -77,8 +77,9 @@ export const initializeSocket = (server: http.Server) => {
           messageData.content,
           messageData.chatId,
           messageData.senderId,
+          sender.role,
           messageData.mediaUrl,
-          messageData.type
+          messageData.type,
           
         )
         console.log('savedMessage',savedMessage)

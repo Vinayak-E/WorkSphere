@@ -37,7 +37,9 @@ const companySchema = new Schema<ICompanyDocument>(
 );
 
 
-
+companySchema.virtual('name').get(function() {
+  return this.companyName;
+});
 
 const Company = mongoose.model<ICompanyDocument>('Company', companySchema);
 export default Company;

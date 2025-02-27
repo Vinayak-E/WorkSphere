@@ -5,16 +5,30 @@ const chatSchema = new Schema({
   name: { type: String, trim: true },
   isGroupChat: { type: Boolean, default: false },
   users: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Employee'
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: 'users.userModel'
+    },
+    userModel: {
+      type: String,
+      required: true,
+      enum: ['Employee', 'Company']
+    }
   }],
   latestMessage: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Message'
   },
   groupAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee'
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: 'groupAdmin.adminModel'
+    },
+    adminModel: {
+      type: String,
+      enum: ['Employee', 'Company'] 
+    }
   }
 }, { 
   timestamps: true,
