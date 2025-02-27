@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IEmployee } from '@/types/IEmployee';
-import { Icompany } from '@/types/types';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { IEmployee } from "@/types/IEmployee";
+import { Icompany } from "@/types/types";
 
 interface User {
   email: string;
   role: string;
   tenantId: string;
-  userData?: Icompany | IEmployee ; 
+  userData?: Icompany | IEmployee;
 }
 
 export interface AuthState {
@@ -18,11 +18,11 @@ export interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  loading: false
+  loading: false,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User | null>) => {
@@ -33,9 +33,9 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-    }
-  }
+    },
+  },
 });
 
-export const { setUser,logout } = authSlice.actions;
+export const { setUser, logout } = authSlice.actions;
 export default authSlice.reducer;

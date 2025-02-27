@@ -1,5 +1,13 @@
-import  { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Filter, X, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Filter,
+  X,
+  AlertCircle,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,22 +18,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import api from '@/api/axios';
+import api from "@/api/axios";
 
 const EmployeeLeaves = () => {
   const [leaves, setLeaves] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  
   const [leaveForm, setLeaveForm] = useState({
-    startDate: '',
-    endDate: '',
-    reason: '',
+    startDate: "",
+    endDate: "",
+    reason: "",
   });
 
   const fetchLeaves = async () => {
@@ -33,22 +40,22 @@ const EmployeeLeaves = () => {
     try {
       const queryParams = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '10',
+        limit: "10",
         startDate: startDate,
         endDate: endDate,
       });
-      const response = await api.get(`/employee/leaves?${queryParams}`)
+      const response = await api.get(`/employee/leaves?${queryParams}`);
 
       const data = await response.data;
-      
+
       setLeaves(data.leaves);
       setTotalPages(data.totalPages);
     } catch (error) {
-      console.error('Error fetching leaves:', error);
+      console.error("Error fetching leaves:", error);
     }
     setLoading(false);
   };
-   
+
   useEffect(() => {
     fetchLeaves();
   }, [currentPage, startDate, endDate]);
@@ -56,26 +63,26 @@ const EmployeeLeaves = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/employee/leaves', leaveForm)
-  
+      const response = await api.post("/employee/leaves", leaveForm);
+
       if (response.data.success) {
         setIsOpen(false);
         fetchLeaves();
-        setLeaveForm({ startDate: '', endDate: '', reason: '' });
+        setLeaveForm({ startDate: "", endDate: "", reason: "" });
       }
     } catch (error) {
-      console.error('Error applying for leave:', error);
+      console.error("Error applying for leave:", error);
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Approved':
-        return 'bg-green-100 text-green-800';
-      case 'Rejected':
-        return 'bg-red-100 text-red-800';
+      case "Approved":
+        return "bg-green-100 text-green-800";
+      case "Rejected":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return "bg-yellow-100 text-yellow-800";
     }
   };
 
@@ -88,7 +95,9 @@ const EmployeeLeaves = () => {
               <Calendar className="w-6 h-6 text-blue-600" />
               Leave Management
             </CardTitle>
-            <p className="text-sm text-gray-500">View and manage your leave applications</p>
+            <p className="text-sm text-gray-500">
+              View and manage your leave applications
+            </p>
           </div>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
@@ -98,51 +107,76 @@ const EmployeeLeaves = () => {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle className="text-lg">New Leave Application</DialogTitle>
+                <DialogTitle className="text-lg">
+                  New Leave Application
+                </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Start Date</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Start Date
+                  </label>
                   <Input
                     type="date"
                     value={leaveForm.startDate}
-                    onChange={(e) => setLeaveForm({...leaveForm, startDate: e.target.value})}
+                    onChange={(e) =>
+                      setLeaveForm({ ...leaveForm, startDate: e.target.value })
+                    }
                     required
                     className="focus:ring-2 focus:ring-blue-500"
                     min={new Date().toISOString().split("T")[0]}
                   />
-                 {leaveForm.startDate &&
-                  new Date(leaveForm.startDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) && (
-                    <div className="text-red-500">Start Date cannot be in the past</div>
-                )}
-                  
+                  {leaveForm.startDate &&
+                    new Date(leaveForm.startDate).setHours(0, 0, 0, 0) <
+                      new Date().setHours(0, 0, 0, 0) && (
+                      <div className="text-red-500">
+                        Start Date cannot be in the past
+                      </div>
+                    )}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">End Date</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    End Date
+                  </label>
                   <Input
                     type="date"
                     value={leaveForm.endDate}
-                    onChange={(e) => setLeaveForm({...leaveForm, endDate: e.target.value})}
+                    onChange={(e) =>
+                      setLeaveForm({ ...leaveForm, endDate: e.target.value })
+                    }
                     required
-                    min={leaveForm.startDate || new Date().toISOString().split("T")[0]} 
+                    min={
+                      leaveForm.startDate ||
+                      new Date().toISOString().split("T")[0]
+                    }
                     className="focus:ring-2 focus:ring-blue-500"
                   />
                   {leaveForm.endDate &&
-                  new Date(leaveForm.endDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) && (
-                    <div className="text-red-500">End Date cannot be in the past</div>
-                )}
+                    new Date(leaveForm.endDate).setHours(0, 0, 0, 0) <
+                      new Date().setHours(0, 0, 0, 0) && (
+                      <div className="text-red-500">
+                        End Date cannot be in the past
+                      </div>
+                    )}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Reason</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Reason
+                  </label>
                   <Input
                     value={leaveForm.reason}
-                    onChange={(e) => setLeaveForm({...leaveForm, reason: e.target.value})}
+                    onChange={(e) =>
+                      setLeaveForm({ ...leaveForm, reason: e.target.value })
+                    }
                     required
                     placeholder="Enter leave reason..."
                     className="focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
                   Submit Application
                 </Button>
               </form>
@@ -172,9 +206,12 @@ const EmployeeLeaves = () => {
               />
             </div>
             <div className="flex gap-2 w-full md:w-auto">
-              <Button 
-                variant="outline" 
-                onClick={() => { setStartDate(''); setEndDate('') }}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                }}
                 className="flex items-center gap-2 w-full md:w-auto"
               >
                 <X className="w-4 h-4" /> Clear Filters
@@ -189,9 +226,15 @@ const EmployeeLeaves = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Start Date', 'End Date', 'Reason', 'Status', 'Applied On'].map((header) => (
-                    <th 
-                      key={header} 
+                  {[
+                    "Start Date",
+                    "End Date",
+                    "Reason",
+                    "Status",
+                    "Applied On",
+                  ].map((header) => (
+                    <th
+                      key={header}
                       className="px-4 py-3 text-left text-sm font-semibold text-gray-600 whitespace-nowrap"
                     >
                       {header}
@@ -201,23 +244,28 @@ const EmployeeLeaves = () => {
               </thead>
               <tbody className="divide-y">
                 {leaves.map((leave, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                    {new Date(leave.startDate).toLocaleDateString('en-GB')}
+                      {new Date(leave.startDate).toLocaleDateString("en-GB")}
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.endDate).toLocaleDateString('en-GB')}
+                      {new Date(leave.endDate).toLocaleDateString("en-GB")}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate">
                       {leave.reason}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(leave.status)}`}>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(leave.status)}`}
+                      >
                         {leave.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.appliedAt).toLocaleDateString('en-GB')}
+                      {new Date(leave.appliedAt).toLocaleDateString("en-GB")}
                     </td>
                   </tr>
                 ))}
@@ -231,13 +279,11 @@ const EmployeeLeaves = () => {
             </div>
           )}
 
-
           {!loading && leaves.length === 0 && (
             <div className="p-4 text-center text-gray-500">
               No leave applications found
             </div>
           )}
-
 
           <div className="px-4 py-3 border-t bg-gray-50">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -248,7 +294,7 @@ const EmployeeLeaves = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="min-w-[100px]"
                 >
@@ -257,7 +303,9 @@ const EmployeeLeaves = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="min-w-[100px]"
                 >

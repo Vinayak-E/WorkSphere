@@ -1,12 +1,15 @@
-import { IJwtService } from "../../interfaces/IJwtService.types";
-import { IAdminRepository, IAdminService } from "../../interfaces/admin/admin.types";
+import { IJwtService } from '../../interfaces/IJwtService.types';
+import {
+  IAdminRepository,
+  IAdminService,
+} from '../../interfaces/admin/admin.types';
 
-import bcrypt from 'bcryptjs'
-import { ICompanyRepository } from "../../interfaces/company/company.types";
-import { sendEmail } from "../../utils/email";
-import { companyApprovalTemplates } from "../../helpers/emailTemplate";
-import { generateCompanySlug } from "../../helpers/helperFunctions";
-import { IUser } from "../../interfaces/IUser.types";
+import bcrypt from 'bcryptjs';
+import { ICompanyRepository } from '../../interfaces/company/company.types';
+import { sendEmail } from '../../utils/email';
+import { companyApprovalTemplates } from '../../helpers/emailTemplate';
+import { generateCompanySlug } from '../../helpers/helperFunctions';
+import { IUser } from '../../interfaces/IUser.types';
 export class AdminService implements IAdminService {
   constructor(
     private jwtService: IJwtService,
@@ -22,10 +25,10 @@ export class AdminService implements IAdminService {
     accessToken: string;
   } | null> {
     try {
-      console.log("email at service", email);
+      console.log('email at service', email);
       const admin = await this.adminRepository.findByEmail(email);
 
-      if (!admin || admin.role !== "ADMIN") {
+      if (!admin || admin.role !== 'ADMIN') {
         return null;
       }
 
@@ -34,7 +37,7 @@ export class AdminService implements IAdminService {
       if (!isValidPassword) {
         return null;
       }
-      const tenantId = "ADMIN";
+      const tenantId = 'ADMIN';
       const data = {
         tenantId,
         email: admin.email,
@@ -48,18 +51,18 @@ export class AdminService implements IAdminService {
 
       return { accessToken, refreshToken };
     } catch (error) {
-      console.error("Error verifying login:", error);
-      throw new Error("Login failed");
+      console.error('Error verifying login:', error);
+      throw new Error('Login failed');
     }
   }
 
-  async getProfile(email:string): Promise<IUser |null> {
+  async getProfile(email: string): Promise<IUser | null> {
     try {
       const data = await this.adminRepository.findByEmail(email);
       return data;
     } catch (error) {
-      console.error("Error fetching Profile:", error);
-      throw new Error("Failed to fetch Profile");
+      console.error('Error fetching Profile:', error);
+      throw new Error('Failed to fetch Profile');
     }
   }
 
@@ -68,8 +71,8 @@ export class AdminService implements IAdminService {
       const companies = await this.adminRepository.findCompanies();
       return companies;
     } catch (error) {
-      console.error("Error fetching companies:", error);
-      throw new Error("Failed to fetch companies");
+      console.error('Error fetching companies:', error);
+      throw new Error('Failed to fetch companies');
     }
   }
 
@@ -86,33 +89,37 @@ export class AdminService implements IAdminService {
       companyId,
       isApproved
     );
-  
-    if (company && isApproved === "Approved") {
-    
-      const tempCompany = await this.adminRepository.findTempCompany(company.companyName);
-      console.log('tempcompany found',tempCompany)
+
+    if (company && isApproved === 'Approved') {
+      const tempCompany = await this.adminRepository.findTempCompany(
+        company.companyName
+      );
+      console.log('tempcompany found', tempCompany);
       if (!tempCompany) {
-        throw new Error("Temp company not found");
+        throw new Error('Temp company not found');
       }
-  
+
       const tenantId = generateCompanySlug(company.companyName);
-  
 
       await this.companyRepository.createTenantCompany(tenantId, tempCompany);
-  
+
       await this.adminRepository.deleteTempCompany(tempCompany._id);
-  
-      const subject = "Your Company Registration on WorkSphere Has Been Approved";
+
+      const subject =
+        'Your Company Registration on WorkSphere Has Been Approved';
       const message = companyApprovalTemplates.approved(company.companyName);
-      
+
       await sendEmail(company.email, subject, message);
-    } else if (company && isApproved !== "Approved") {
-      const subject = "Update on Your Company Registration Request";
-      const message = companyApprovalTemplates.rejected(company.companyName, reason);
-      
+    } else if (company && isApproved !== 'Approved') {
+      const subject = 'Update on Your Company Registration Request';
+      const message = companyApprovalTemplates.rejected(
+        company.companyName,
+        reason
+      );
+
       await sendEmail(company.email, subject, message);
     }
-  
+
     return company;
   }
 }

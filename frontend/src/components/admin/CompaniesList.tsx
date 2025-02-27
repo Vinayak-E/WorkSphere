@@ -1,16 +1,36 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Search, Loader2, ChevronLeft, ChevronRight, MoreHorizontal, Building2, } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import {
+  Search,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Building2,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "react-toastify";
 import api from "@/api/axios";
 
@@ -52,7 +72,9 @@ const CompanyListing = () => {
 
   const handleStatusChange = async (companyId: string, newStatus: boolean) => {
     try {
-      await api.put(`/admin/companiesList/${companyId}/status`, { isActive: newStatus });
+      await api.put(`/admin/companiesList/${companyId}/status`, {
+        isActive: newStatus,
+      });
       toast.success("Company status updated successfully");
       fetchCompanies();
     } catch (error) {
@@ -61,24 +83,23 @@ const CompanyListing = () => {
     }
   };
 
-
-
-  const filteredCompanies = companies.filter(company =>
-    company.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCompanies = companies.filter(
+    (company) =>
+      company.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      company.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredCompanies.length / ITEMS_PER_PAGE);
   const paginatedCompanies = filteredCompanies.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -133,12 +154,18 @@ const CompanyListing = () => {
                   {paginatedCompanies.length > 0 ? (
                     paginatedCompanies.map((company) => (
                       <TableRow key={company._id}>
-                        <TableCell className="font-medium">{company.companyName}</TableCell>
+                        <TableCell className="font-medium">
+                          {company.companyName}
+                        </TableCell>
                         <TableCell>{company.email}</TableCell>
                         <TableCell>{company.phone}</TableCell>
                         <TableCell>
-                          <Badge 
-                            className={company.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+                          <Badge
+                            className={
+                              company.isActive
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }
                           >
                             {company.isActive ? "Active" : "Inactive"}
                           </Badge>
@@ -153,13 +180,20 @@ const CompanyListing = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
-                                onClick={() => handleStatusChange(company._id, !company.isActive)}
+                                onClick={() =>
+                                  handleStatusChange(
+                                    company._id,
+                                    !company.isActive,
+                                  )
+                                }
                               >
                                 Set {company.isActive ? "Inactive" : "Active"}
                               </DropdownMenuItem>
-                             
+
                               <DropdownMenuItem
-                                onClick={() => window.location.href = `/admin/companies/${company._id}`}
+                                onClick={() =>
+                                  (window.location.href = `/admin/companies/${company._id}`)
+                                }
                               >
                                 View Details
                               </DropdownMenuItem>
@@ -181,9 +215,12 @@ const CompanyListing = () => {
 
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to{" "}
-                {Math.min(currentPage * ITEMS_PER_PAGE, filteredCompanies.length)} of{" "}
-                {filteredCompanies.length} companies
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                {Math.min(
+                  currentPage * ITEMS_PER_PAGE,
+                  filteredCompanies.length,
+                )}{" "}
+                of {filteredCompanies.length} companies
               </div>
               <div className="flex items-center space-x-2">
                 <Button

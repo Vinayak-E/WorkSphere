@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Upload, X, Send, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { uploadToCloudinary } from '@/utils/cloudinary';
+import React, { useState } from "react";
+import { Upload, X, Send, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { uploadToCloudinary } from "@/utils/cloudinary";
 
 const MediaUpload = ({ onMediaSelect, onClose }) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -23,15 +23,15 @@ const MediaUpload = ({ onMediaSelect, onClose }) => {
     try {
       setIsUploading(true);
       const uploadedUrl = await uploadToCloudinary(selectedFile);
-      
+
       onMediaSelect({
-        type: selectedFile.type.startsWith('image/') ? 'image' : 'video',
-        url: uploadedUrl
+        type: selectedFile.type.startsWith("image/") ? "image" : "video",
+        url: uploadedUrl,
       });
 
       onClose();
     } catch (error) {
-      console.error('Error uploading media:', error);
+      console.error("Error uploading media:", error);
     } finally {
       setIsUploading(false);
     }
@@ -41,9 +41,9 @@ const MediaUpload = ({ onMediaSelect, onClose }) => {
     <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4">
       <div className="flex justify-between items-center p-4 border-b">
         <h3 className="text-lg font-medium text-gray-900">Share Media</h3>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onClose}
           className="hover:bg-gray-100 rounded-full"
         >
@@ -54,17 +54,17 @@ const MediaUpload = ({ onMediaSelect, onClose }) => {
       <div className="relative">
         {previewUrl ? (
           <div className="relative">
-            {selectedFile?.type.startsWith('image/') ? (
-              <img 
-                src={previewUrl} 
-                alt="Preview" 
+            {selectedFile?.type.startsWith("image/") ? (
+              <img
+                src={previewUrl}
+                alt="Preview"
                 className="w-full object-contain max-h-[60vh]"
               />
             ) : (
-              <video 
-                src={previewUrl} 
-                className="w-full max-h-[60vh]" 
-                controls 
+              <video
+                src={previewUrl}
+                className="w-full max-h-[60vh]"
+                controls
               />
             )}
             {isUploading && (
@@ -90,7 +90,9 @@ const MediaUpload = ({ onMediaSelect, onClose }) => {
                 <Upload className="h-8 w-8 text-blue-500" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-medium text-gray-900">Click to upload</p>
+                <p className="text-sm font-medium text-gray-900">
+                  Click to upload
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Support for images and videos
                 </p>

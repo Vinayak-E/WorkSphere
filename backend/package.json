@@ -40,6 +40,7 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.10.3",
     "@types/nodemailer": "^6.4.17",
+    "prettier": "^3.5.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.2"
   }

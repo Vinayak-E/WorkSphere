@@ -10,11 +10,17 @@ import Company from '../../models/companyModel';
 
 export class ChatRepository {
   getEmployeeModel(connection: Connection): Model<IEmployee> {
-    return connection.models.Employee || connection.model<IEmployee>('Employee', Employee.schema);
+    return (
+      connection.models.Employee ||
+      connection.model<IEmployee>('Employee', Employee.schema)
+    );
   }
 
   getCompanyModel(connection: Connection): Model<ICompanyDocument> {
-    return connection.models.Company || connection.model<ICompanyDocument>('Company', Company.schema);
+    return (
+      connection.models.Company ||
+      connection.model<ICompanyDocument>('Company', Company.schema)
+    );
   }
 
   async findExistingChat(
@@ -26,12 +32,16 @@ export class ChatRepository {
   ): Promise<IChatDocument | null> {
     const ChatModel = getChatModel(tenantConnection);
     const MessageModel = getMessageModel(tenantConnection);
-    const EmployeeModel = this.getEmployeeModel(tenantConnection)
-    const CompanyModel =this.getCompanyModel(tenantConnection)
+    const EmployeeModel = this.getEmployeeModel(tenantConnection);
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     return ChatModel.findOne({
       isGroupChat: false,
       $and: [
-        { users: { $elemMatch: { userId: currentUserId, userModel: currentUserModel } } },
+        {
+          users: {
+            $elemMatch: { userId: currentUserId, userModel: currentUserModel },
+          },
+        },
         { users: { $elemMatch: { userId, userModel: otherUserModel } } },
       ],
     })
@@ -59,7 +69,7 @@ export class ChatRepository {
   ): Promise<IChatDocument | null> {
     const ChatModel = getChatModel(tenantConnection);
     const MessageModel = getMessageModel(tenantConnection);
-    const CompanyModel =this.getCompanyModel(tenantConnection)
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     let query = ChatModel.findOne({ _id: chatId });
 
     populateOptions.forEach((option) => {
@@ -87,7 +97,7 @@ export class ChatRepository {
   ): Promise<IMessageDocument> {
     const MessageModel = getMessageModel(tenantConnection);
     const EmployeeModel = this.getEmployeeModel(tenantConnection);
-    
+
     return await MessageModel.create(messageData);
   }
 
@@ -107,8 +117,8 @@ export class ChatRepository {
   ): Promise<IMessageDocument | null> {
     const MessageModel = getMessageModel(tenantConnection);
     const ChatModel = getChatModel(tenantConnection);
-    const EmployeeModel = this.getEmployeeModel(tenantConnection)
-    const CompanyModel =this.getCompanyModel(tenantConnection)
+    const EmployeeModel = this.getEmployeeModel(tenantConnection);
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     return await MessageModel.findById(messageId)
       .populate('sender.senderId', 'name profilePic')
       .populate('chat');
@@ -120,8 +130,8 @@ export class ChatRepository {
   ): Promise<IChatDocument[]> {
     const ChatModel = getChatModel(tenantConnection);
     const MessageModel = getMessageModel(tenantConnection);
-    const EmployeeModel = this.getEmployeeModel(tenantConnection)
-    const CompanyModel =this.getCompanyModel(tenantConnection)
+    const EmployeeModel = this.getEmployeeModel(tenantConnection);
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     return await ChatModel.find({ 'users.userId': userId })
       .populate('users.userId', '-password')
       .populate('groupAdmin.adminId', '-password')
@@ -135,8 +145,8 @@ export class ChatRepository {
   ): Promise<IMessageDocument[]> {
     const MessageModel = getMessageModel(tenantConnection);
     const ChatModel = getChatModel(tenantConnection);
-    const EmployeeModel = this.getEmployeeModel(tenantConnection)
-    const CompanyModel =this.getCompanyModel(tenantConnection)
+    const EmployeeModel = this.getEmployeeModel(tenantConnection);
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     return await MessageModel.find({ chat: chatId })
       .populate('sender.senderId', 'name profilePic')
       .populate('chat')
@@ -148,7 +158,11 @@ export class ChatRepository {
     messageId: string
   ): Promise<void> {
     const MessageModel = getMessageModel(tenantConnection);
-    await MessageModel.findByIdAndUpdate(messageId, { isRead: true }, { new: true });
+    await MessageModel.findByIdAndUpdate(
+      messageId,
+      { isRead: true },
+      { new: true }
+    );
   }
 
   async addUserToGroup(
@@ -157,11 +171,15 @@ export class ChatRepository {
     user: { userId: string; userModel: string }
   ): Promise<IChatDocument | null> {
     const ChatModel = getChatModel(tenantConnection);
-      const EmployeeModel = this.getEmployeeModel(tenantConnection)
-      const CompanyModel =this.getCompanyModel(tenantConnection)
+    const EmployeeModel = this.getEmployeeModel(tenantConnection);
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     return await ChatModel.findByIdAndUpdate(
       chatId,
-      { $addToSet: { users: { userId: user.userId, userModel: user.userModel } } },
+      {
+        $addToSet: {
+          users: { userId: user.userId, userModel: user.userModel },
+        },
+      },
       { new: true }
     )
       .populate('users.userId', '-password')
@@ -174,8 +192,8 @@ export class ChatRepository {
     userId: string
   ): Promise<IChatDocument | null> {
     const ChatModel = getChatModel(tenantConnection);
-    const EmployeeModel = this.getEmployeeModel(tenantConnection)
-    const CompanyModel =this.getCompanyModel(tenantConnection)
+    const EmployeeModel = this.getEmployeeModel(tenantConnection);
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     return await ChatModel.findByIdAndUpdate(
       chatId,
       { $pull: { users: { userId } } },
@@ -190,10 +208,10 @@ export class ChatRepository {
     chatId: string
   ): Promise<(IEmployee | ICompanyDocument)[]> {
     const ChatModel = getChatModel(tenantConnection);
-    const EmployeeModel = this.getEmployeeModel(tenantConnection)
-    const CompanyModel =this.getCompanyModel(tenantConnection)
+    const EmployeeModel = this.getEmployeeModel(tenantConnection);
+    const CompanyModel = this.getCompanyModel(tenantConnection);
     const chat = await ChatModel.findById(chatId).populate<{
-      users: { userId: IEmployee | ICompanyDocument; userModel: string }[]
+      users: { userId: IEmployee | ICompanyDocument; userModel: string }[];
     }>('users.userId', '-password');
     if (!chat) throw new Error('Chat not found');
     return chat.users.map((user) => user.userId);

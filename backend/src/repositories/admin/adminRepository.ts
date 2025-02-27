@@ -1,20 +1,20 @@
-import { IUser } from "../../interfaces/IUser.types"; 
-import { Model } from "mongoose";
-import { UserModel } from "../../models/userModel";
-import { IAdminRepository } from "../../interfaces/admin/admin.types";
-import CompanyRequest from "../../models/companyRequest";
-import { ICompanyRequest } from "../../interfaces/company/company.types";
+import { IUser } from '../../interfaces/IUser.types';
+import { Model } from 'mongoose';
+import { UserModel } from '../../models/userModel';
+import { IAdminRepository } from '../../interfaces/admin/admin.types';
+import CompanyRequest from '../../models/companyRequest';
+import { ICompanyRequest } from '../../interfaces/company/company.types';
 
 export class AdminRepository implements IAdminRepository {
-  private readonly model: Model<IUser>; 
+  private readonly model: Model<IUser>;
   constructor() {
     this.model = UserModel;
   }
 
   async findByEmail(email: string): Promise<IUser | null> {
-      console.log('email',email)
+    console.log('email', email);
     const data = await this.model.findOne({ email });
-    console.log("data received at repository",data)
+    console.log('data received at repository', data);
     if (!data) {
       return null;
     }
@@ -22,37 +22,33 @@ export class AdminRepository implements IAdminRepository {
   }
 
   async findCompanies(): Promise<any> {
-    return await this.model.find({role:"COMPANY"})
+    return await this.model.find({ role: 'COMPANY' });
   }
-
 
   async updateStatus(companyId: string, isActive: boolean) {
     const company = await this.model.findOneAndUpdate(
       { _id: companyId },
       { isActive },
-      { new: true } 
+      { new: true }
     );
-  
-    return company; 
+
+    return company;
   }
 
-  async updateRequest(companyId:string,isApproved :string){
+  async updateRequest(companyId: string, isApproved: string) {
     const company = await this.model.findOneAndUpdate(
       { _id: companyId },
-      { isApproved},
-      { new: true } 
+      { isApproved },
+      { new: true }
     );
-  
-    return company; 
 
+    return company;
   }
   async findTempCompany(companyName: string): Promise<ICompanyRequest | null> {
-    const company = await CompanyRequest.findOne({companyName})
-    return company
+    const company = await CompanyRequest.findOne({ companyName });
+    return company;
   }
   async deleteTempCompany(companyId: string): Promise<void> {
     await CompanyRequest.findByIdAndDelete(companyId);
   }
-  
-
 }

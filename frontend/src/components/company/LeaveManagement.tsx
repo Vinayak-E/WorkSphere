@@ -1,23 +1,38 @@
-import { useState, useEffect } from 'react';
-import { CalendarPlus2, ChevronLeft, ChevronRight, Plus, Filter, X, Check, X as Cross } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  CalendarPlus2,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Filter,
+  X,
+  Check,
+  X as Cross,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import api from '@/api/axios';
+import api from "@/api/axios";
 
 const LeaveManagement = () => {
   const [leaves, setLeaves] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
 
   const fetchLeaves = async () => {
@@ -25,21 +40,21 @@ const LeaveManagement = () => {
     try {
       const queryParams = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '10',
+        limit: "10",
         startDate: startDate,
         endDate: endDate,
       });
       const response = await api.get(`/company/leaves?${queryParams}`);
-      console.log("response.data",response.data)
+      console.log("response.data", response.data);
       const data = await response.data;
       setLeaves(data.leaves);
       setTotalPages(data.totalPages);
     } catch (error) {
-      console.error('Error fetching leaves:', error);
+      console.error("Error fetching leaves:", error);
     }
     setLoading(false);
   };
-   
+
   useEffect(() => {
     fetchLeaves();
   }, [currentPage, startDate, endDate]);
@@ -50,18 +65,18 @@ const LeaveManagement = () => {
       toast.success(`Leave ${status} successfully!`);
       fetchLeaves();
     } catch (error) {
-      console.error('Error updating leave status:', error);
+      console.error("Error updating leave status:", error);
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Approved':
-        return 'bg-green-100 text-green-800';
-      case 'Rejected':
-        return 'bg-red-100 text-red-800';
+      case "Approved":
+        return "bg-green-100 text-green-800";
+      case "Rejected":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return "bg-yellow-100 text-yellow-800";
     }
   };
 
@@ -75,17 +90,16 @@ const LeaveManagement = () => {
 
   return (
     <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
-    <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <CalendarPlus2 className="w-6 h-6 text-blue-600" />
-                Leave Management
+      <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <CalendarPlus2 className="w-6 h-6 text-blue-600" />
+              Leave Management
             </CardTitle>
             <CardDescription className="text-sm text-gray-500">
-            Review and manage employee leave requests
+              Review and manage employee leave requests
             </CardDescription>
-          
           </div>
         </div>
       </CardHeader>
@@ -111,9 +125,12 @@ const LeaveManagement = () => {
               />
             </div>
             <div className="flex gap-2 w-full md:w-auto">
-              <Button 
-                variant="outline" 
-                onClick={() => { setStartDate(''); setEndDate('') }}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                }}
                 className="flex items-center gap-2 w-full md:w-auto"
               >
                 <X className="w-4 h-4" /> Clear Filters
@@ -122,25 +139,24 @@ const LeaveManagement = () => {
           </div>
         </div>
 
- 
         <div className="border rounded-md overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
                   {[
-                    'Employee ID',
-                    'Employee',
-                    'Start Date',
-                    'End Date',
-                    'Duration',
-                    'Reason',
-                    'Status',
-                    'Applied On',
-                    'Actions'
+                    "Employee ID",
+                    "Employee",
+                    "Start Date",
+                    "End Date",
+                    "Duration",
+                    "Reason",
+                    "Status",
+                    "Applied On",
+                    "Actions",
                   ].map((header) => (
-                    <th 
-                      key={header} 
+                    <th
+                      key={header}
                       className="px-4 py-3 text-left text-sm font-semibold text-gray-600 whitespace-nowrap"
                     >
                       {header}
@@ -150,9 +166,11 @@ const LeaveManagement = () => {
               </thead>
               <tbody className="divide-y">
                 {leaves.map((leave) => (
-                  <tr key={leave._id} className="hover:bg-gray-50 transition-colors">
-
-                       <td className="px-4 py-3 text-sm whitespace-nowrap">
+                  <tr
+                    key={leave._id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-sm whitespace-nowrap">
                       {leave.employeeId.employeeId}
                     </td>
                     <td className="px-4 py-3">
@@ -166,10 +184,10 @@ const LeaveManagement = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.startDate).toLocaleDateString('en-GB')}
+                      {new Date(leave.startDate).toLocaleDateString("en-GB")}
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.endDate).toLocaleDateString('en-GB')}
+                      {new Date(leave.endDate).toLocaleDateString("en-GB")}
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
                       {calculateDuration(leave.startDate, leave.endDate)} days
@@ -178,15 +196,17 @@ const LeaveManagement = () => {
                       {leave.reason}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(leave.status)}`}>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(leave.status)}`}
+                      >
                         {leave.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.appliedAt).toLocaleDateString('en-GB')}
+                      {new Date(leave.appliedAt).toLocaleDateString("en-GB")}
                     </td>
                     <td className="px-4 py-3">
-                      {leave.status === 'Pending' && (
+                      {leave.status === "Pending" && (
                         <div className="flex gap-2">
                           <TooltipProvider>
                             <Tooltip>
@@ -195,7 +215,9 @@ const LeaveManagement = () => {
                                   size="sm"
                                   variant="outline"
                                   className="bg-green-50 hover:bg-green-100 text-green-600 border-green-200"
-                                  onClick={() => handleStatusUpdate(leave._id, 'Approved')}
+                                  onClick={() =>
+                                    handleStatusUpdate(leave._id, "Approved")
+                                  }
                                 >
                                   <Check className="w-4 h-4" />
                                 </Button>
@@ -213,7 +235,9 @@ const LeaveManagement = () => {
                                   size="sm"
                                   variant="outline"
                                   className="bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
-                                  onClick={() => handleStatusUpdate(leave._id, 'Rejected')}
+                                  onClick={() =>
+                                    handleStatusUpdate(leave._id, "Rejected")
+                                  }
                                 >
                                   <Cross className="w-4 h-4" />
                                 </Button>
@@ -253,7 +277,7 @@ const LeaveManagement = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="min-w-[100px]"
                 >
@@ -262,7 +286,9 @@ const LeaveManagement = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="min-w-[100px]"
                 >

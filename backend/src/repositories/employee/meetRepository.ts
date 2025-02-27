@@ -1,26 +1,31 @@
-import mongoose, { Connection } from "mongoose";
-import { IMeetModel } from "../../interfaces/IMeet.types";
-import { Model } from "mongoose";
-import Meet from "../../models/meetModel";
-import Employee from "../../models/employeeModel";
-import { IEmployee } from "../../interfaces/company/IEmployee.types";
-import { ICompanyDocument } from "../../interfaces/company/company.types";
-import Company from "../../models/companyModel";
-
+import mongoose, { Connection } from 'mongoose';
+import { IMeetModel } from '../../interfaces/IMeet.types';
+import { Model } from 'mongoose';
+import Meet from '../../models/meetModel';
+import Employee from '../../models/employeeModel';
+import { IEmployee } from '../../interfaces/company/IEmployee.types';
+import { ICompanyDocument } from '../../interfaces/company/company.types';
+import Company from '../../models/companyModel';
 
 export class MeetRepository {
   private getMeetModel(connection: Connection): Model<IMeetModel> {
-    return (connection.models.Meet || connection.model<IMeetModel>("Meet", Meet.schema));
-    }
-    private getEmployeeModel(connection: Connection): Model<IEmployee> {
-        return ( connection.models.Employee || connection.model<IEmployee>("Employee", Employee.schema) );
-    }
-    private getCompanyModel(connection: Connection): Model<ICompanyDocument> {
-        return (
-          connection.models.Company ||
-          connection.model<ICompanyDocument>("Company", Company.schema)
-        );
-      }
+    return (
+      connection.models.Meet ||
+      connection.model<IMeetModel>('Meet', Meet.schema)
+    );
+  }
+  private getEmployeeModel(connection: Connection): Model<IEmployee> {
+    return (
+      connection.models.Employee ||
+      connection.model<IEmployee>('Employee', Employee.schema)
+    );
+  }
+  private getCompanyModel(connection: Connection): Model<ICompanyDocument> {
+    return (
+      connection.models.Company ||
+      connection.model<ICompanyDocument>('Company', Company.schema)
+    );
+  }
 
   async getMeetings(
     tenantConnection: mongoose.Connection,
@@ -32,8 +37,8 @@ export class MeetRepository {
     const EmployeeModel = this.getEmployeeModel(tenantConnection);
     const CompanyModel = this.getCompanyModel(tenantConnection);
     return await MeetModel.find(filters)
-      .populate("members", "name email")
-      .populate("createdBy", "email companyName name")
+      .populate('members', 'name email')
+      .populate('createdBy', 'email companyName name')
       .sort({ meetDate: 1, meetTime: 1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize);

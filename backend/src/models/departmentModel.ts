@@ -1,22 +1,18 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { IDepartment } from "../interfaces/company/IDepartment.types";
+import mongoose, { Document, Schema } from 'mongoose';
+import { IDepartment } from '../interfaces/company/IDepartment.types';
 
 export const departmentSchema = new Schema<IDepartment>(
-
   {
-    departmentId :{ type : String },
-    name: { type: String},
-    description: { type: String, },
-    status:{type:String}
+    departmentId: { type: String },
+    name: { type: String },
+    description: { type: String },
+    status: { type: String },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 
-
-const Department = mongoose.model<IDepartment>("Department", departmentSchema);
+const Department = mongoose.model<IDepartment>('Department', departmentSchema);
 
 export default Department;
-
-

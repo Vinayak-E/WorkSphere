@@ -1,222 +1,240 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import { GetCompanyProjectsOptions, IProjectService } from "../../interfaces/company/IProject.types";
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import {
+  GetCompanyProjectsOptions,
+  IProjectService,
+} from '../../interfaces/company/IProject.types';
 
 export class ProjectController {
-  constructor(private readonly projectService: IProjectService ){}
+  constructor(private readonly projectService: IProjectService) {}
 
-  getProjects: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  getProjects: RequestHandler = async (req, res, next) => {
     try {
       const tenantConnection = req.tenantConnection;
-      const { 
-        page = 1, 
-        limit = 6, 
-        search = '',
-        employeeId 
-      } = req.query;
-  
+      const { page = 1, limit = 6, search = '', employeeId } = req.query;
+
       if (!tenantConnection || !employeeId) {
-       res.status(400).json({
+        res.status(400).json({
           success: false,
-          message: "Missing required parameters"
+          message: 'Missing required parameters',
         });
-        return 
+        return;
       }
-  
+
       const options = {
         page: parseInt(page as string),
         limit: parseInt(limit as string),
         search: search as string,
-        employeeId: employeeId as string
+        employeeId: employeeId as string,
       };
-  
-      const result = await this.projectService.getManagerProjects(tenantConnection, options);
-      
+
+      const result = await this.projectService.getManagerProjects(
+        tenantConnection,
+        options
+      );
+
       res.status(200).json({
         success: true,
         data: result.data,
         totalPages: result.totalPages,
-        currentPage: result.currentPage
+        currentPage: result.currentPage,
       });
     } catch (error) {
       next(error);
     }
   };
 
-
-  
-  createProject: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  createProject: RequestHandler = async (req, res, next) => {
     try {
-    
       const tenantConnection = req.tenantConnection;
 
       if (!tenantConnection) {
-          res.status(500).json({
-              success: false,
-              message: "Tenant connection not established"
-          });
-          return;
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
       }
-      const {employeeId} = req.body
+      const { employeeId } = req.body;
 
       const projectData = {
         ...req.body,
-        manager: employeeId
+        manager: employeeId,
       };
 
-      const newProject = await this.projectService.createProject(tenantConnection,projectData);
-      
+      const newProject = await this.projectService.createProject(
+        tenantConnection,
+        projectData
+      );
+
       res.status(201).json({
         success: true,
-        data: newProject
+        data: newProject,
       });
     } catch (error) {
       next(error);
     }
   };
 
-
-
-  projectDetails: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const tenantConnection = req.tenantConnection;
-        if (!tenantConnection) {
-            res.status(500).json({ success: false, message: "Tenant connection not established" });
-            return;
-        }
-
-        const projectId = req.params.id;
-        const { project,tasks, departmentEmployees } = await this.projectService.getProjectDetails(tenantConnection, projectId);
-        
-        res.status(200).json({ 
-            success: true, 
-            data: {
-                project,
-                tasks,
-                departmentEmployees
-            }
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
-
-addTask: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-   
-    
-    const tenantConnection = req.tenantConnection;
-    if (!tenantConnection) {
-      res.status(500).json({ success: false, message: "Tenant connection not established" });
-      return;
-    }
-    const projectId = req.params.id;
-    const taskData = { ...req.body, project: projectId };
-
-    const newTask = await this.projectService.addTask(tenantConnection, taskData);
-
-    res.status(201).json({ success: true, data: newTask });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-editProject: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-  
-    const tenantConnection = req.tenantConnection;
-
-    if (!tenantConnection) {
-        res.status(500).json({
-            success: false,
-            message: "Tenant connection not established"
-        });
-        return;
-    }
-     const projectId = req.params.projectId
-     const projectData = req.body
-    const newProject = await this.projectService.updateProject(projectId,tenantConnection,projectData);
-    
-    res.status(201).json({
-      success: true,
-      data: newProject
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-editProjectTask: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const tenantConnection = req.tenantConnection;
-
-    if (!tenantConnection) {
-   res.status(500).json({
-        success: false,
-        message: "Tenant connection not established"
-      });
-      return
-    }
-
-    const { projectId, taskId } = req.params;
-    const taskData = req.body;
-
-    const updatedTask = await this.projectService.updateProjectTask(
-      tenantConnection,
-      projectId,
-      taskId,
-      taskData
-    );
-
-    res.status(200).json({
-      success: true,
-      data: updatedTask
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-  updateProjectStatus: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-  
-    const tenantConnection = req.tenantConnection;
-
-    if (!tenantConnection) {
-        res.status(500).json({
-            success: false,
-            message: "Tenant connection not established"
-        });
-        return;
-    }
-     const projectId = req.params.id
-     const {status} = req.body
-  
-    const newProject = await this.projectService.updateProjectStatus(projectId,tenantConnection, status);
-    
-    res.status(201).json({
-      success: true,
-      data: newProject
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-  getEmployeeTasks: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  projectDetails: RequestHandler = async (req, res, next) => {
     try {
       const tenantConnection = req.tenantConnection;
-      const { employeeId, page = '1', limit = '10', search = '', status = '' } = req.query;
+      if (!tenantConnection) {
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
+      }
+
+      const projectId = req.params.id;
+      const { project, tasks, departmentEmployees } =
+        await this.projectService.getProjectDetails(
+          tenantConnection,
+          projectId
+        );
+
+      res.status(200).json({
+        success: true,
+        data: {
+          project,
+          tasks,
+          departmentEmployees,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  addTask: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+      if (!tenantConnection) {
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
+      }
+      const projectId = req.params.id;
+      const taskData = { ...req.body, project: projectId };
+
+      const newTask = await this.projectService.addTask(
+        tenantConnection,
+        taskData
+      );
+
+      res.status(201).json({ success: true, data: newTask });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  editProject: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+
+      if (!tenantConnection) {
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
+      }
+      const projectId = req.params.projectId;
+      const projectData = req.body;
+      const newProject = await this.projectService.updateProject(
+        projectId,
+        tenantConnection,
+        projectData
+      );
+
+      res.status(201).json({
+        success: true,
+        data: newProject,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  editProjectTask: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+
+      if (!tenantConnection) {
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
+      }
+
+      const { projectId, taskId } = req.params;
+      const taskData = req.body;
+
+      const updatedTask = await this.projectService.updateProjectTask(
+        tenantConnection,
+        projectId,
+        taskId,
+        taskData
+      );
+
+      res.status(200).json({
+        success: true,
+        data: updatedTask,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateProjectStatus: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+
+      if (!tenantConnection) {
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
+      }
+      const projectId = req.params.id;
+      const { status } = req.body;
+
+      const newProject = await this.projectService.updateProjectStatus(
+        projectId,
+        tenantConnection,
+        status
+      );
+
+      res.status(201).json({
+        success: true,
+        data: newProject,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getEmployeeTasks: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+      const {
+        employeeId,
+        page = '1',
+        limit = '10',
+        search = '',
+        status = '',
+      } = req.query;
 
       if (!tenantConnection || !employeeId) {
-         res.status(400).json({
+        res.status(400).json({
           success: false,
-          message: "Missing required parameters"
+          message: 'Missing required parameters',
         });
-        return
+        return;
       }
 
       const options = {
@@ -227,69 +245,86 @@ editProjectTask: RequestHandler = async (req: Request, res: Response, next: Next
         status: status as string,
       };
 
-      const result = await this.projectService.getEmployeeTasks(tenantConnection, options);
+      const result = await this.projectService.getEmployeeTasks(
+        tenantConnection,
+        options
+      );
       res.status(200).json({
         success: true,
         data: result.data,
         totalPages: result.totalPages,
-        currentPage: result.currentPage
+        currentPage: result.currentPage,
       });
     } catch (error) {
       next(error);
     }
   };
 
-
-  updateTaskStatus: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  updateTaskStatus: RequestHandler = async (req, res, next) => {
     try {
       const tenantConnection = req.tenantConnection;
       const taskId = req.params.id;
       const { status } = req.body;
 
       if (!tenantConnection || !taskId || !status) {
-           res.status(400).json({
+        res.status(400).json({
           success: false,
-          message: "Missing required parameters"
+          message: 'Missing required parameters',
         });
-        return 
+        return;
       }
 
-      const updatedTask = await this.projectService.updateTaskStatus(tenantConnection, taskId, status);
-       res.status(200).json({
+      const updatedTask = await this.projectService.updateTaskStatus(
+        tenantConnection,
+        taskId,
+        status
+      );
+      res.status(200).json({
         success: true,
-        data: updatedTask
+        data: updatedTask,
       });
     } catch (error) {
       next(error);
     }
   };
 
-
-  getAllProjects: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  getAllProjects: RequestHandler = async (req, res, next) => {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-         res.status(500).json({ success: false, message: "Tenant connection not established" });
-         return
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
       }
-      
-      const { page = "1", limit = "6", search = "", status = "all", department = "all" } = req.query;
+
+      const {
+        page = '1',
+        limit = '6',
+        search = '',
+        status = 'all',
+        department = 'all',
+      } = req.query;
 
       const options: GetCompanyProjectsOptions = {
         page: parseInt(page as string),
         limit: parseInt(limit as string),
         search: search as string,
-        status: status !== "all" ? (status as string) : undefined,
-        department: department !== "all" ? (department as string) : undefined,
+        status: status !== 'all' ? (status as string) : undefined,
+        department: department !== 'all' ? (department as string) : undefined,
       };
-      
-      const result = await this.projectService.getAllProjects(tenantConnection, options);
+
+      const result = await this.projectService.getAllProjects(
+        tenantConnection,
+        options
+      );
 
       res.status(200).json({
         success: true,
         data: result.data,
         totalPages: result.totalPages,
-        currentPage: result.currentPage
+        currentPage: result.currentPage,
       });
     } catch (error) {
       next(error);

@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Bell } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { useSocket } from '@/contexts/SocketContest';
+import React, { useEffect, useState } from "react";
+import { Bell } from "lucide-react";
+import { useSelector } from "react-redux";
+import { useSocket } from "@/contexts/SocketContest";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const GlobalNotification = () => {
   const [notifications, setNotifications] = useState([]);
@@ -25,19 +25,19 @@ const GlobalNotification = () => {
 
     const handleNotification = (newMessage) => {
       const messageData = newMessage._doc || newMessage;
-      console.log('Notification received:', messageData);
+      console.log("Notification received:", messageData);
 
       if (messageData.sender._id !== currentUser.userData._id) {
         const notification = {
           id: messageData._id,
           chatId: messageData.chat,
           sender: messageData.sender.name,
-          content: messageData.content || 'New message',
+          content: messageData.content || "New message",
           timestamp: new Date().toISOString(),
-          read: false
+          read: false,
         };
 
-        setNotifications(prev => [notification, ...prev]);
+        setNotifications((prev) => [notification, ...prev]);
         setLatestNotification(notification);
         setShowToast(true);
 
@@ -47,33 +47,36 @@ const GlobalNotification = () => {
       }
     };
     const handleMessageReadUpdate = ({ messageId, chatId }) => {
-      setNotifications(prev => 
-        prev.filter(notification => 
-          !(notification.id === messageId || notification.chatId === chatId)
-        )
+      setNotifications((prev) =>
+        prev.filter(
+          (notification) =>
+            !(notification.id === messageId || notification.chatId === chatId),
+        ),
       );
-   
-      if (latestNotification && 
-         (latestNotification.id === messageId || latestNotification.chatId === chatId)) {
+
+      if (
+        latestNotification &&
+        (latestNotification.id === messageId ||
+          latestNotification.chatId === chatId)
+      ) {
         setShowToast(false);
       }
     };
 
-    socket.on('new_notification', handleNotification);
-    socket.on('message read update', handleMessageReadUpdate);
+    socket.on("new_notification", handleNotification);
+    socket.on("message read update", handleMessageReadUpdate);
 
     return () => {
-      socket.off('new_notification', handleNotification);
-      socket.off('message read update', handleMessageReadUpdate);
+      socket.off("new_notification", handleNotification);
+      socket.off("message read update", handleMessageReadUpdate);
     };
   }, [socket, currentUser.userData._id, latestNotification]);
 
   const handleNotificationClick = (notification) => {
-
-    setNotifications(prev =>
-      prev.filter(n => n.chatId !== notification.chatId)
+    setNotifications((prev) =>
+      prev.filter((n) => n.chatId !== notification.chatId),
     );
-    
+
     setShowToast(false);
     navigate(`/employee/chat?chatId=${notification.chatId}`);
   };
@@ -83,25 +86,25 @@ const GlobalNotification = () => {
       const chatIdMatch = window.location.href.match(/chatId=([^&]*)/);
       if (chatIdMatch) {
         const chatId = chatIdMatch[1];
-        setNotifications(prev => 
-          prev.filter(notification => notification.chatId !== chatId)
+        setNotifications((prev) =>
+          prev.filter((notification) => notification.chatId !== chatId),
         );
       }
     };
     handleURLChange();
 
-    window.addEventListener('popstate', handleURLChange);
-    return () => window.removeEventListener('popstate', handleURLChange);
+    window.addEventListener("popstate", handleURLChange);
+    return () => window.removeEventListener("popstate", handleURLChange);
   }, []);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="relative">
       {/* Toast Notification */}
       {showToast && latestNotification && (
         <div className="fixed top-4 right-4 z-50 animate-slide-in-right">
-          <Alert 
+          <Alert
             className="cursor-pointer bg-white shadow-lg hover:bg-gray-50 transition-colors"
             onClick={() => handleNotificationClick(latestNotification)}
           >
@@ -136,7 +139,9 @@ const GlobalNotification = () => {
                 onClick={() => handleNotificationClick(notification)}
               >
                 <div className="font-semibold">{notification.sender}</div>
-                <div className="text-sm text-gray-600 mt-1">{notification.content}</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {notification.content}
+                </div>
                 <div className="text-xs text-gray-400 mt-1">
                   {new Date(notification.timestamp).toLocaleTimeString()}
                 </div>

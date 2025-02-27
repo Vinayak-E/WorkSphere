@@ -1,24 +1,24 @@
-import { Connection, Model } from "mongoose";
+import { Connection, Model } from 'mongoose';
 import {
   ICompanyDocument,
   ICompanyRepository,
   ICompanySignup,
   ICreateCompany,
-} from "../../interfaces/company/company.types";
-import Company from "../../models/companyModel";
-import { UserModel } from "../../models/userModel";
-import { IUser } from "../../interfaces/IUser.types";
-import { connectTenantDB } from "../../configs/db.config";
-import CompanyRequest from "../../models/companyRequest";
+} from '../../interfaces/company/company.types';
+import Company from '../../models/companyModel';
+import { UserModel } from '../../models/userModel';
+import { IUser } from '../../interfaces/IUser.types';
+import { connectTenantDB } from '../../configs/db.config';
+import CompanyRequest from '../../models/companyRequest';
 import {
   IAttendance,
   ILeave,
-} from "../../interfaces/company/IAttendance.types";
-import Leave from "../../models/leavesModel";
-import { IEmployee } from "../../interfaces/company/IEmployee.types";
-import Employee from "../../models/employeeModel";
-import Attendance from "../../models/attendanceModel";
-import { log } from "console";
+} from '../../interfaces/company/IAttendance.types';
+import Leave from '../../models/leavesModel';
+import { IEmployee } from '../../interfaces/company/IEmployee.types';
+import Employee from '../../models/employeeModel';
+import Attendance from '../../models/attendanceModel';
+import { log } from 'console';
 
 export class CompanyRepository implements ICompanyRepository {
   private readonly model: Model<ICompanyDocument>;
@@ -30,25 +30,25 @@ export class CompanyRepository implements ICompanyRepository {
   private getCompanyModel(connection: Connection): Model<ICompanyDocument> {
     return (
       connection.models.Company ||
-      connection.model<ICompanyDocument>("Company", Company.schema)
+      connection.model<ICompanyDocument>('Company', Company.schema)
     );
   }
   private getEmployeeModel(connection: Connection): Model<IEmployee> {
     return (
       connection.models.Employee ||
-      connection.model<IEmployee>("Employee", Employee.schema)
+      connection.model<IEmployee>('Employee', Employee.schema)
     );
   }
 
   private getLeaveModel(connection: Connection): Model<ILeave> {
     return (
-      connection.models.Leave || connection.model<ILeave>("Leave", Leave.schema)
+      connection.models.Leave || connection.model<ILeave>('Leave', Leave.schema)
     );
   }
   private getAttendanceModel(connection: Connection): Model<IAttendance> {
     return (
       connection.models.Attendance ||
-      connection.model<IAttendance>("Attendance", Attendance.schema)
+      connection.model<IAttendance>('Attendance', Attendance.schema)
     );
   }
 
@@ -62,7 +62,7 @@ export class CompanyRepository implements ICompanyRepository {
     try {
       const tenantDB: Connection = await connectTenantDB(tenantId);
       const TenantCompanyModel = tenantDB.model<ICompanyDocument>(
-        "Company",
+        'Company',
         Company.schema
       );
 
@@ -83,7 +83,7 @@ export class CompanyRepository implements ICompanyRepository {
       await company.save();
       return company;
     } catch (error) {
-      console.error("Error creating tenant company:", error);
+      console.error('Error creating tenant company:', error);
       return null;
     }
   }
@@ -111,7 +111,7 @@ export class CompanyRepository implements ICompanyRepository {
         { resetToken, resetTokenExpiry: tokenExpiry }
       );
     } catch (error) {
-      console.error("Error storing the reset toekn:", error);
+      console.error('Error storing the reset toekn:', error);
     }
   }
 
@@ -138,10 +138,10 @@ export class CompanyRepository implements ICompanyRepository {
     connection: Connection
   ): Promise<ICompanyDocument | null> {
     const CompanyModel = this.getCompanyModel(connection);
-    console.log("updateData", updateData);
-    console.log("companyModel", CompanyModel);
+    console.log('updateData', updateData);
+    console.log('companyModel', CompanyModel);
     const company = await CompanyModel.findById(id);
-    console.log("companyfound", company);
+    console.log('companyfound', company);
     return await CompanyModel.findByIdAndUpdate(
       id,
       { $set: updateData },
@@ -175,8 +175,8 @@ export class CompanyRepository implements ICompanyRepository {
 
     const [leaves, total] = await Promise.all([
       LeaveModel.find(query)
-        .populate("employeeId")
-        .sort([["appliedAt", -1]])
+        .populate('employeeId')
+        .sort([['appliedAt', -1]])
         .skip(skip)
         .limit(limit)
         .lean(),
@@ -201,7 +201,7 @@ export class CompanyRepository implements ICompanyRepository {
           updatedAt: new Date(),
         },
         { new: true }
-      ).populate("employeeId");
+      ).populate('employeeId');
 
       return updatedLeave;
     } catch (error) {
@@ -239,10 +239,10 @@ export class CompanyRepository implements ICompanyRepository {
 
     if (date) {
       const approvedLeaves = await LeaveModel.find({
-        status: "Approved",
+        status: 'Approved',
         startDate: { $lte: new Date(date) },
         endDate: { $gte: new Date(date) },
-      }).select("employeeId");
+      }).select('employeeId');
 
       employeesOnLeave = approvedLeaves.map((leave) =>
         leave.employeeId.toString()
@@ -257,8 +257,8 @@ export class CompanyRepository implements ICompanyRepository {
 
     const [attendance, total] = await Promise.all([
       AttendanceModel.find(query)
-        .populate("employeeId")
-        .sort({ date: -1, "employeeId.name": 1 })
+        .populate('employeeId')
+        .sort({ date: -1, 'employeeId.name': 1 })
         .skip(skip)
         .limit(limit)
         .lean(),
@@ -283,7 +283,7 @@ export class CompanyRepository implements ICompanyRepository {
       },
       {
         $set: {
-          status: "On Leave",
+          status: 'On Leave',
           checkInStatus: false,
           totalWorkedTime: 0,
         },
@@ -297,7 +297,7 @@ export class CompanyRepository implements ICompanyRepository {
         totalWorkedTime: { $gte: FULL_DAY_HOURS },
         checkInStatus: true,
       },
-      { $set: { status: "Present" } }
+      { $set: { status: 'Present' } }
     );
 
     await AttendanceModel.updateMany(
@@ -307,7 +307,7 @@ export class CompanyRepository implements ICompanyRepository {
         totalWorkedTime: { $gt: MIN_HOURS, $lt: FULL_DAY_HOURS },
         checkInStatus: true,
       },
-      { $set: { status: "Half Day" } }
+      { $set: { status: 'Half Day' } }
     );
 
     await AttendanceModel.updateMany(
@@ -315,9 +315,9 @@ export class CompanyRepository implements ICompanyRepository {
         ...query,
         employeeId: { $nin: employeesOnLeave },
         $or: [{ checkInStatus: false }],
-        status: { $nin: ["On Leave", "Half Day Leave"] },
+        status: { $nin: ['On Leave', 'Half Day Leave'] },
       },
-      { $set: { status: "Absent" } }
+      { $set: { status: 'Absent' } }
     );
 
     await AttendanceModel.updateMany(
@@ -326,11 +326,11 @@ export class CompanyRepository implements ICompanyRepository {
         employeeId: { $nin: employeesOnLeave },
         totalWorkedTime: { $gt: MIN_HOURS },
         checkInStatus: false,
-        status: "Absent",
+        status: 'Absent',
       },
       {
         $set: {
-          status: "Present",
+          status: 'Present',
           checkInStatus: true,
         },
       }

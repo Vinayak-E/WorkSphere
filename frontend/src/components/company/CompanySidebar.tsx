@@ -1,5 +1,14 @@
-import { NavLink } from "react-router-dom"
-import { Calendar, Home, Inbox,  Settings, Users, FileText, BarChart, Video } from "lucide-react"
+import { NavLink } from "react-router-dom";
+import {
+  Calendar,
+  Home,
+  Inbox,
+  Settings,
+  Users,
+  FileText,
+  BarChart,
+  Video,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -9,9 +18,9 @@ import {
   SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
-import IMAGES from "@/assets/images/image"
+import IMAGES from "@/assets/images/image";
 
 const items = [
   {
@@ -43,48 +52,50 @@ const items = [
     title: "Messages",
     url: "/company/chat",
     icon: Inbox,
-     badge: 0,
+    badge: 0,
   },
-  { title: "Meetings",         url: "/company/meeting",icon: Video },
+  { title: "Meetings", url: "/company/meeting", icon: Video },
   {
     title: "Settings",
     url: "/company/profile",
     icon: Settings,
   },
-]
+];
 
 export function AppSidebar() {
   return (
-  
     <Sidebar
-    variant="sidebar"
-    collapsible="icon"
-    className="
+      variant="sidebar"
+      collapsible="icon"
+      className="
       min-h-screen 
       border-none 
       bg-white 
     
       shadow-lg shadow-blue-100
     "
-  >
-    <SidebarContent className="flex flex-col  bg-white">
-      <SidebarHeader className="px-14 py-3 border-none ">
-        <div className="flex items-center space-x-2">
-          <img src={IMAGES.navBarLogoDark} alt="Logo" className="h-12 w-auto" />
-        </div>
-      </SidebarHeader>
+    >
+      <SidebarContent className="flex flex-col  bg-white">
+        <SidebarHeader className="px-14 py-3 border-none ">
+          <div className="flex items-center space-x-2">
+            <img
+              src={IMAGES.navBarLogoDark}
+              alt="Logo"
+              className="h-12 w-auto"
+            />
+          </div>
+        </SidebarHeader>
 
-      <SidebarGroup className="flex-1 overflow-y-auto">
-        <SidebarGroupContent className="">
-          <SidebarMenu>
-            {items.map((item) => {
-              const isActive = location.pathname === item.url
-              return (
-                <SidebarMenuItem key={item.title}>
-                  
-                  <NavLink
-                    to={item.url}
-                    className={`group flex items-center gap-2 rounded-md px-4 py-2 transition-colors
+        <SidebarGroup className="flex-1 overflow-y-auto">
+          <SidebarGroupContent className="">
+            <SidebarMenu>
+              {items.map((item) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <NavLink
+                      to={item.url}
+                      className={`group flex items-center gap-2 rounded-md px-4 py-2 transition-colors
                       ${
                         isActive
                           ? // Active styles
@@ -93,32 +104,29 @@ export function AppSidebar() {
                             "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                       }
                     `}
-                  >
-                    <item.icon
-                      className={`h-5 w-5 flex-shrink-0 
+                    >
+                      <item.icon
+                        className={`h-5 w-5 flex-shrink-0 
                         ${
                           isActive
                             ? "text-blue-600"
                             : "text-gray-400 group-hover:text-gray-600"
                         }
                       `}
-                    />
-                    <span className="whitespace-nowrap">{item.title}</span>
+                      />
+                      <span className="whitespace-nowrap">{item.title}</span>
 
-                    {item.badge !== undefined && (
-                      <SidebarMenuBadge>
-                        {item.badge}
-                      </SidebarMenuBadge>
-                    )}
-                  </NavLink>
-            
-                </SidebarMenuItem>
-              )
-            })}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </SidebarContent>
-  </Sidebar>
-  )
+                      {item.badge !== undefined && (
+                        <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                      )}
+                    </NavLink>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
 }

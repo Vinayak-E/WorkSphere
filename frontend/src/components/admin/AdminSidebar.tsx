@@ -1,5 +1,5 @@
-import { NavLink } from "react-router-dom"
-import {  Home, Inbox,  Settings, Users, FileText, BarChart } from "lucide-react"
+import { NavLink } from "react-router-dom";
+import { Home, Inbox, Settings, Users, FileText, BarChart } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -8,9 +8,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
-import IMAGES from "@/assets/images/image"
+} from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import IMAGES from "@/assets/images/image";
 
 const items = [
   {
@@ -33,7 +33,7 @@ const items = [
     title: "Messages",
     url: "/messages",
     icon: Inbox,
-     badge: 1,
+    badge: 1,
   },
   {
     title: "Subscription Plans",
@@ -45,14 +45,18 @@ const items = [
     url: "/settings",
     icon: Settings,
   },
-]
+];
 
 export function AdminSidebar() {
   return (
-    <Sidebar  className="border-r bg-white h-screen flex flex-col "> 
-      <SidebarContent className="flex-1"> 
+    <Sidebar className="border-r bg-white h-screen flex flex-col ">
+      <SidebarContent className="flex-1">
         <div className="flex h-16 items-center border-b px-6">
-          <img src={IMAGES.navBarLogoDark} alt="Company Logo" className="h-12" />
+          <img
+            src={IMAGES.navBarLogoDark}
+            alt="Company Logo"
+            className="h-12"
+          />
         </div>
 
         <SidebarGroup className="flex-1">
@@ -66,7 +70,7 @@ export function AdminSidebar() {
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                          isActive && "bg-gray-100 text-gray-900"
+                          isActive && "bg-gray-100 text-gray-900",
                         )
                       }
                     >
@@ -86,5 +90,5 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

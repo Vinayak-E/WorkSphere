@@ -5,7 +5,6 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 
-
 interface SignupResponse {
   registeredMail: string;
   message: string;
@@ -18,8 +17,12 @@ interface FieldState {
   isValid: boolean;
 }
 
-type FieldName = 'companyName' | 'email' | 'phone' | 'password' | 'confirmPassword';
-
+type FieldName =
+  | "companyName"
+  | "email"
+  | "phone"
+  | "password"
+  | "confirmPassword";
 
 interface FormState {
   companyName: FieldState;
@@ -29,21 +32,25 @@ interface FormState {
   confirmPassword: FieldState;
 }
 
-
-const  Regcopy= () => {
+const Regcopy = () => {
   const [formState, setFormState] = useState<FormState>({
     companyName: { value: "", error: "", touched: false, isValid: false },
     email: { value: "", error: "", touched: false, isValid: false },
     phone: { value: "", error: "", touched: false, isValid: false },
     password: { value: "", error: "", touched: false, isValid: false },
-    confirmPassword: { value: "", error: "", touched: false, isValid: false }
-  });  const [errorMessage, setErrorMessage] = useState("");
+    confirmPassword: { value: "", error: "", touched: false, isValid: false },
+  });
+  const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const validateField = (name: FieldName, value: string, allValues: FormState): FieldState => {
+  const validateField = (
+    name: FieldName,
+    value: string,
+    allValues: FormState,
+  ): FieldState => {
     let error = "";
     let isValid = true;
 
@@ -53,7 +60,8 @@ const  Regcopy= () => {
           error = "Company name is required";
           isValid = false;
         } else if (!/^[a-zA-Z ]{2,30}$/.test(value)) {
-          error = "Company name must contain only letters and spaces (2-30 characters)";
+          error =
+            "Company name must contain only letters and spaces (2-30 characters)";
           isValid = false;
         }
         break;
@@ -62,7 +70,9 @@ const  Regcopy= () => {
         if (!value) {
           error = "Email is required";
           isValid = false;
-        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+        } else if (
+          !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)
+        ) {
           error = "Please enter a valid email address";
           isValid = false;
         }
@@ -102,41 +112,51 @@ const  Regcopy= () => {
     return { value, error, touched: true, isValid };
   };
 
+  const handleChange =
+    (name: FieldName) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
 
-  const handleChange = (name: FieldName) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-  
-    setFormState((prev) => ({
-      ...prev,
-      [name]: validateField(name, value, prev), 
-    }));
-  
-    if (name === "password") {
-      const confirmPass = formState.confirmPassword;
-      if (confirmPass.touched) {
-        setFormState((prev) => ({
-          ...prev,
-          confirmPassword: validateField("confirmPassword", confirmPass.value, {
+      setFormState((prev) => ({
+        ...prev,
+        [name]: validateField(name, value, prev),
+      }));
+
+      if (name === "password") {
+        const confirmPass = formState.confirmPassword;
+        if (confirmPass.touched) {
+          setFormState((prev) => ({
             ...prev,
-            password: { ...prev.password, value },
-          }),
-        }));
+            confirmPassword: validateField(
+              "confirmPassword",
+              confirmPass.value,
+              {
+                ...prev,
+                password: { ...prev.password, value },
+              },
+            ),
+          }));
+        }
       }
-    }
-  };
-  
+    };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const validatedState = (Object.keys(formState) as FieldName[]).reduce<FormState>((acc, key) => ({
-      ...acc,
-      [key]: validateField(key, formState[key].value, formState)
-    }), formState);
+    const validatedState = (
+      Object.keys(formState) as FieldName[]
+    ).reduce<FormState>(
+      (acc, key) => ({
+        ...acc,
+        [key]: validateField(key, formState[key].value, formState),
+      }),
+      formState,
+    );
 
     setFormState(validatedState);
 
-    const isValid = Object.values(validatedState).every(field => field.isValid);
+    const isValid = Object.values(validatedState).every(
+      (field) => field.isValid,
+    );
 
     if (isValid) {
       setIsSubmitting(true);
@@ -156,7 +176,9 @@ const  Regcopy= () => {
         }
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
-          setErrorMessage(error.response?.data?.message || "An error occurred.");
+          setErrorMessage(
+            error.response?.data?.message || "An error occurred.",
+          );
         } else {
           setErrorMessage("An unexpected error occurred.");
         }
@@ -176,7 +198,11 @@ const  Regcopy= () => {
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-3 md:p-6 lg:p-8 relative">
       <div className="top-8 left-8">
-        <img src={IMAGES.navBarLogoDark} alt="WorkSphere Logo" className="w-32 h-auto" />
+        <img
+          src={IMAGES.navBarLogoDark}
+          alt="WorkSphere Logo"
+          className="w-32 h-auto"
+        />
       </div>
 
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
@@ -186,9 +212,10 @@ const  Regcopy= () => {
             Streamline Your Company Management with WorkSphere
           </h1>
           <p className="text-lg md:text-xltext-[#333333]">
-            Enjoy efficient operations, enhanced employee engagement, and improved workforce outcomes.
+            Enjoy efficient operations, enhanced employee engagement, and
+            improved workforce outcomes.
           </p>
-          
+
           <div className="grid grid-cols-3 gap-4 pt-8">
             <div>
               <h3 className="text-4xl font-bold">100+</h3>
@@ -209,7 +236,10 @@ const  Regcopy= () => {
           <h1 className="text-xl font-bold mb-6">CREATE YOUR ACCOUNT</h1>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="companyName"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Company Name
               </label>
               <input
@@ -221,13 +251,18 @@ const  Regcopy= () => {
                 className={getInputStyle(formState.companyName)}
               />
               {formState.companyName.touched && formState.companyName.error && (
-                <p className="text-sm text-red-500 mt-1">{formState.companyName.error}</p>
+                <p className="text-sm text-red-500 mt-1">
+                  {formState.companyName.error}
+                </p>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email
                 </label>
                 <input
@@ -239,12 +274,17 @@ const  Regcopy= () => {
                   className={getInputStyle(formState.email)}
                 />
                 {formState.email.touched && formState.email.error && (
-                  <p className="text-sm text-red-500 mt-1">{formState.email.error}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {formState.email.error}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Phone
                 </label>
                 <input
@@ -256,14 +296,19 @@ const  Regcopy= () => {
                   className={getInputStyle(formState.phone)}
                 />
                 {formState.phone.touched && formState.phone.error && (
-                  <p className="text-sm text-red-500 mt-1">{formState.phone.error}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {formState.phone.error}
+                  </p>
                 )}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Password
                 </label>
                 <input
@@ -275,12 +320,17 @@ const  Regcopy= () => {
                   className={getInputStyle(formState.password)}
                 />
                 {formState.password.touched && formState.password.error && (
-                  <p className="text-sm text-red-500 mt-1">{formState.password.error}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {formState.password.error}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Confirm Password
                 </label>
                 <input
@@ -291,9 +341,12 @@ const  Regcopy= () => {
                   onChange={handleChange("confirmPassword")}
                   className={getInputStyle(formState.confirmPassword)}
                 />
-                {formState.confirmPassword.touched && formState.confirmPassword.error && (
-                  <p className="text-sm text-red-500 mt-1">{formState.confirmPassword.error}</p>
-                )}
+                {formState.confirmPassword.touched &&
+                  formState.confirmPassword.error && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {formState.confirmPassword.error}
+                    </p>
+                  )}
               </div>
             </div>
 
@@ -337,12 +390,17 @@ const  Regcopy= () => {
                   fill="#EA4335"
                 />
               </svg>
-              <span className="text-gray-700 font-medium">Continue with Google</span>
+              <span className="text-gray-700 font-medium">
+                Continue with Google
+              </span>
             </button>
 
             <p className="text-sm text-gray-500 text-center">
               Already using WorkSphere?{" "}
-              <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <a
+                href="/login"
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
                 Sign in to your workspace
               </a>
             </p>

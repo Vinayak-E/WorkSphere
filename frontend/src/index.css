@@ -7,47 +7,47 @@
     /* Background and Text */
     --background: 0 0% 98%; /* #E9E9E9 */
     --foreground: 210 25% 24%; /* #2C3E50 */
-    
+
     /* Card */
     --card: 0 0% 100%; /* #FFFFFF */
     --card-foreground: 210 25% 24%; /* #2C3E50 */
-    
+
     /* Primary */
     --primary: 210 71% 59%; /* #4A90E2 */
     --primary-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Secondary */
     --secondary: 213 13% 48%; /* #6C7A89 */
     --secondary-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Muted */
     --muted: 0 0% 82%; /* #D1D1D1 */
     --muted-foreground: 0 0% 20%; /* #333333 */
-    
+
     /* Accent */
     --accent: 204 64% 44%; /* #2980B9 */
     --accent-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Popover */
     --popover: 0 0% 100%; /* #FFFFFF */
     --popover-foreground: 0 0% 29%; /* #4A4A4A */
-    
+
     /* Destructive */
     --destructive: 6 78% 57%; /* #E74C3C */
     --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Border & Input */
     --border: 0 0% 82%; /* #D1D1D1 */
     --input: 0 0% 82%; /* #D1D1D1 */
     --ring: 210 71% 59%; /* #4A90E2 */
-    
+
     /* Success & Warning */
     --success: 145 65% 42%; /* #27AE60 */
     --warning: 37 91% 51%; /* #F39C12 */
-    
+
     /* Disabled */
     --disabled: 0 0% 80%; /* #CCCCCC */
-    
+
     /* Chart Colors */
     --chart-1: 145 65% 42%; /* #27AE60 */
     --chart-2: 210 71% 59%; /* #4A90E2 */
@@ -60,47 +60,47 @@
     /* Background and Text */
     --background: 210 25% 24%; /* #2C3E50 dark variant */
     --foreground: 0 0% 91%; /* #E9E9E9 */
-    
+
     /* Card */
     --card: 213 13% 48%; /* #6C7A89 */
     --card-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Primary */
     --primary: 210 71% 59%; /* #4A90E2 */
     --primary-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Secondary */
     --secondary: 213 13% 48%; /* #6C7A89 */
     --secondary-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Muted */
     --muted: 213 13% 38%; /* Darker variant of #6C7A89 */
     --muted-foreground: 0 0% 82%; /* #D1D1D1 */
-    
+
     /* Accent */
     --accent: 204 64% 44%; /* #2980B9 */
     --accent-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Popover */
     --popover: 210 25% 24%; /* #2C3E50 */
     --popover-foreground: 0 0% 91%; /* #E9E9E9 */
-    
+
     /* Destructive */
     --destructive: 6 78% 57%; /* #E74C3C */
     --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-    
+
     /* Border & Input */
     --border: 213 13% 48%; /* #6C7A89 */
     --input: 213 13% 48%; /* #6C7A89 */
     --ring: 210 71% 59%; /* #4A90E2 */
-    
+
     /* Success & Warning */
     --success: 145 65% 42%; /* #27AE60 */
     --warning: 37 91% 51%; /* #F39C12 */
-    
+
     /* Disabled */
     --disabled: 0 0% 40%; /* Darker variant of #CCCCCC */
-    
+
     /* Chart Colors */
     --chart-1: 145 65% 42%; /* #27AE60 */
     --chart-2: 210 71% 59%; /* #4A90E2 */
@@ -116,15 +116,13 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Lato', sans-serif;
+    font-family: "Lato", sans-serif;
   }
-  
+
   * {
     font-family: inherit;
   }
 }
-
-
 
 @layer base {
   * {

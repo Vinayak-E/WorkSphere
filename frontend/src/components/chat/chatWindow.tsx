@@ -40,7 +40,9 @@ const ChatWindow = ({
   useEffect(() => {
     // This needs to be modified because messageAreaRef might not directly access scrollHeight
     if (messageAreaRef.current) {
-      const scrollContainer = messageAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      const scrollContainer = messageAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
@@ -94,8 +96,8 @@ const ChatWindow = ({
           prevMessages.map((msg) =>
             msg._id === tempId
               ? { ...savedMessage, sender: currentUser.userData }
-              : msg
-          )
+              : msg,
+          ),
         );
       });
 
@@ -111,12 +113,12 @@ const ChatWindow = ({
   };
   const getSenderId = (msg) => msg.sender?.senderId?._id || msg.sender?._id;
   const getSenderName = (msg) => msg.sender?.senderId?.name || msg.sender?.name;
-  
+
   const markMessagesAsRead = useCallback(() => {
     if (!selectedChat || !currentUser || !socket) return;
     if (!selectedChat.isGroupChat) {
       const unreadMessages = messages.filter(
-        (msg) => getSenderId(msg) !== currentUser.userData._id && !msg.isRead
+        (msg) => getSenderId(msg) !== currentUser.userData._id && !msg.isRead,
       );
       if (unreadMessages.length > 0) {
         unreadMessages.forEach((msg) => {
@@ -140,8 +142,8 @@ const ChatWindow = ({
       if (selectedChat && selectedChat._id === chatId) {
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
-            msg._id === messageId ? { ...msg, isRead } : msg
-          )
+            msg._id === messageId ? { ...msg, isRead } : msg,
+          ),
         );
       }
 
@@ -161,7 +163,7 @@ const ChatWindow = ({
             };
           }
           return chat;
-        })
+        }),
       );
       console.log("chat latest", chat.latestMessage);
     };
@@ -223,7 +225,7 @@ const ChatWindow = ({
       ? selectedChat.users.find(
           (user) =>
             String(user.userId._id || user._id) !==
-            String(currentUser.userData._id)
+            String(currentUser.userData._id),
         )
       : null;
 
@@ -273,8 +275,8 @@ const ChatWindow = ({
       // Update the chats list
       setChats((prevChats) =>
         prevChats.map((prevChat) =>
-          prevChat._id === chat._id ? chat : prevChat
-        )
+          prevChat._id === chat._id ? chat : prevChat,
+        ),
       );
     };
 

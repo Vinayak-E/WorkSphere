@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import { chatService } from '@/services/employee/chat.service';
-import ChatSidebar from './chatSidebar';
-import ChatWindow from './chatWindow';
-import { useSocket } from '@/contexts/SocketContest';
-import { RootState } from '@/redux/store';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { chatService } from "@/services/employee/chat.service";
+import ChatSidebar from "./chatSidebar";
+import ChatWindow from "./chatWindow";
+import { useSocket } from "@/contexts/SocketContest";
+import { RootState } from "@/redux/store";
 
 const ChatContainer = () => {
   const socket = useSocket();
@@ -12,11 +12,11 @@ const ChatContainer = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [chatSearchTerm, setChatSearchTerm] = useState('');
+  const [chatSearchTerm, setChatSearchTerm] = useState("");
   const [employees, setEmployees] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
-  const currentUser = useSelector((state :RootState) => state.auth.user);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
   const messageAreaRef = useRef(null);
 
   useEffect(() => {
@@ -34,17 +34,17 @@ const ChatContainer = () => {
   const loadChats = async () => {
     try {
       const response = await chatService.getChats();
-      console.log('Chats API response:', response.data);
+      console.log("Chats API response:", response.data);
       setChats(response.data);
     } catch (error) {
-      console.error('Error loading chats:', error);
+      console.error("Error loading chats:", error);
     }
   };
 
   const loadMessages = async (chatId) => {
     try {
       const response = await chatService.getChatMessages(chatId);
-      console.log('load messages',response)
+      console.log("load messages", response);
       setMessages(response.data);
     } catch (error) {
       console.error(`Error loading messages for chat ${chatId}:`, error);
@@ -57,7 +57,7 @@ const ChatContainer = () => {
       const response = await chatService.getAllEmployees();
       setEmployees(response.data);
     } catch (error) {
-      console.error('Error loading employees:', error);
+      console.error("Error loading employees:", error);
     } finally {
       setLoadingEmployees(false);
     }
@@ -66,10 +66,8 @@ const ChatContainer = () => {
   const handleNewMessage = useCallback(
     (newMessage) => {
       const messageData = newMessage._doc || newMessage;
-      console.log('New message received:', newMessage._doc);
+      console.log("New message received:", newMessage._doc);
       setMessages((prev) => [...prev, messageData]);
-
- 
 
       setChats((prev) => {
         const updatedChats = prev.map((chat) => {
@@ -78,7 +76,9 @@ const ChatContainer = () => {
               ...chat,
               latestMessage: {
                 ...messageData,
-                isRead: selectedChat?._id === (messageData.chat._id || messageData.chatId),
+                isRead:
+                  selectedChat?._id ===
+                  (messageData.chat._id || messageData.chatId),
               },
             };
           }
@@ -86,56 +86,61 @@ const ChatContainer = () => {
         });
 
         return updatedChats.sort((a, b) => {
-          const dateA = a.latestMessage ? new Date(a.latestMessage.createdAt) : new Date(0);
-          const dateB = b.latestMessage ? new Date(b.latestMessage.createdAt) : new Date(0);
+          const dateA = a.latestMessage
+            ? new Date(a.latestMessage.createdAt)
+            : new Date(0);
+          const dateB = b.latestMessage
+            ? new Date(b.latestMessage.createdAt)
+            : new Date(0);
           return dateB - dateA;
         });
       });
     },
-    [selectedChat]
+    [selectedChat],
   );
 
   useEffect(() => {
     if (!socket) return; // Ensure socket exists
 
-    socket.on('online users', (users) => setOnlineUsers(users));
-    socket.on('message received', handleNewMessage);
-    socket.on('typing', () => setIsTyping(true));
-    socket.on('stop typing', () => setIsTyping(false));
+    socket.on("online users", (users) => setOnlineUsers(users));
+    socket.on("message received", handleNewMessage);
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
 
     return () => {
-      socket.off('message received', handleNewMessage);
-      socket.off('typing');
-      socket.off('stop typing');
+      socket.off("message received", handleNewMessage);
+      socket.off("typing");
+      socket.off("stop typing");
     };
   }, [socket, handleNewMessage]);
 
   useEffect(() => {
     if (selectedChat && socket) {
-      socket.emit('join chat', selectedChat._id);
+      socket.emit("join chat", selectedChat._id);
     }
   }, [selectedChat, socket]);
 
   const startNewChat = async (employeeId) => {
     try {
       const response = await chatService.createChat(employeeId);
-      console.log('New Chat Created:', response.data);
+      console.log("New Chat Created:", response.data);
       setChats((prev) => [response.data, ...prev]);
       setSelectedChat(response.data);
     } catch (error) {
-      console.error('Error starting new chat:', error);
+      console.error("Error starting new chat:", error);
     }
   };
 
   const filteredChats = chats.filter((chat) => {
     let chatName;
     if (chat.isGroupChat) {
-      chatName = chat.name || 'Unnamed Group';
+      chatName = chat.name || "Unnamed Group";
     } else {
       const otherUser = chat.users.find(
-        (user) => user.userId._id.toString() !== currentUser.userData._id.toString()
+        (user) =>
+          user.userId._id.toString() !== currentUser.userData._id.toString(),
       );
-      chatName = otherUser ? otherUser.userId.name : 'Unknown User';
+      chatName = otherUser ? otherUser.userId.name : "Unknown User";
     }
     return chatName.toLowerCase().includes(chatSearchTerm.toLowerCase());
   });

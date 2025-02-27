@@ -54,8 +54,8 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
       name: project.name,
       description: project.description,
       deadline: project.deadline
-      ? new Date(project.deadline).toISOString().split("T")[0]
-      : "",
+        ? new Date(project.deadline).toISOString().split("T")[0]
+        : "",
       manager: managerId,
       department:
         typeof project.department === "object"
@@ -65,7 +65,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
   }, [project]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -82,32 +82,32 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value; 
-    setFormData(prev => ({
+    const value = e.target.value;
+    setFormData((prev) => ({
       ...prev,
       deadline: value,
     }));
   };
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     try {
       const response = await ProjectController.updateProject(
         project._id,
-        formData
+        formData,
       );
-      console.log('Update response:', response);
-  
-      const updatedProject = response.data?.project || response.project || response;
-  
+      console.log("Update response:", response);
+
+      const updatedProject =
+        response.data?.project || response.project || response;
+
       if (updatedProject) {
         onProjectUpdated(updatedProject);
         onClose();
       } else {
-        console.error('No project data found in response');
+        console.error("No project data found in response");
       }
     } catch (error) {
       console.error("Project update failed", error);
@@ -116,12 +116,14 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
     }
   };
   return (
-      <Dialog open={isOpen} onOpenChange={(open)=> {
-          if (!open) {
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
           onClose();
-          }
-          }}
-          >
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Edit Project Details</DialogTitle>
@@ -170,7 +172,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
                   {
                     // Convert both sides to strings for comparison
                     departmentEmployees.find(
-                      (e) => e._id.toString() === formData.manager
+                      (e) => e._id.toString() === formData.manager,
                     )?.name || "Select Manager"
                   }
                 </SelectValue>
@@ -186,7 +188,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
                         : employee.department.toString()) ===
                         (typeof project.department === "object"
                           ? project.department._id.toString()
-                          : project.department.toString())
+                          : project.department.toString()),
                   )
                   .map((employee) => (
                     <SelectItem
@@ -207,22 +209,19 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
             <input
               id="deadline"
               type="date"
-              value={
-                formData.deadline || ""
-              }
+              value={formData.deadline || ""}
               onChange={handleDateChange}
               className="border rounded p-2"
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
             />
-             {formData.deadline && new Date(formData.deadline) < new Date() && (
-                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      Deadline cannot be in the past
-                    </p>
-                  )}
+            {formData.deadline && new Date(formData.deadline) < new Date() && (
+              <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                Deadline cannot be in the past
+              </p>
+            )}
           </div>
 
-       
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

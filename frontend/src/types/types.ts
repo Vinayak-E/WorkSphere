@@ -9,15 +9,26 @@ export interface SignupData {
   email: string;
   phone: string;
   industry: string;
-  bussinessRegNum:string;
-  city:string;
-  state:string;
-  country:string;
-  zipcode:string;
+  bussinessRegNum: string;
+  city: string;
+  state: string;
+  country: string;
+  zipcode: string;
   password: string;
 }
 
-export type FieldName = "companyName" | "email" | "phone" | "industry" |"bussinessRegNum"| "city" | "state" | "zipcode" | "country"| "password" | "confirmPassword";
+export type FieldName =
+  | "companyName"
+  | "email"
+  | "phone"
+  | "industry"
+  | "bussinessRegNum"
+  | "city"
+  | "state"
+  | "zipcode"
+  | "country"
+  | "password"
+  | "confirmPassword";
 
 export interface FormState {
   companyName: FieldState;
@@ -28,10 +39,10 @@ export interface FormState {
   city: FieldState;
   state: FieldState;
   country: FieldState;
-  zipcode:  FieldState;
+  zipcode: FieldState;
   password: FieldState;
   confirmPassword: FieldState;
-} 
+}
 
 export interface RegisterResponse {
   success: boolean;
@@ -39,15 +50,14 @@ export interface RegisterResponse {
   error?: string;
 }
 
-
 export interface ValidationRules {
   companyName: string;
   email: string;
   phone: string;
   industry: string;
-  bussinessRegNum:string;
+  bussinessRegNum: string;
   city: string;
-  state:  string;
+  state: string;
   country: string;
   zipcode: string;
   password: string;
@@ -55,14 +65,14 @@ export interface ValidationRules {
 }
 
 export interface Icompany {
-  companyName: string 
+  companyName: string;
   email: string;
-  password: string ;
+  password: string;
   phone: string | null;
   industry: string;
-  businessRegNo:string;
-  city:string;
-  state:string;
-  country:string;
-  zipcode:string;
+  businessRegNo: string;
+  city: string;
+  state: string;
+  country: string;
+  zipcode: string;
 }

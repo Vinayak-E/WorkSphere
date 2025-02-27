@@ -13,35 +13,34 @@ const VideoCall = () => {
 
   useEffect(() => {
     if (!callContainer.current) return;
-    
+
     let zp = null;
-    
+
     const initializeCall = async () => {
       try {
         const appID = Number(import.meta.env.VITE_APP_ID);
         const serverSecret = import.meta.env.VITE_APP_SERVER_SECRET;
-        
-      
+
         if (!appID || isNaN(appID)) {
           throw new Error("Invalid App ID. Check your environment variables.");
         }
-        
+
         if (!serverSecret) {
-          throw new Error("Missing Server Secret. Check your environment variables.");
+          throw new Error(
+            "Missing Server Secret. Check your environment variables.",
+          );
         }
 
-   
         const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
           appID,
           serverSecret,
           roomID,
-          "UserID_" + Date.now(), 
-          "Guest" 
+          "UserID_" + Date.now(),
+          "Guest",
         );
 
         zp = ZegoUIKitPrebuilt.create(kitToken);
-        
-     
+
         await zp.joinRoom({
           container: callContainer.current,
           sharedLinks: [
@@ -68,7 +67,7 @@ const VideoCall = () => {
           onError: (err) => {
             console.error("Zego error:", err);
             setError(`Error: ${err.message || "Failed to join meeting"}`);
-          }
+          },
         });
       } catch (err) {
         console.error("Failed to initialize video call:", err);
@@ -89,15 +88,22 @@ const VideoCall = () => {
         }
       }
     };
-  }, [roomID]); 
+  }, [roomID]);
 
   const handleGoBack = () => {
-    navigate(-1); 
+    navigate(-1);
   };
 
   return (
-    <div style={{ width: "100%", height: "100vh", overflow: "hidden", position: "relative" }}>
-      <button 
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <button
         onClick={handleGoBack}
         style={{
           position: "absolute",
@@ -111,41 +117,45 @@ const VideoCall = () => {
           display: "flex",
           alignItems: "center",
           cursor: "pointer",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
+          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
         }}
       >
         <ArrowLeft style={{ marginRight: "5px" }} size={18} />
         Back to Meetings
       </button>
-      
+
       {!isReady && !error && (
-        <div style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          textAlign: "center"
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+          }}
+        >
           <p>Loading video call...</p>
         </div>
       )}
-      
+
       {error && (
-        <div style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          textAlign: "center",
-          color: "red",
-          background: "rgba(255,255,255,0.9)",
-          padding: "20px",
-          borderRadius: "8px",
-          maxWidth: "80%"
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+            color: "red",
+            background: "rgba(255,255,255,0.9)",
+            padding: "20px",
+            borderRadius: "8px",
+            maxWidth: "80%",
+          }}
+        >
           <h3>Failed to join meeting</h3>
           <p>{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             style={{
               marginTop: "15px",
@@ -154,14 +164,14 @@ const VideoCall = () => {
               color: "white",
               border: "none",
               borderRadius: "4px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             Try Again
           </button>
         </div>
       )}
-      
+
       <div ref={callContainer} style={{ width: "100%", height: "100%" }} />
     </div>
   );

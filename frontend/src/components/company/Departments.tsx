@@ -67,7 +67,7 @@ interface FormErrors {
 const Departments = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
-    []
+    [],
   );
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -93,7 +93,7 @@ const Departments = () => {
     const filtered = departments.filter(
       (dept) =>
         dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dept.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        dept.description?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
     setFilteredDepartments(filtered);
     setCurrentPage(1);
@@ -146,15 +146,15 @@ const Departments = () => {
         await api.put(
           `/company/departments/${selectedDepartment._id}`,
           formData,
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         setDepartments(
           departments.map((dept) =>
             dept._id === selectedDepartment._id
               ? { ...dept, ...formData }
-              : dept
-          )
+              : dept,
+          ),
         );
         toast.success("Department updated successfully!");
         handleCloseModal();
@@ -213,7 +213,7 @@ const Departments = () => {
   const totalPages = Math.ceil(filteredDepartments.length / ITEMS_PER_PAGE);
   const paginatedDepartments = filteredDepartments.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   return (
@@ -221,7 +221,9 @@ const Departments = () => {
       <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">Departments</CardTitle>
+            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              Departments
+            </CardTitle>
             <CardDescription className="text-sm text-gray-500">
               Manage your company's departments and organizational structure
             </CardDescription>
@@ -236,7 +238,7 @@ const Departments = () => {
         </div>
       </CardHeader>
       <CardContent className="p-6">
-      <div className="mb-6 bg-gray-50 p-4 rounded-xl shadow-sm">
+        <div className="mb-6 bg-gray-50 p-4 rounded-xl shadow-sm">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="flex items-center gap-2 flex-1 w-full relative">
               <Search className="absolute left-3 text-gray-400 w-5 h-5" />
@@ -320,7 +322,7 @@ const Departments = () => {
                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
                 {Math.min(
                   currentPage * ITEMS_PER_PAGE,
-                  filteredDepartments.length
+                  filteredDepartments.length,
                 )}{" "}
                 of {filteredDepartments.length} departments
               </div>

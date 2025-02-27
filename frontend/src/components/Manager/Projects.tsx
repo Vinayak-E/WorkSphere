@@ -1,8 +1,28 @@
 import { useState, useEffect } from "react";
-import { ScaleLoader } from 'react-spinners';
+import { ScaleLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, X, Calendar, ChevronLeft, ChevronRight, Search, Clock, Users, Building, Pencil, AlertCircle, ArrowRight, CalendarIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  PlusCircle,
+  X,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Clock,
+  Users,
+  Building,
+  Pencil,
+  AlertCircle,
+  ArrowRight,
+  CalendarIcon,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +37,7 @@ import { ProjectService } from "@/services/employee/project.service";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 function isEmployee(userData: unknown): userData is IEmployee {
-  return !!userData && typeof userData === 'object' && 'role' in userData;
+  return !!userData && typeof userData === "object" && "role" in userData;
 }
 
 const ProjectList = () => {
@@ -38,7 +58,7 @@ const ProjectList = () => {
     name: "",
     description: "",
     status: "Pending",
-    deadline: ""
+    deadline: "",
   });
 
   const debouncedSearch = useDebounce(searchQuery, 500);
@@ -51,13 +71,13 @@ const ProjectList = () => {
           page: currentPage,
           limit: projectsPerPage,
           search: debouncedSearch,
-          employeeId: employeeId
+          employeeId: employeeId,
         });
 
         setProjects(data);
         setTotalPages(totalPages);
       } catch (error) {
-        console.error('Error loading projects:', error);
+        console.error("Error loading projects:", error);
       } finally {
         setIsLoading(false);
       }
@@ -75,18 +95,29 @@ const ProjectList = () => {
       if (editedProject) {
         const updatedProject = await ProjectController.updateProject(
           editedProject._id,
-          newProject
+          newProject,
         );
-        setProjects(projects.map(p => p._id === updatedProject._id ? updatedProject : p));
+        setProjects(
+          projects.map((p) =>
+            p._id === updatedProject._id ? updatedProject : p,
+          ),
+        );
       } else {
-        const createdProject = await ProjectController.createProject(newProject, employeeId);
+        const createdProject = await ProjectController.createProject(
+          newProject,
+          employeeId,
+        );
         setProjects([createdProject, ...projects]);
       }
       setIsOpen(false);
-      setNewProject({ name: "", description: "", status: "Pending", deadline: "" });
+      setNewProject({
+        name: "",
+        description: "",
+        status: "Pending",
+        deadline: "",
+      });
       setEditedProject(null);
     } catch (error: any) {
-      
       try {
         const validationErrors = JSON.parse(error.message);
 
@@ -96,29 +127,33 @@ const ProjectList = () => {
         });
         setFormErrors(newErrors);
       } catch {
-        console.error('Error saving project:', error);
+        console.error("Error saving project:", error);
       }
     }
   };
 
-
   useEffect(() => {
     if (!isOpen) {
       setEditedProject(null);
-      setNewProject({ name: "", description: "", status: "Pending", deadline: "" });
+      setNewProject({
+        name: "",
+        description: "",
+        status: "Pending",
+        deadline: "",
+      });
       setFormErrors({});
     } else if (editedProject) {
       setNewProject({
         name: editedProject.name,
         description: editedProject.description,
         status: editedProject.status,
-        deadline: editedProject.deadline ? new Date(editedProject.deadline).toISOString().split('T')[0] : ""
+        deadline: editedProject.deadline
+          ? new Date(editedProject.deadline).toISOString().split("T")[0]
+          : "",
       });
       setFormErrors({});
     }
   }, [isOpen, editedProject]);
-
-
 
   const getDaysRemaining = (deadline: string | Date) => {
     const deadlineDate = new Date(deadline);
@@ -127,12 +162,9 @@ const ProjectList = () => {
     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   };
 
-
   const handleViewDetails = (projectId: string) => {
     navigate(`/employee/projects/${projectId}`);
   };
-
-
 
   if (isLoading) {
     return (
@@ -141,8 +173,6 @@ const ProjectList = () => {
       </div>
     );
   }
-
-
 
   return (
     <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
@@ -153,7 +183,9 @@ const ProjectList = () => {
               <Calendar className="w-6 h-6 text-blue-600" />
               Project Management
             </CardTitle>
-            <p className="text-sm text-gray-500">Track and manage your projects effectively</p>
+            <p className="text-sm text-gray-500">
+              Track and manage your projects effectively
+            </p>
           </div>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
@@ -163,47 +195,78 @@ const ProjectList = () => {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle className="text-lg">  {editedProject ? "Edit Project" : "Create New Project"} </DialogTitle>
+                <DialogTitle className="text-lg">
+                  {" "}
+                  {editedProject ? "Edit Project" : "Create New Project"}{" "}
+                </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Project Name</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Project Name
+                  </label>
                   <Input
                     value={newProject.name}
-                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                    onChange={(e) =>
+                      setNewProject({ ...newProject, name: e.target.value })
+                    }
                     required
                     className="focus:ring-2 focus:ring-blue-500"
                   />
-                    {formErrors.name && <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>}
+                  {formErrors.name && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.name}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Description</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Description
+                  </label>
                   <Input
                     value={newProject.description}
-                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewProject({
+                        ...newProject,
+                        description: e.target.value,
+                      })
+                    }
                     required
                     className="focus:ring-2 focus:ring-blue-500"
                   />
-                   {formErrors.description && <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>}
+                  {formErrors.description && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.description}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Deadline</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Deadline
+                  </label>
                   <Input
                     type="date"
                     value={newProject.deadline}
-                    onChange={(e) => setNewProject({ ...newProject, deadline: e.target.value })}
+                    onChange={(e) =>
+                      setNewProject({ ...newProject, deadline: e.target.value })
+                    }
                     required
                     className="focus:ring-2 focus:ring-blue-500"
-                    min={new Date().toISOString().split('T')[0]}
+                    min={new Date().toISOString().split("T")[0]}
                   />
-                  {newProject.deadline && new Date(newProject.deadline) < new Date() && (
-                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      Deadline cannot be in the past
+                  {newProject.deadline &&
+                    new Date(newProject.deadline) < new Date() && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        Deadline cannot be in the past
+                      </p>
+                    )}
+                  {formErrors.deadline && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.deadline}
                     </p>
                   )}
-                   {formErrors.deadline && <p className="text-red-500 text-sm mt-1">{formErrors.deadline}</p>}
                 </div>
                 <Button type="submit" className="w-full">
                   {editedProject ? "Edit Project" : "Create New Project"}
@@ -255,12 +318,20 @@ const ProjectList = () => {
                         status={project.status}
                         onStatusChange={async (newStatus) => {
                           try {
-                            const updatedProject = await ProjectService.updateProjectStatus(project._id, newStatus);
-                            setProjects(prevProjects => prevProjects.map(p =>
-                              p._id === project._id ? { ...p, status: updatedProject.status } : p
-                            ));
+                            const updatedProject =
+                              await ProjectService.updateProjectStatus(
+                                project._id,
+                                newStatus,
+                              );
+                            setProjects((prevProjects) =>
+                              prevProjects.map((p) =>
+                                p._id === project._id
+                                  ? { ...p, status: updatedProject.status }
+                                  : p,
+                              ),
+                            );
                           } catch (error) {
-                            console.error('Error updating status:', error);
+                            console.error("Error updating status:", error);
                           }
                         }}
                       />
@@ -286,11 +357,12 @@ const ProjectList = () => {
                     {project.description}
                   </p>
 
-
                   <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
                     <div className="flex items-center gap-2">
                       <Building className="w-4 h-4 text-gray-400" />
-                      <span className="truncate">{project.department?.name || 'No Department'}</span>
+                      <span className="truncate">
+                        {project.department?.name || "No Department"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-gray-400" />
@@ -303,36 +375,36 @@ const ProjectList = () => {
                           <span
                             className={
                               getDaysRemaining(project.deadline) < 0
-                                ? 'text-red-600 font-medium'
+                                ? "text-red-600 font-medium"
                                 : getDaysRemaining(project.deadline) < 7
-                                  ? 'text-yellow-600 font-medium'
-                                  : 'text-gray-600'
+                                  ? "text-yellow-600 font-medium"
+                                  : "text-gray-600"
                             }
                           >
                             {getDaysRemaining(project.deadline) < 0
-                              ? 'Overdue'
+                              ? "Overdue"
                               : `${getDaysRemaining(project.deadline)} days remaining`}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-
                           <CalendarIcon className="w-4 h-4 text-gray-400" />
-                          <span>{new Date(project.deadline).toLocaleDateString('en-GB')}</span>
+                          <span>
+                            {new Date(project.deadline).toLocaleDateString(
+                              "en-GB",
+                            )}
+                          </span>
                         </div>
                       </>
                     )}
                   </div>
 
-
-
-                  <Button variant='ghost'
+                  <Button
+                    variant="ghost"
                     className="w-full mt-4 rounded-[5px]  bg-primary/20 text-blue-700 hover:bg-primary transition-colors"
                     onClick={() => handleViewDetails(project._id)}
                   >
                     View Details <ArrowRight className="w-4 h-4 ml-2" />
-
                   </Button>
-
                 </div>
               </CardContent>
             </Card>
@@ -354,7 +426,7 @@ const ProjectList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="min-w-[100px]"
               >
@@ -363,7 +435,9 @@ const ProjectList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="min-w-[100px]"
               >
@@ -378,4 +452,3 @@ const ProjectList = () => {
 };
 
 export default ProjectList;
-

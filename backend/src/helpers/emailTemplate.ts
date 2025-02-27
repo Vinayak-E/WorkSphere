@@ -1,5 +1,5 @@
 export const companyApprovalTemplates = {
-    approved: (companyName: string) => `
+  approved: (companyName: string) => `
       Dear ${companyName},
   
       We are pleased to inform you that your request to register your company on WorkSphere has been **approved**. You can
@@ -10,8 +10,8 @@ export const companyApprovalTemplates = {
       Best regards,  
       The WorkSphere Team
     `,
-  
-    rejected: (companyName: string, reason: string) => `
+
+  rejected: (companyName: string, reason: string) => `
       Dear ${companyName},
   
       Thank you for your interest in registering your company on WorkSphere. After reviewing your application, we regret to
@@ -24,6 +24,5 @@ export const companyApprovalTemplates = {
   
       Best regards,  
       The WorkSphere Team
-    `
-  };
-  
+    `,
+};

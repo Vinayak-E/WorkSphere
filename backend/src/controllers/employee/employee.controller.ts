@@ -1,50 +1,45 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import { IAuthService } from "../../interfaces/company/company.types";
-import { IEmployeeService, IUpdateEmployee } from "../../interfaces/company/IEmployee.types";
+import { RequestHandler } from 'express';
+import { IAuthService } from '../../interfaces/company/company.types';
+import {
+  IEmployeeService,
+  IUpdateEmployee,
+} from '../../interfaces/company/IEmployee.types';
 
 export class EmployeeController {
-  constructor(private readonly authService: IAuthService,
-    private readonly  employeeService :IEmployeeService) {}
+  constructor(
+    private readonly authService: IAuthService,
+    private readonly employeeService: IEmployeeService
+  ) {}
 
-  changePassword: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  changePassword: RequestHandler = async (req, res, next) => {
     const { email, newPassword } = req.body;
     try {
-
       await this.authService.resetPassword(email, newPassword);
       res.status(200).json({
         success: true,
-        message: "Password Changed Successfully",
+        message: 'Password Changed Successfully',
       });
     } catch (error) {
       next(error);
     }
   };
 
-  getProfile: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  getProfile: RequestHandler = async (req, res, next) => {
     try {
-      
       if (!req.user?.email) {
-         res.status(401).json({
+        res.status(401).json({
           success: false,
-          message: "User email not found in token"
+          message: 'User email not found in token',
         });
-        return
+        return;
       }
 
       if (!req.tenantConnection) {
-         res.status(500).json({
+        res.status(500).json({
           success: false,
-          message: "Tenant connection not established"
+          message: 'Tenant connection not established',
         });
-        return
+        return;
       }
 
       const details = await this.employeeService.getEmployeeProfile(
@@ -52,274 +47,257 @@ export class EmployeeController {
         req.user.email
       );
 
-       res.status(200).json({
+      res.status(200).json({
         success: true,
-        data: details
+        data: details,
       });
     } catch (error) {
       next(error);
     }
   };
 
-
-
-
-
-  updateProfile: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  updateProfile: RequestHandler = async (req, res, next) => {
     try {
       const tenantConnection = req.tenantConnection;
-      
+
       if (!tenantConnection) {
-    res.status(500).json({ 
+        res.status(500).json({
           success: false,
-          message: "Tenant connection not established" 
+          message: 'Tenant connection not established',
         });
-        return
+        return;
       }
 
       const { id } = req.params;
-    
 
       if (!id) {
-         res.status(400).json({
-        success: false,
-        message: "Employee ID is required"
-      });
-      return
-    }
+        res.status(400).json({
+          success: false,
+          message: 'Employee ID is required',
+        });
+        return;
+      }
 
-    const updateData: IUpdateEmployee = req.body;
+      const updateData: IUpdateEmployee = req.body;
 
-      const updatedEmployee= await this.employeeService.updateProfile(
+      const updatedEmployee = await this.employeeService.updateProfile(
         id,
         tenantConnection,
-        updateData,
+        updateData
       );
 
-        res.status(200).json({
+      res.status(200).json({
         success: true,
-        message: "Employee updated successfully",
-        data: updatedEmployee
+        message: 'Employee updated successfully',
+        data: updatedEmployee,
       });
- 
     } catch (error) {
       next(error);
     }
   };
 
-  checkIn: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  checkIn: RequestHandler = async (req, res, next) => {
     try {
-        const { employeeId} = req.body;
-        const tenantConnection = req.tenantConnection;
-
-        if (!tenantConnection) {
-            res.status(500).json({
-                success: false,
-                message: "Tenant connection not established"
-            });
-            return;
-        }
-
-        if (!employeeId ) {
-            res.status(400).json({
-                success: false,
-                message: "Employee ID and Company ID are required"
-            });
-            return;
-        }
-
-        const attendance = await this.employeeService.checkIn(
-            tenantConnection,
-            employeeId
-        );
-
-        res.status(200).json({
-            success: true,
-            message: "Checked in successfully",
-            data: attendance
-        });
-    } catch (error) {
-       
-            next(error);
-        
-    }
-};
-
-checkOut: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  try {
       const { employeeId } = req.body;
       const tenantConnection = req.tenantConnection;
 
       if (!tenantConnection) {
-          res.status(500).json({
-              success: false,
-              message: "Tenant connection not established"
-          });
-          return;
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
       }
 
       if (!employeeId) {
-          res.status(400).json({
-              success: false,
-              message: "Employee ID is required"
-          });
-          return;
+        res.status(400).json({
+          success: false,
+          message: 'Employee ID and Company ID are required',
+        });
+        return;
+      }
+
+      const attendance = await this.employeeService.checkIn(
+        tenantConnection,
+        employeeId
+      );
+
+      res.status(200).json({
+        success: true,
+        message: 'Checked in successfully',
+        data: attendance,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  checkOut: RequestHandler = async (req, res, next) => {
+    try {
+      const { employeeId } = req.body;
+      const tenantConnection = req.tenantConnection;
+
+      if (!tenantConnection) {
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
+      }
+
+      if (!employeeId) {
+        res.status(400).json({
+          success: false,
+          message: 'Employee ID is required',
+        });
+        return;
       }
 
       const attendance = await this.employeeService.checkOut(
-          tenantConnection,
-          employeeId
+        tenantConnection,
+        employeeId
       );
 
       res.status(200).json({
-          success: true,
-          message: "Checked out successfully",
-          data: attendance
+        success: true,
+        message: 'Checked out successfully',
+        data: attendance,
       });
-  } catch (error) {
+    } catch (error) {
       next(error);
-  }
-};
+    }
+  };
 
-getAttendanceStatus: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id: employeeId } = req.params;
+  getAttendanceStatus: RequestHandler = async (req, res, next) => {
+    try {
+      const { id: employeeId } = req.params;
       const tenantConnection = req.tenantConnection;
 
-        
       if (!tenantConnection) {
-          res.status(500).json({
-              success: false,
-              message: "Tenant connection not established"
-          });
-          return;
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
       }
 
       const attendance = await this.employeeService.getAttendanceStatus(
-          tenantConnection,
-          employeeId
+        tenantConnection,
+        employeeId
       );
 
+      res.status(200).json({
+        success: true,
+        data: attendance,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 
+  getLeaves: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+      if (!tenantConnection) {
+        res
+          .status(500)
+          .json({ success: false, message: 'Tenant connection failed' });
+        return;
+      }
+
+      const email = req.user?.email;
+      if (!email) {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+        return;
+      }
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { startDate, endDate } = req.query;
+
+      const { leaves, total } = await this.employeeService.getLeaves(
+        tenantConnection,
+        email,
+        page,
+        limit,
+        startDate?.toString(),
+        endDate?.toString()
+      );
 
       res.status(200).json({
-          success: true,
-          data: attendance
+        success: true,
+        leaves,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
       });
-  } catch (error) {
+    } catch (error) {
       next(error);
-  }
-};
-
-getLeaves: RequestHandler = async (req, res, next) => {
-  try {
-    const tenantConnection = req.tenantConnection;
-    if (!tenantConnection) {
-      res.status(500).json({ success: false, message: "Tenant connection failed" })
-      return;
     }
+  };
 
-    const email = req.user?.email;
-    if (!email) {
-       res.status(401).json({ success: false, message: "Unauthorized" });
-       return;
+  applyLeave: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
+      if (!tenantConnection) {
+        res
+          .status(500)
+          .json({ success: false, message: 'Tenant connection failed' });
+        return;
+      }
+
+      const email = req.user?.email;
+      if (!email) {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+        return;
+      }
+
+      const { startDate, endDate, reason } = req.body;
+      const leave = await this.employeeService.applyLeave(
+        tenantConnection,
+        email,
+        startDate,
+        endDate,
+        reason
+      );
+
+      res.status(201).json({ success: true, data: leave });
+    } catch (error) {
+      next(error);
     }
+  };
 
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const { startDate, endDate } = req.query;
+  getDepartmentEmployees: RequestHandler = async (req, res, next) => {
+    try {
+      const tenantConnection = req.tenantConnection;
 
-    const { leaves, total } = await this.employeeService.getLeaves(
-      tenantConnection,
-      email,
-      page,
-      limit,
-      startDate?.toString(),
-      endDate?.toString()
-    );
+      if (!tenantConnection) {
+        res.status(500).json({
+          success: false,
+          message: 'Tenant connection not established',
+        });
+        return;
+      }
 
-    res.status(200).json({
-      success: true,
-      leaves,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+      const userEmail = req.user?.email;
+      if (!userEmail) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
 
-applyLeave: RequestHandler = async (req, res, next) => {
-  try {
-    const tenantConnection = req.tenantConnection;
-    if (!tenantConnection) {
-      res.status(500).json({ success: false, message: "Tenant connection failed" });
-      return 
-    }
+      const employees = await this.employeeService.getDepartmentEmployees(
+        tenantConnection,
+        userEmail
+      );
 
-    
-    const email = req.user?.email;
-    if (!email) {
-       res.status(401).json({ success: false, message: "Unauthorized" });
-       return
-    }
-
-    const { startDate, endDate, reason } = req.body;
-    const leave = await this.employeeService.applyLeave(
-      tenantConnection,
-      email,
-      startDate,
-      endDate,
-      reason
-    );
-
-    res.status(201).json({ success: true, data: leave });
-  } catch (error) {
-    next(error);
-  }
-};
-
-getDepartmentEmployees: RequestHandler = async (
-  req: Request,
-  res: Response, 
-  next: NextFunction
-) => {
-  try {
-    const tenantConnection = req.tenantConnection;
-    
-    if (!tenantConnection) {
-      res.status(500).json({
-        success: false,
-        message: "Tenant connection not established"
+      res.status(200).json({
+        success: true,
+        data: employees,
       });
-      return;
+    } catch (error) {
+      next(error);
     }
-
-    const userEmail = req.user?.email;
-    if (!userEmail) {
-      res.status(401).json({
-        success: false,
-        message: "User not authenticated"
-      });
-      return;
-    }
-
-    const employees = await this.employeeService.getDepartmentEmployees(
-      tenantConnection,
-      userEmail
-    );
-
-    res.status(200).json({
-      success: true,
-      data: employees
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
+  };
 }
-
-
-
-

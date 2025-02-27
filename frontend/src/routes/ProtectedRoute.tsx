@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
-import { setUser, logout } from '@/redux/slices/authSlice';
-import api from '@/api/axios';
-import { ScaleLoader } from 'react-spinners';
+import React, { useEffect, useState } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { setUser, logout } from "@/redux/slices/authSlice";
+import api from "@/api/axios";
+import { ScaleLoader } from "react-spinners";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[];
 }
 
-
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  allowedRoles,
+}) => {
   const [isLoading, setIsLoading] = useState(true);
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth,
+  );
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,22 +26,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        const response = await api.get('/auth/verify-token'); 
+        const response = await api.get("/auth/verify-token");
         if (response.data.success) {
-          dispatch(setUser({
-            email: response.data.email,
-            role: response.data.role,
-            tenantId: response.data.tenantId,
-            userData: response.data.userData
-          }));
+          dispatch(
+            setUser({
+              email: response.data.email,
+              role: response.data.role,
+              tenantId: response.data.tenantId,
+              userData: response.data.userData,
+            }),
+          );
         } else {
           dispatch(logout());
-          navigate('/login');
+          navigate("/login");
         }
       } catch (error) {
-        console.error('Token verification failed:', error);
+        console.error("Token verification failed:", error);
         dispatch(logout());
-        navigate('/login');
+        navigate("/login");
       } finally {
         setIsLoading(false);
       }

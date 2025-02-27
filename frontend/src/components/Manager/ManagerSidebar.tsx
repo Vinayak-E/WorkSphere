@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -8,28 +8,21 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuBadge,
-} from "@/components/ui/sidebar"
-import {
-  Home,
-  Calendar,
-  FileText,
-  Inbox,
-  Settings,
-  Video
-} from "lucide-react"
-import IMAGES from "@/assets/images/image"
+} from "@/components/ui/sidebar";
+import { Home, Calendar, FileText, Inbox, Settings, Video } from "lucide-react";
+import IMAGES from "@/assets/images/image";
 
 const items = [
-  { title: "Dashboard",       url: "/employee",         icon: Home },
-  { title: "Leaves",          url: "/employee/leaves",  icon: Calendar },
-  { title: "Projects",        url: "/employee/projects",icon: FileText },
-  { title: "Messages",        url: "/employee/chat",    icon: Inbox,    badge: 0 },
-  { title: "Meetings",         url: "/employee/meeting",icon: Video },
-  { title: "Settings",        url: "/employee/profile", icon: Settings },
-]
+  { title: "Dashboard", url: "/employee", icon: Home },
+  { title: "Leaves", url: "/employee/leaves", icon: Calendar },
+  { title: "Projects", url: "/employee/projects", icon: FileText },
+  { title: "Messages", url: "/employee/chat", icon: Inbox, badge: 0 },
+  { title: "Meetings", url: "/employee/meeting", icon: Video },
+  { title: "Settings", url: "/employee/profile", icon: Settings },
+];
 
 export function AppSidebar() {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <Sidebar
@@ -46,7 +39,11 @@ export function AppSidebar() {
       <SidebarContent className="flex flex-col  bg-white">
         <SidebarHeader className="px-14 py-3 border-none ">
           <div className="flex items-center space-x-2">
-            <img src={IMAGES.navBarLogoDark} alt="Logo" className="h-12 w-auto" />
+            <img
+              src={IMAGES.navBarLogoDark}
+              alt="Logo"
+              className="h-12 w-auto"
+            />
           </div>
         </SidebarHeader>
 
@@ -54,10 +51,9 @@ export function AppSidebar() {
           <SidebarGroupContent className="">
             <SidebarMenu>
               {items.map((item) => {
-                const isActive = location.pathname === item.url
+                const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>
-                    
                     <NavLink
                       to={item.url}
                       className={`group flex items-center gap-2 rounded-md px-4 py-2 transition-colors
@@ -82,19 +78,16 @@ export function AppSidebar() {
                       <span className="whitespace-nowrap">{item.title}</span>
 
                       {item.badge !== undefined && (
-                        <SidebarMenuBadge>
-                          {item.badge}
-                        </SidebarMenuBadge>
+                        <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
                       )}
                     </NavLink>
-              
                   </SidebarMenuItem>
-                )
+                );
               })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

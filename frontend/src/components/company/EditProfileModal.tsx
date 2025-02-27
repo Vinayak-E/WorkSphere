@@ -1,14 +1,22 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { CompanyController } from '@/controllers/company/company.controller';
-import { companyProfileSchema, CompanyProfileFormData } from '@/utils/companyValidations';
-import { Icompany } from '@/types/types';
-import { toast } from 'react-toastify';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CompanyController } from "@/controllers/company/company.controller";
+import {
+  companyProfileSchema,
+  CompanyProfileFormData,
+} from "@/utils/companyValidations";
+import { Icompany } from "@/types/types";
+import { toast } from "react-toastify";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -18,7 +26,13 @@ interface EditProfileModalProps {
   companyId: string;
 }
 
-const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: EditProfileModalProps) => {
+const EditProfileModal = ({
+  isOpen,
+  onClose,
+  company,
+  onUpdate,
+  companyId,
+}: EditProfileModalProps) => {
   const {
     register,
     handleSubmit,
@@ -29,14 +43,14 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
     defaultValues: {
       companyName: company.companyName,
       email: company.email,
-      phone: company.phone || '',
-      industry: company.industry || '',
-      businessRegNo: company.businessRegNo || '',
-      city: company.city || '',
-      state: company.state || '',
-      country: company.country || '',
-      zipcode: company.zipcode || '',
-    }
+      phone: company.phone || "",
+      industry: company.industry || "",
+      businessRegNo: company.businessRegNo || "",
+      city: company.city || "",
+      state: company.state || "",
+      country: company.country || "",
+      zipcode: company.zipcode || "",
+    },
   });
 
   useEffect(() => {
@@ -44,25 +58,28 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
       reset({
         companyName: company.companyName,
         email: company.email,
-        phone: company.phone || '',
-        industry: company.industry || '',
-        businessRegNo: company.businessRegNo || '',
-        city: company.city || '',
-        state: company.state || '',
-        country: company.country || '',
-        zipcode: company.zipcode || '',
+        phone: company.phone || "",
+        industry: company.industry || "",
+        businessRegNo: company.businessRegNo || "",
+        city: company.city || "",
+        state: company.state || "",
+        country: company.country || "",
+        zipcode: company.zipcode || "",
       });
     }
   }, [isOpen, company, reset]);
 
   const onSubmit = async (data: CompanyProfileFormData) => {
     try {
-      const updatedCompany = await CompanyController.handleProfileUpdate(data, companyId);
+      const updatedCompany = await CompanyController.handleProfileUpdate(
+        data,
+        companyId,
+      );
       onUpdate(updatedCompany);
-      toast.success('Company profile updated successfully');
+      toast.success("Company profile updated successfully");
       onClose();
     } catch (error) {
-      toast.error('Failed to update company profile');
+      toast.error("Failed to update company profile");
     }
   };
 
@@ -72,7 +89,7 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
         <DialogHeader>
           <DialogTitle>Edit Company Profile</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
@@ -82,17 +99,19 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                 <Label htmlFor="companyName">Company Name</Label>
                 <Input
                   id="companyName"
-                  {...register('companyName')}
+                  {...register("companyName")}
                   className="mt-1 bg-gray-200"
                   readOnly
                 />
               </div>
 
               <div>
-                <Label htmlFor="businessRegNo">Business Registration Number</Label>
+                <Label htmlFor="businessRegNo">
+                  Business Registration Number
+                </Label>
                 <Input
                   id="businessRegNo"
-                  {...register('businessRegNo')}
+                  {...register("businessRegNo")}
                   className="mt-1 bg-gray-200"
                   readOnly
                 />
@@ -100,13 +119,11 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
 
               <div>
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  {...register('phone')}
-                  className="mt-1"
-                />
+                <Input id="phone" {...register("phone")} className="mt-1" />
                 {errors.phone && (
-                  <p className="text-sm text-red-500 mt-1">{errors.phone.message}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.phone.message}
+                  </p>
                 )}
               </div>
 
@@ -114,11 +131,13 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                 <Label htmlFor="industry">Industry</Label>
                 <Input
                   id="industry"
-                  {...register('industry')}
+                  {...register("industry")}
                   className="mt-1"
                 />
                 {errors.industry && (
-                  <p className="text-sm text-red-500 mt-1">{errors.industry.message}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.industry.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -131,7 +150,7 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                 <Input
                   id="email"
                   type="email"
-                  {...register('email')}
+                  {...register("email")}
                   className="mt-1 bg-gray-200"
                   readOnly
                 />
@@ -142,39 +161,35 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
                 <Label>Address</Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Input
-                      placeholder="City"
-                      {...register('city')}
-                    />
+                    <Input placeholder="City" {...register("city")} />
                     {errors.city && (
-                      <p className="text-sm text-red-500 mt-1">{errors.city.message}</p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.city.message}
+                      </p>
                     )}
                   </div>
                   <div>
-                    <Input
-                      placeholder="State"
-                      {...register('state')}
-                    />
+                    <Input placeholder="State" {...register("state")} />
                     {errors.state && (
-                      <p className="text-sm text-red-500 mt-1">{errors.state.message}</p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.state.message}
+                      </p>
                     )}
                   </div>
                   <div>
-                    <Input
-                      placeholder="Country"
-                      {...register('country')}
-                    />
+                    <Input placeholder="Country" {...register("country")} />
                     {errors.country && (
-                      <p className="text-sm text-red-500 mt-1">{errors.country.message}</p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.country.message}
+                      </p>
                     )}
                   </div>
                   <div>
-                    <Input
-                      placeholder="ZIP Code"
-                      {...register('zipcode')}
-                    />
+                    <Input placeholder="ZIP Code" {...register("zipcode")} />
                     {errors.zipcode && (
-                      <p className="text-sm text-red-500 mt-1">{errors.zipcode.message}</p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.zipcode.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -191,11 +206,8 @@ const EditProfileModal = ({ isOpen, onClose, company, onUpdate, companyId }: Edi
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>

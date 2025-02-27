@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { toast} from 'react-toastify';
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-import IMAGES from '../assets/images/image';
+import IMAGES from "../assets/images/image";
 
-import { resendOtpService, verifyOtpService } from '../services/authService';
+import { resendOtpService, verifyOtpService } from "../services/authService";
 
 const OtpVerification = () => {
   const [searchParams] = useSearchParams();
-  const [otpMessage, setOtpMessage] = useState('');
+  const [otpMessage, setOtpMessage] = useState("");
   const [count, setCount] = useState(30);
   const navigate = useNavigate();
-  const email = searchParams.get('email') || '';
+  const email = searchParams.get("email") || "";
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [otpValues, setOtpValues] = useState(Array(6).fill(''));
+  const [otpValues, setOtpValues] = useState(Array(6).fill(""));
 
   useEffect(() => {
     inputRefs.current = inputRefs.current.slice(0, 6);
@@ -25,15 +25,17 @@ const OtpVerification = () => {
     try {
       await resendOtpService(email);
       setCount(30);
-      setOtpValues(Array(6).fill(''));
-      setOtpMessage('');
+      setOtpValues(Array(6).fill(""));
+      setOtpMessage("");
 
       if (inputRefs.current[0]) {
         inputRefs.current[0].focus();
       }
-      toast.success('A new OTP has been sent to your email!');
+      toast.success("A new OTP has been sent to your email!");
     } catch (error: unknown) {
-      setOtpMessage(error instanceof Error ? error.message : 'Failed to resend OTP');
+      setOtpMessage(
+        error instanceof Error ? error.message : "Failed to resend OTP",
+      );
     }
   };
 
@@ -54,16 +56,24 @@ const OtpVerification = () => {
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !otpValues[index] && index > 0 && inputRefs.current[index - 1]) {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (
+      e.key === "Backspace" &&
+      !otpValues[index] &&
+      index > 0 &&
+      inputRefs.current[index - 1]
+    ) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').slice(0, 6).split('');
-    if (!/^\d+$/.test(pastedData.join(''))) return;
+    const pastedData = e.clipboardData.getData("text").slice(0, 6).split("");
+    if (!/^\d+$/.test(pastedData.join(""))) return;
     const newOtpValues = [...otpValues];
     pastedData.forEach((value, index) => {
       if (index < 6) newOtpValues[index] = value;
@@ -73,27 +83,34 @@ const OtpVerification = () => {
 
   const handleVerification = async (e: React.FormEvent) => {
     e.preventDefault();
-    setOtpMessage('');
-    const otp = otpValues.join('');
+    setOtpMessage("");
+    const otp = otpValues.join("");
 
     if (otp.length !== 6) {
-      setOtpMessage('Please enter the complete 6-digit OTP');
+      setOtpMessage("Please enter the complete 6-digit OTP");
       return;
     }
     try {
       await verifyOtpService(email, otp);
-      toast.success('Your email has been successfully verified. Your account is pending administrative approval. You will receive an email once approved');
-      navigate('/login');
+      toast.success(
+        "Your email has been successfully verified. Your account is pending administrative approval. You will receive an email once approved",
+      );
+      navigate("/login");
     } catch (error: unknown) {
-      setOtpMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setOtpMessage(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
     }
   };
 
   return (
     <div className="min-h-screen bg-[#E9E9E9] p-3 md:p-6 lg:p-8 relative">
-      
       <div className="top-8 left-8">
-        <img src={IMAGES.navBarLogoDark} alt="WorkSphere Logo" className="w-32 h-auto" />
+        <img
+          src={IMAGES.navBarLogoDark}
+          alt="WorkSphere Logo"
+          className="w-32 h-auto"
+        />
       </div>
 
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
@@ -102,7 +119,8 @@ const OtpVerification = () => {
             Verify <span className="font-light">OTP</span>
           </h2>
           <p className="text-sm text-gray-500 mb-6">
-            An OTP has been sent to your email: <span className="font-semibold">{email}</span>
+            An OTP has been sent to your email:{" "}
+            <span className="font-semibold">{email}</span>
           </p>
 
           <form onSubmit={handleVerification} className="space-y-6">
@@ -114,7 +132,7 @@ const OtpVerification = () => {
               {otpValues.map((value, index) => (
                 <input
                   key={index}
-                  ref={el => inputRefs.current[index] = el}
+                  ref={(el) => (inputRefs.current[index] = el)}
                   type="text"
                   maxLength={1}
                   value={value}
@@ -131,7 +149,7 @@ const OtpVerification = () => {
                 onClick={resendOtp}
                 type="button"
                 className={`text-gray-700 hover:text-black ${
-                  count !== 0 && 'opacity-50 cursor-not-allowed'
+                  count !== 0 && "opacity-50 cursor-not-allowed"
                 } font-semibold transition-colors duration-200`}
                 disabled={count !== 0}
               >

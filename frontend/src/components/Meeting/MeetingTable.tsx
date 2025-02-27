@@ -73,7 +73,7 @@ const MeetingManagement: React.FC = () => {
   const [customEndDate, setCustomEndDate] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(
-    null
+    null,
   );
 
   const openDialog = (meetingId: string) => {
@@ -285,7 +285,7 @@ const MeetingManagement: React.FC = () => {
   };
 
   const filteredMeetings = meetings.filter((meeting) =>
-    meeting.meetTitle.toLowerCase().includes(searchQuery.toLowerCase())
+    meeting.meetTitle.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -302,172 +302,172 @@ const MeetingManagement: React.FC = () => {
             </p>
           </div>
           {(isManager || isCompany) && (
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    className="shadow-md hover:shadow-lg transition-shadow"
-                    onClick={() => {
-                      resetForm();
-                      setEditingMeeting(null);
-                    }}
-                  >
-                    <PlusCircle size={18} className="mr-2" /> New Meeting
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle className="text-lg">
-                      {editingMeeting ? "Edit Meeting" : "Create New Meeting"}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <form
-                    onSubmit={
-                      editingMeeting ? handleEditMeeting : handleCreateMeeting
-                    }
-                    className="space-y-4"
-                  >
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Meeting Title
-                      </label>
-                      <Input
-                        value={meetingForm.meetTitle}
-                        onChange={(e) => {
-                          setMeetingForm({
-                            ...meetingForm,
-                            meetTitle: e.target.value,
-                          });
-                          setFormErrors({
-                            ...formErrors,
-                            meetTitle: undefined,
-                          });
-                        }}
-                        className={`focus:ring-2 ${formErrors.meetTitle ? "border-red-500" : "focus:ring-blue-500"}`}
-                      />
-                      {formErrors.meetTitle && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.meetTitle}
-                        </p>
-                      )}
-                    </div>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  className="shadow-md hover:shadow-lg transition-shadow"
+                  onClick={() => {
+                    resetForm();
+                    setEditingMeeting(null);
+                  }}
+                >
+                  <PlusCircle size={18} className="mr-2" /> New Meeting
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="text-lg">
+                    {editingMeeting ? "Edit Meeting" : "Create New Meeting"}
+                  </DialogTitle>
+                </DialogHeader>
+                <form
+                  onSubmit={
+                    editingMeeting ? handleEditMeeting : handleCreateMeeting
+                  }
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Meeting Title
+                    </label>
+                    <Input
+                      value={meetingForm.meetTitle}
+                      onChange={(e) => {
+                        setMeetingForm({
+                          ...meetingForm,
+                          meetTitle: e.target.value,
+                        });
+                        setFormErrors({
+                          ...formErrors,
+                          meetTitle: undefined,
+                        });
+                      }}
+                      className={`focus:ring-2 ${formErrors.meetTitle ? "border-red-500" : "focus:ring-blue-500"}`}
+                    />
+                    {formErrors.meetTitle && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.meetTitle}
+                      </p>
+                    )}
+                  </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Date
-                      </label>
-                      <Input
-                        type="date"
-                        value={meetingForm.meetDate}
-                        min={new Date().toISOString().split("T")[0]}
-                        onChange={(e) => {
-                          setMeetingForm({
-                            ...meetingForm,
-                            meetDate: e.target.value,
-                          });
-                          setFormErrors({ ...formErrors, meetDate: undefined });
-                        }}
-                        className={`focus:ring-2 ${formErrors.meetDate ? "border-red-500" : "focus:ring-blue-500"}`}
-                      />
-                      {formErrors.meetDate && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.meetDate}
-                        </p>
-                      )}
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={meetingForm.meetDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => {
+                        setMeetingForm({
+                          ...meetingForm,
+                          meetDate: e.target.value,
+                        });
+                        setFormErrors({ ...formErrors, meetDate: undefined });
+                      }}
+                      className={`focus:ring-2 ${formErrors.meetDate ? "border-red-500" : "focus:ring-blue-500"}`}
+                    />
+                    {formErrors.meetDate && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.meetDate}
+                      </p>
+                    )}
+                  </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Time
-                      </label>
-                      <Input
-                        type="time"
-                        value={meetingForm.meetTime}
-                        onChange={(e) => {
-                          setMeetingForm({
-                            ...meetingForm,
-                            meetTime: e.target.value,
-                          });
-                          setFormErrors({ ...formErrors, meetTime: undefined });
-                        }}
-                        className={`focus:ring-2 ${formErrors.meetTime ? "border-red-500" : "focus:ring-blue-500"}`}
-                      />
-                      {formErrors.meetTime && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.meetTime}
-                        </p>
-                      )}
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Time
+                    </label>
+                    <Input
+                      type="time"
+                      value={meetingForm.meetTime}
+                      onChange={(e) => {
+                        setMeetingForm({
+                          ...meetingForm,
+                          meetTime: e.target.value,
+                        });
+                        setFormErrors({ ...formErrors, meetTime: undefined });
+                      }}
+                      className={`focus:ring-2 ${formErrors.meetTime ? "border-red-500" : "focus:ring-blue-500"}`}
+                    />
+                    {formErrors.meetTime && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.meetTime}
+                      </p>
+                    )}
+                  </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Select Members
-                      </label>
-                      <div
-                        className={`h-40 overflow-y-auto border rounded-lg p-2 ${
-                          formErrors.members ? "border-red-500" : ""
-                        }`}
-                      >
-                        {employees.map((emp) => (
-                          <div
-                            key={emp._id}
-                            className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded"
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Select Members
+                    </label>
+                    <div
+                      className={`h-40 overflow-y-auto border rounded-lg p-2 ${
+                        formErrors.members ? "border-red-500" : ""
+                      }`}
+                    >
+                      {employees.map((emp) => (
+                        <div
+                          key={emp._id}
+                          className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded"
+                        >
+                          <input
+                            type="checkbox"
+                            id={`emp-${emp._id}`}
+                            checked={meetingForm.members.includes(emp._id)}
+                            onChange={() => {
+                              const updatedMembers =
+                                meetingForm.members.includes(emp._id)
+                                  ? meetingForm.members.filter(
+                                      (id) => id !== emp._id,
+                                    )
+                                  : [...meetingForm.members, emp._id];
+                              setMeetingForm({
+                                ...meetingForm,
+                                members: updatedMembers,
+                              });
+                              setFormErrors({
+                                ...formErrors,
+                                members: undefined,
+                              });
+                            }}
+                            className="w-4 h-4 mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <label
+                            htmlFor={`emp-${emp._id}`}
+                            className="text-sm text-gray-700 cursor-pointer select-none"
                           >
-                            <input
-                              type="checkbox"
-                              id={`emp-${emp._id}`}
-                              checked={meetingForm.members.includes(emp._id)}
-                              onChange={() => {
-                                const updatedMembers =
-                                  meetingForm.members.includes(emp._id)
-                                    ? meetingForm.members.filter(
-                                        (id) => id !== emp._id
-                                      )
-                                    : [...meetingForm.members, emp._id];
-                                setMeetingForm({
-                                  ...meetingForm,
-                                  members: updatedMembers,
-                                });
-                                setFormErrors({
-                                  ...formErrors,
-                                  members: undefined,
-                                });
-                              }}
-                              className="w-4 h-4 mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <label
-                              htmlFor={`emp-${emp._id}`}
-                              className="text-sm text-gray-700 cursor-pointer select-none"
-                            >
-                              {emp.name}
-                            </label>
-                          </div>
-                        ))}
-                        {employees.filter(
-                          (emp) => emp._id !== currentUser?.userData._id
-                        ).length === 0 && (
-                          <div className="text-gray-500 text-sm text-center py-2">
-                            No members available
-                          </div>
-                        )}
-                      </div>
-                      {formErrors.members && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.members}
-                        </p>
+                            {emp.name}
+                          </label>
+                        </div>
+                      ))}
+                      {employees.filter(
+                        (emp) => emp._id !== currentUser?.userData._id,
+                      ).length === 0 && (
+                        <div className="text-gray-500 text-sm text-center py-2">
+                          No members available
+                        </div>
                       )}
                     </div>
+                    {formErrors.members && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.members}
+                      </p>
+                    )}
+                  </div>
 
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading
-                        ? "Processing..."
-                        : editingMeeting
-                          ? "Update Meeting"
-                          : "Create Meeting"}
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            )}
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading
+                      ? "Processing..."
+                      : editingMeeting
+                        ? "Update Meeting"
+                        : "Create Meeting"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </CardHeader>
 
@@ -571,8 +571,8 @@ const MeetingManagement: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {isManager ||
-                        (isCompany && (
+                      {isCompany ||
+                        (isManager && (
                           <>
                             <Button
                               variant="ghost"
@@ -581,7 +581,7 @@ const MeetingManagement: React.FC = () => {
                               className="text-gray-600 hover:text-gray-800"
                               disabled={isMeetingExpired(
                                 meeting.meetDate,
-                                meeting.meetTime
+                                meeting.meetTime,
                               )}
                             >
                               <Pencil className="w-4 h-4" />
@@ -618,7 +618,7 @@ const MeetingManagement: React.FC = () => {
                       } text-white`}
                       disabled={isMeetingExpired(
                         meeting.meetDate,
-                        meeting.meetTime
+                        meeting.meetTime,
                       )}
                     >
                       {isMeetingExpired(meeting.meetDate, meeting.meetTime) ? (

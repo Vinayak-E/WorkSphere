@@ -24,7 +24,9 @@ class BaseRepository<T extends Document> implements IBaseRepository<T> {
     try {
       return await this.model.findById(id).exec();
     } catch (error) {
-      throw new Error(`Error finding document by ID: ${(error as Error).message}`);
+      throw new Error(
+        `Error finding document by ID: ${(error as Error).message}`
+      );
     }
   }
 
@@ -40,7 +42,9 @@ class BaseRepository<T extends Document> implements IBaseRepository<T> {
     try {
       return await this.model.findOne(query).exec();
     } catch (error) {
-      throw new Error(`Error finding one document: ${(error as Error).message}`);
+      throw new Error(
+        `Error finding one document: ${(error as Error).message}`
+      );
     }
   }
 
@@ -60,11 +64,16 @@ class BaseRepository<T extends Document> implements IBaseRepository<T> {
     }
   }
 
-  async findByIdAndPopulate(id: string, populateFields: (string | PopulateOptions)[]): Promise<T | null> {
+  async findByIdAndPopulate(
+    id: string,
+    populateFields: (string | PopulateOptions)[]
+  ): Promise<T | null> {
     try {
       return await this.model.findById(id).populate(populateFields).exec();
     } catch (error) {
-      throw new Error(`Error finding and populating document: ${(error as Error).message}`);
+      throw new Error(
+        `Error finding and populating document: ${(error as Error).message}`
+      );
     }
   }
 }

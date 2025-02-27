@@ -1,21 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Calendar, ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import api from '@/api/axios';
+import api from "@/api/axios";
 
 const AttendanceList = () => {
   const [attendance, setAttendance] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [loading, setLoading] = useState(false);
 
   const fetchAttendance = async () => {
@@ -23,7 +29,7 @@ const AttendanceList = () => {
     try {
       const queryParams = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '10',
+        limit: "10",
         date: date,
       });
       const response = await api.get(`/company/attendance?${queryParams}`);
@@ -31,45 +37,44 @@ const AttendanceList = () => {
       setAttendance(data.attendance);
       setTotalPages(Math.ceil(data.total / 10));
     } catch (error) {
-      console.error('Error fetching attendance:', error);
+      console.error("Error fetching attendance:", error);
     }
     setLoading(false);
   };
-   
+
   useEffect(() => {
     fetchAttendance();
   }, [currentPage, date]);
 
   const formatTime = (dateString) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatWorkHours = (hours) => {
-    if (!hours) return '0h 0m';
-    
+    if (!hours) return "0h 0m";
 
     const wholeHours = Math.floor(hours);
     const minutes = Math.round((hours - wholeHours) * 60);
-    
+
     return `${wholeHours}h ${minutes}m`;
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Present':
-        return 'bg-green-100 text-green-800';
-      case 'Absent':
-        return 'bg-red-100 text-red-800';
-      case 'On Leave':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Half Day Leave':
-        return 'bg-orange-100 text-orange-800';
+      case "Present":
+        return "bg-green-100 text-green-800";
+      case "Absent":
+        return "bg-red-100 text-red-800";
+      case "On Leave":
+        return "bg-yellow-100 text-yellow-800";
+      case "Half Day Leave":
+        return "bg-orange-100 text-orange-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -83,9 +88,8 @@ const AttendanceList = () => {
               Attendance List
             </CardTitle>
             <CardDescription className="text-sm text-gray-500">
-            Monitor employee attendance and working hours
+              Monitor employee attendance and working hours
             </CardDescription>
-           
           </div>
         </div>
       </CardHeader>
@@ -104,9 +108,9 @@ const AttendanceList = () => {
               />
             </div>
             <div className="flex gap-2 w-full md:w-auto">
-              <Button 
-                variant="outline" 
-                onClick={() => setDate(new Date().toISOString().split('T')[0])}
+              <Button
+                variant="outline"
+                onClick={() => setDate(new Date().toISOString().split("T")[0])}
                 className="flex items-center gap-2 w-full md:w-auto"
               >
                 <X className="w-4 h-4" /> Reset to Today
@@ -121,15 +125,15 @@ const AttendanceList = () => {
               <thead className="bg-gray-50">
                 <tr>
                   {[
-                    'Employee ID',
-                    'Employee',
-                    'Check In',
-                    'Check Out',
-                    'Total Hours',
-                    'Status',
+                    "Employee ID",
+                    "Employee",
+                    "Check In",
+                    "Check Out",
+                    "Total Hours",
+                    "Status",
                   ].map((header) => (
-                    <th 
-                      key={header} 
+                    <th
+                      key={header}
                       className="px-4 py-3 text-left text-sm font-semibold text-gray-600 whitespace-nowrap"
                     >
                       {header}
@@ -139,7 +143,10 @@ const AttendanceList = () => {
               </thead>
               <tbody className="divide-y">
                 {attendance.map((record) => (
-                  <tr key={record._id} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={record._id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
                       {record.employeeId.employeeId}
                     </td>
@@ -166,12 +173,18 @@ const AttendanceList = () => {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}>
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}
+                            >
                               {record.status}
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>{record.totalWorkedTime >= 480 ? 'Full day completed' : 'Partial day'}</p>
+                            <p>
+                              {record.totalWorkedTime >= 480
+                                ? "Full day completed"
+                                : "Partial day"}
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -203,7 +216,7 @@ const AttendanceList = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="min-w-[100px]"
                 >
@@ -212,7 +225,9 @@ const AttendanceList = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="min-w-[100px]"
                 >

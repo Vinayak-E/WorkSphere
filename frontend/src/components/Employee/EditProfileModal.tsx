@@ -1,47 +1,66 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera } from 'lucide-react';
+import { Camera } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProfileController } from '../../controllers/employee/employee.controller';
-import { ProfileFormData } from '../../utils/validations'
+import { ProfileController } from "../../controllers/employee/employee.controller";
+import { ProfileFormData } from "../../utils/validations";
 
 interface FormErrors {
   [key: string]: string;
 }
 
 interface EditProfileModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    employee: any;
-    onUpdate: (updatedData: any) => void;
-    employeeId: string; 
-  }
-const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } :EditProfileModalProps) => {
-  const [formData, setFormData] = useState<ProfileFormData>({ ...employee,qualifications: [...(employee?.qualifications || [])]});
+  isOpen: boolean;
+  onClose: () => void;
+  employee: any;
+  onUpdate: (updatedData: any) => void;
+  employeeId: string;
+}
+const EditProfileModal = ({
+  isOpen,
+  onClose,
+  employee,
+  onUpdate,
+  employeeId,
+}: EditProfileModalProps) => {
+  const [formData, setFormData] = useState<ProfileFormData>({
+    ...employee,
+    qualifications: [...(employee?.qualifications || [])],
+  });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [imagePreview, setImagePreview] = useState(employee?.profilePicture);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, section: string, index: number | null = null) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    section: string,
+    index: number | null = null,
+  ) => {
     const { name, value } = e.target;
-    setErrors(prev => ({ ...prev, [name]: '' }));
-    
-    if (section === 'root') {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    } else if (section === 'address') {
-      setFormData(prev => ({
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    if (section === "root") {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else if (section === "address") {
+      setFormData((prev) => ({
         ...prev,
-        address: { ...prev.address, [name]: value }
+        address: { ...prev.address, [name]: value },
       }));
-    } else if (section === 'qualifications' && index !== null) {
+    } else if (section === "qualifications" && index !== null) {
       const newQualifications = [...formData.qualifications];
-      newQualifications[index] = {...newQualifications[index],[name]: value };
-      setFormData(prev => ({
+      newQualifications[index] = { ...newQualifications[index], [name]: value };
+      setFormData((prev) => ({
         ...prev,
-        qualifications: newQualifications
+        qualifications: newQualifications,
       }));
     }
   };
@@ -52,7 +71,7 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
-        setFormData(prev => ({ ...prev, profilePicture: file }));
+        setFormData((prev) => ({ ...prev, profilePicture: file }));
       };
       reader.readAsDataURL(file);
     }
@@ -61,8 +80,11 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      setErrors({}); 
-      const updatedProfile = await ProfileController.handleProfileUpdate(formData, employeeId);
+      setErrors({});
+      const updatedProfile = await ProfileController.handleProfileUpdate(
+        formData,
+        employeeId,
+      );
       onUpdate(updatedProfile);
       onClose();
     } catch (error) {
@@ -75,7 +97,7 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
           });
           setErrors(formattedErrors);
         } catch {
-          console.error('Error updating profile:', error);
+          console.error("Error updating profile:", error);
         }
       }
     } finally {
@@ -125,14 +147,14 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                     <Input
                       name="name"
                       value={formData.name}
-                      onChange={(e) => handleInputChange(e, 'root')}
-
+                      onChange={(e) => handleInputChange(e, "root")}
                       placeholder="Enter your full name"
-                      className={`h-10 ${errors.name ? 'border-red-500' : ''}`}
-
+                      className={`h-10 ${errors.name ? "border-red-500" : ""}`}
                     />
                     {errors.name && (
-                      <span className="text-sm text-red-500">{errors.name}</span>
+                      <span className="text-sm text-red-500">
+                        {errors.name}
+                      </span>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -141,7 +163,7 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                       name="email"
                       readOnly
                       value={formData.email}
-                      onChange={(e) => handleInputChange(e, 'root')}
+                      onChange={(e) => handleInputChange(e, "root")}
                       className="h-10  bg-gray-200"
                       placeholder="Enter your email"
                     />
@@ -151,13 +173,14 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                     <Input
                       name="mobile"
                       value={formData.mobile}
-                      onChange={(e) => handleInputChange(e, 'root')}
-
+                      onChange={(e) => handleInputChange(e, "root")}
                       placeholder="Enter your mobile number"
-                      className={`h-10 ${errors.mobile ? 'border-red-500' : ''}`}
+                      className={`h-10 ${errors.mobile ? "border-red-500" : ""}`}
                     />
                     {errors.mobile && (
-                      <span className="text-sm text-red-500">{errors.mobile}</span>
+                      <span className="text-sm text-red-500">
+                        {errors.mobile}
+                      </span>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -165,9 +188,9 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                     <Input
                       type="date"
                       name="dob"
-                      value={formData.dob?.split('T')[0]}
-                      onChange={(e) => handleInputChange(e, 'root')}
-                      className={`h-10 ${errors.dob ? 'border-red-500' : ''}`}
+                      value={formData.dob?.split("T")[0]}
+                      onChange={(e) => handleInputChange(e, "root")}
+                      className={`h-10 ${errors.dob ? "border-red-500" : ""}`}
                     />
                     {errors.dob && (
                       <span className="text-sm text-red-500">{errors.dob}</span>
@@ -178,8 +201,6 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
             </div>
           </TabsContent>
 
-
-
           <TabsContent value="address" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -187,11 +208,13 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                 <Input
                   name="city"
                   value={formData.address?.city}
-                  onChange={(e) => handleInputChange(e, 'address')}
-                  className={errors['address.city'] ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange(e, "address")}
+                  className={errors["address.city"] ? "border-red-500" : ""}
                 />
-                {errors['address.city'] && (
-                  <span className="text-sm text-red-500">{errors['address.city']}</span>
+                {errors["address.city"] && (
+                  <span className="text-sm text-red-500">
+                    {errors["address.city"]}
+                  </span>
                 )}
               </div>
               <div className="space-y-2">
@@ -199,11 +222,13 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                 <Input
                   name="state"
                   value={formData.address?.state}
-                  onChange={(e) => handleInputChange(e, 'address')}
-                  className={errors['address.state'] ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange(e, "address")}
+                  className={errors["address.state"] ? "border-red-500" : ""}
                 />
-                {errors['address.state'] && (
-                  <span className="text-sm text-red-500">{errors['address.state']}</span>
+                {errors["address.state"] && (
+                  <span className="text-sm text-red-500">
+                    {errors["address.state"]}
+                  </span>
                 )}
               </div>
               <div className="space-y-2">
@@ -211,11 +236,13 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                 <Input
                   name="zipCode"
                   value={formData.address?.zipCode}
-                  onChange={(e) => handleInputChange(e, 'address')}
-                  className={errors['address.zipCode'] ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange(e, "address")}
+                  className={errors["address.zipCode"] ? "border-red-500" : ""}
                 />
-                {errors['address.zipCode'] && (
-                  <span className="text-sm text-red-500">{errors['address.zipCode']}</span>
+                {errors["address.zipCode"] && (
+                  <span className="text-sm text-red-500">
+                    {errors["address.zipCode"]}
+                  </span>
                 )}
               </div>
               <div className="space-y-2">
@@ -223,11 +250,13 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                 <Input
                   name="country"
                   value={formData.address?.country}
-                  onChange={(e) => handleInputChange(e, 'address')}
-                  className={errors['address.country'] ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange(e, "address")}
+                  className={errors["address.country"] ? "border-red-500" : ""}
                 />
-                {errors['address.country'] && (
-                  <span className="text-sm text-red-500">{errors['address.country']}</span>
+                {errors["address.country"] && (
+                  <span className="text-sm text-red-500">
+                    {errors["address.country"]}
+                  </span>
                 )}
               </div>
             </div>
@@ -236,15 +265,20 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
           <TabsContent value="qualifications" className="space-y-4">
             {formData.qualifications.map((qual, index) => (
               <div key={index} className="relative border p-4 rounded-lg">
-
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Degree</Label>
                     <Input
                       name="degree"
                       value={qual.degree}
-                      onChange={(e) => handleInputChange(e, 'qualifications', index)}
-                      className={errors[`qualifications.${index}.degree`] ? 'border-red-500' : ''}
+                      onChange={(e) =>
+                        handleInputChange(e, "qualifications", index)
+                      }
+                      className={
+                        errors[`qualifications.${index}.degree`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
                     {errors[`qualifications.${index}.degree`] && (
                       <span className="text-sm text-red-500">
@@ -257,8 +291,14 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                     <Input
                       name="institution"
                       value={qual.institution}
-                      onChange={(e) => handleInputChange(e, 'qualifications', index)}
-                      className={errors[`qualifications.${index}.institution`] ? 'border-red-500' : ''}
+                      onChange={(e) =>
+                        handleInputChange(e, "qualifications", index)
+                      }
+                      className={
+                        errors[`qualifications.${index}.institution`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
                     {errors[`qualifications.${index}.institution`] && (
                       <span className="text-sm text-red-500">
@@ -271,8 +311,14 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                     <Input
                       name="yearOfCompletion"
                       value={qual.yearOfCompletion}
-                      onChange={(e) => handleInputChange(e, 'qualifications', index)}
-                      className={errors[`qualifications.${index}.yearOfCompletion`] ? 'border-red-500' : ''}
+                      onChange={(e) =>
+                        handleInputChange(e, "qualifications", index)
+                      }
+                      className={
+                        errors[`qualifications.${index}.yearOfCompletion`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
                     {errors[`qualifications.${index}.yearOfCompletion`] && (
                       <span className="text-sm text-red-500">
@@ -283,7 +329,6 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
                 </div>
               </div>
             ))}
-
           </TabsContent>
         </Tabs>
 
@@ -292,7 +337,7 @@ const EditProfileModal = ({ isOpen, onClose, employee, onUpdate , employeeId  } 
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Saving...' : 'Save Changes'}
+            {loading ? "Saving..." : "Save Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

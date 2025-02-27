@@ -1,30 +1,38 @@
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
-const StatusButton = ({ status, className = '', disabled }) => {
+const StatusButton = ({ status, className = "", disabled }) => {
   const getStatusConfig = (status) => {
     switch (status) {
-      case 'Completed':
+      case "Completed":
         return {
           icon: CheckCircle,
-          baseStyle: 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200',
+          baseStyle:
+            "bg-green-50 hover:bg-green-100 text-green-700 border-green-200",
         };
-      case 'In Progress':
+      case "In Progress":
         return {
           icon: Clock,
-          baseStyle: 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200',
+          baseStyle:
+            "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200",
         };
       default:
         return {
           icon: AlertCircle,
-          baseStyle: 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200',
+          baseStyle:
+            "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200",
         };
     }
   };
@@ -33,24 +41,26 @@ const StatusButton = ({ status, className = '', disabled }) => {
   const Icon = config.icon;
 
   return (
-    <div className={`inline-flex  items-center gap-1.5 px-3 py-1 rounded-full border ${config.baseStyle} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+    <div
+      className={`inline-flex  items-center gap-1.5 px-3 py-1 rounded-full border ${config.baseStyle} ${className} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+    >
       <Icon className="w-4 h-4" />
       <span className="text-sm font-medium">{status}</span>
     </div>
   );
 };
 
-const ProjectStatusDropdown = ({ status, onStatusChange, className = '' }) => {
+const ProjectStatusDropdown = ({ status, onStatusChange, className = "" }) => {
   const [pendingStatus, setPendingStatus] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const getAvailableStatuses = (currentStatus) => {
     switch (currentStatus) {
-      case 'Pending':
-        return ['In Progress'];
-      case 'In Progress':
-        return ['Completed'];
-      case 'Completed':
+      case "Pending":
+        return ["In Progress"];
+      case "In Progress":
+        return ["Completed"];
+      case "Completed":
         return [];
       default:
         return [];
@@ -84,10 +94,13 @@ const ProjectStatusDropdown = ({ status, onStatusChange, className = '' }) => {
             className={`p-0 hover:bg-transparent ${className}`}
             disabled={availableStatuses.length === 0}
           >
-            <StatusButton status={status} disabled={availableStatuses.length === 0} />
+            <StatusButton
+              status={status}
+              disabled={availableStatuses.length === 0}
+            />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent 
+        <DropdownMenuContent
           className="w-48 p-1 bg-white rounded-lg shadow-lg border"
           onClick={stopPropagation}
         >
@@ -121,9 +134,7 @@ const ProjectStatusDropdown = ({ status, onStatusChange, className = '' }) => {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleConfirm}>
-              Confirm Change
-            </Button>
+            <Button onClick={handleConfirm}>Confirm Change</Button>
           </div>
         </DialogContent>
       </Dialog>

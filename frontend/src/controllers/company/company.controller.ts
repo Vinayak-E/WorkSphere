@@ -1,6 +1,9 @@
-import { CompanyService } from '../../services/company/company.service';
-import { companyProfileSchema, CompanyProfileFormData } from '../../utils/companyValidations';
-import { toast } from 'react-toastify';
+import { CompanyService } from "../../services/company/company.service";
+import {
+  companyProfileSchema,
+  CompanyProfileFormData,
+} from "../../utils/companyValidations";
+import { toast } from "react-toastify";
 
 export class CompanyController {
   static async getCompanyProfile() {
@@ -8,22 +11,30 @@ export class CompanyController {
       const profile = await CompanyService.getCompanyProfile();
       return profile;
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to fetch company profile");
+      toast.error(
+        error.response?.data?.message || "Failed to fetch company profile",
+      );
       throw error;
     }
   }
 
-  static async handleProfileUpdate(formData: CompanyProfileFormData, companyId: string) {
+  static async handleProfileUpdate(
+    formData: CompanyProfileFormData,
+    companyId: string,
+  ) {
     try {
       const validationResult = companyProfileSchema.safeParse(formData);
       if (!validationResult.success) {
-        const errors = validationResult.error.errors.map(error => ({
-          path: error.path.join('.'),
-          message: error.message
+        const errors = validationResult.error.errors.map((error) => ({
+          path: error.path.join("."),
+          message: error.message,
         }));
         throw new Error(JSON.stringify(errors));
       }
-      const updatedProfile = await CompanyService.updateCompanyProfile(formData, companyId);
+      const updatedProfile = await CompanyService.updateCompanyProfile(
+        formData,
+        companyId,
+      );
       return updatedProfile;
     } catch (error) {
       if (error instanceof Error) {

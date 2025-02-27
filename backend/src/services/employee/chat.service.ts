@@ -20,7 +20,8 @@ export class ChatService {
     tenantConnection: mongoose.Connection,
     userId: string
   ): Promise<'Employee' | 'Company'> {
-    const employeeModel = this.chatRepository.getEmployeeModel(tenantConnection);
+    const employeeModel =
+      this.chatRepository.getEmployeeModel(tenantConnection);
     const companyModel = this.chatRepository.getCompanyModel(tenantConnection);
     const employee = await employeeModel.findById(userId);
     if (employee) return 'Employee';
@@ -36,7 +37,10 @@ export class ChatService {
     currentUserRole: string
   ): Promise<IChatDocument | null> {
     const currentUserModel = this.determineUserModel(currentUserRole);
-    const otherUserModel = await this.getUserModelById(tenantConnection, userId);
+    const otherUserModel = await this.getUserModelById(
+      tenantConnection,
+      userId
+    );
 
     const existingChat = await this.chatRepository.findExistingChat(
       tenantConnection,
@@ -117,9 +121,9 @@ export class ChatService {
     mediaUrl?: string,
     type?: string
   ): Promise<IMessageDocument> {
-    console.log('senderrole',senderRole)
+    console.log('senderrole', senderRole);
     const senderModel = this.determineUserModel(senderRole);
-    console.log('senderModel',senderModel)
+    console.log('senderModel', senderModel);
     const newMessage = await this.chatRepository.createMessage(
       tenantConnection,
       {
@@ -178,7 +182,10 @@ export class ChatService {
     tenantConnection: mongoose.Connection,
     chatId: string
   ): Promise<IMessageDocument[]> {
-    return await this.chatRepository.findMessagesForChat(tenantConnection, chatId);
+    return await this.chatRepository.findMessagesForChat(
+      tenantConnection,
+      chatId
+    );
   }
 
   async markMessageAsRead(

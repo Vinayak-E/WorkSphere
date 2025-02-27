@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
-import { Users,Clock,Briefcase, ListChecks, BarChart2, CheckCircle, AlertCircle, BadgeInfo, PencilIcon, UserIcon} from "lucide-react";
+import {
+  Users,
+  Clock,
+  Briefcase,
+  ListChecks,
+  BarChart2,
+  CheckCircle,
+  AlertCircle,
+  BadgeInfo,
+  PencilIcon,
+  UserIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -24,7 +35,7 @@ const CompanyProjectDetails = () => {
       try {
         const response = await ProjectService.getProjectById(id!);
         setProject(response.data.project);
-        setTasks(response.data.tasks)
+        setTasks(response.data.tasks);
         setDepartmentEmployees(response.data.departmentEmployees);
       } catch (error) {
         navigate("/company/projects");
@@ -67,29 +78,25 @@ const CompanyProjectDetails = () => {
   const calculateProgress = (project: IProject) => {
     // First check if project is explicitly marked as completed
     if (project.status === "Completed") return 100;
-    
+
     // Task-based progress calculation
     const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.status === 'Completed').length;
-    
+    const completedTasks = tasks.filter(
+      (task) => task.status === "Completed",
+    ).length;
+
     if (totalTasks > 0) {
       return Math.round((completedTasks / totalTasks) * 100);
     }
-  
+
     // Fallback to timeline-based calculation
     if (!project.deadline || !project.createdAt) return 0;
-  
+
     const start = new Date(project.createdAt).getTime();
     const end = new Date(project.deadline).getTime();
     const now = Date.now();
-    
-    return Math.min(
-      Math.max(
-        ((now - start) / (end - start)) * 100,
-        0
-      ),
-      100
-    );
+
+    return Math.min(Math.max(((now - start) / (end - start)) * 100, 0), 100);
   };
 
   const handleProjectUpdate = (updatedProject: IProject) => {
@@ -133,7 +140,7 @@ const CompanyProjectDetails = () => {
           className={cn(
             "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium",
             statusDetails.color,
-            statusDetails.bgColor
+            statusDetails.bgColor,
           )}
         >
           {statusDetails.icon}
@@ -142,30 +149,30 @@ const CompanyProjectDetails = () => {
       </div>
 
       <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl">
-  <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
-    <div className="flex justify-between items-center">
-      <div>
-        <CardTitle className="text-3xl font-bold flex items-center gap-3">
-          <Briefcase className="w-8 h-8 text-blue-400" />
-          {project.name}
-        </CardTitle>
-        <div className="flex items-center gap-2 mt-2">
-          <UserIcon className="w-5 h-5 text-gray-500" />
-          <span className="text-md font-medium text-gray-700">
-            {project.manager.name}
-          </span>
-        </div>
-      </div>
-      <button
-         onClick={() => setIsEditModalOpen(true)}
-        className="p-2 rounded-full hover:bg-blue-200 transition focus:outline-none"
-        aria-label="Edit project details"
-      >
-        <PencilIcon className="w-6 h-6 text-gray-600" />
-      </button>
-    </div>
-    <p className="text-gray-500 text-lg mt-4">{project.description}</p>
-  </CardHeader>
+        <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-3xl font-bold flex items-center gap-3">
+                <Briefcase className="w-8 h-8 text-blue-400" />
+                {project.name}
+              </CardTitle>
+              <div className="flex items-center gap-2 mt-2">
+                <UserIcon className="w-5 h-5 text-gray-500" />
+                <span className="text-md font-medium text-gray-700">
+                  {project.manager.name}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="p-2 rounded-full hover:bg-blue-200 transition focus:outline-none"
+              aria-label="Edit project details"
+            >
+              <PencilIcon className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
+          <p className="text-gray-500 text-lg mt-4">{project.description}</p>
+        </CardHeader>
 
         <CardContent className="p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -199,7 +206,8 @@ const CompanyProjectDetails = () => {
                       <span>Tasks</span>
                     </div>
                     <p className="text-md font-medium">
-                    {tasks.filter(t => t.status === 'Completed').length} / {tasks.length} Completed
+                      {tasks.filter((t) => t.status === "Completed").length} /{" "}
+                      {tasks.length} Completed
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -223,7 +231,7 @@ const CompanyProjectDetails = () => {
                   className="h-3 bg-gray-200"
                   indicatorClassName={cn(
                     "transition-all rounded-full",
-                    progress === 100 ? "bg-green-500" : "bg-indigo-500"
+                    progress === 100 ? "bg-green-500" : "bg-indigo-500",
                   )}
                 />
                 <div className="flex justify-between text-sm text-gray-600">
@@ -262,7 +270,7 @@ const CompanyProjectDetails = () => {
                               {typeof task.assignee === "object"
                                 ? task.assignee.name
                                 : departmentEmployees.find(
-                                    (emp) => emp._id === task.assignee
+                                    (emp) => emp._id === task.assignee,
                                   )?.name || task.assignee}
                             </span>
                             <span className="flex items-center gap-2">
@@ -270,8 +278,8 @@ const CompanyProjectDetails = () => {
                               {new Date(task.deadline).toLocaleDateString()}
                             </span>
                             <h4 className="font-medium text-gray-900">
-                            {task.status}
-                          </h4>
+                              {task.status}
+                            </h4>
                           </div>
                         </div>
                       </CardContent>
@@ -284,12 +292,12 @@ const CompanyProjectDetails = () => {
         </CardContent>
       </Card>
       <EditProjectModal
-  project={project}
-  isOpen={isEditModalOpen}
-  onClose={() => setIsEditModalOpen(false)}
-  departmentEmployees={departmentEmployees}
-  onProjectUpdated={handleProjectUpdate}
-/>
+        project={project}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        departmentEmployees={departmentEmployees}
+        onProjectUpdated={handleProjectUpdate}
+      />
     </div>
   );
 };

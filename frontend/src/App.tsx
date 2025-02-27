@@ -1,9 +1,9 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { ThemeProvider } from "./components/LandingPage/themeProvider";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -22,7 +22,6 @@ function App() {
             draggable
             pauseOnHover
             theme="light"
-     
           />
           <Toaster position="top-right" />
         </BrowserRouter>

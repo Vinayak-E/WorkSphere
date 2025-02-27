@@ -1,29 +1,35 @@
-import { Bell, User, LogOut} from "lucide-react"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useState } from "react"
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '@/redux/store'
-import { logout } from '@/redux/slices/authSlice'
-import { Link, useNavigate } from 'react-router-dom'
-import api from '@/api/axios'
+import { Bell, User, LogOut } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { logout } from "@/redux/slices/authSlice";
+import { Link, useNavigate } from "react-router-dom";
+import api from "@/api/axios";
 
 export function Header() {
-
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { user } = useSelector((state: RootState) => state.auth)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const handleLogout = async () => {
     try {
-      await api.post('/auth/logout') 
-      dispatch(logout())
-      navigate('/login')
+      await api.post("/auth/logout");
+      dispatch(logout());
+      navigate("/login");
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error("Logout failed:", error);
     }
-  }
+  };
 
   return (
     <header className="border-b border-gray-100 bg-gradient-to-r from-blue-100 to-blue-200">
@@ -33,9 +39,9 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="relative hover:bg-gray-100"
           >
             <Bell className="h-5 w-5 text-gray-600" />
@@ -43,11 +49,14 @@ export function Header() {
               3
             </span>
           </Button>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon"
-                className="rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200"
+              >
                 <User className="h-5 w-5 text-gray-600" />
               </Button>
             </DropdownMenuTrigger>
@@ -60,17 +69,17 @@ export function Header() {
               {/* <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem> */}
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                className="text-red-600 " 
+              <DropdownMenuItem
+                className="text-red-600 "
                 onClick={handleLogout}
               >
                 Log out
-                  <LogOut className="h-5 w-5 text-red-600 " />
+                <LogOut className="h-5 w-5 text-red-600 " />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
     </header>
-  )
+  );
 }

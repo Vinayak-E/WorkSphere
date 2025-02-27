@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import api from '../../api/axios';
-import { RootState } from '@/redux/store';
-import { useSelector } from 'react-redux';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../api/axios";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
 interface FormState {
   newPassword: string;
@@ -14,34 +14,33 @@ const PasswordChange: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formState, setFormState] = useState<FormState>({
-    newPassword: '',
-    confirmPassword: ''
+    newPassword: "",
+    confirmPassword: "",
   });
   const { user } = useSelector((state: RootState) => state.auth);
-  console.log('user details from ',user)
+  console.log("user details from ", user);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formState.newPassword !== formState.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       return;
     }
 
     if (formState.newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters long');
+      toast.error("Password must be at least 8 characters long");
       return;
     }
 
     setIsSubmitting(true);
     try {
-     
-      const response = await api.post('/employee/changePassword', {
+      const response = await api.post("/employee/changePassword", {
         email: user.email,
-        newPassword: formState.newPassword
+        newPassword: formState.newPassword,
       });
 
       if (response.status === 200) {
-        toast.success('Password changed successfully!');
+        toast.success("Password changed successfully!");
 
         const role = user.role;
         switch (role) {
@@ -65,7 +64,7 @@ const PasswordChange: React.FC = () => {
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error('Failed to change password');
+        toast.error("Failed to change password");
       }
     } finally {
       setIsSubmitting(false);
@@ -83,7 +82,7 @@ const PasswordChange: React.FC = () => {
             Please set a new password to continue
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -92,10 +91,12 @@ const PasswordChange: React.FC = () => {
                 required
                 placeholder="New Password"
                 value={formState.newPassword}
-                onChange={(e) => setFormState(prev => ({
-                  ...prev,
-                  newPassword: e.target.value
-                }))}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    newPassword: e.target.value,
+                  }))
+                }
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               />
             </div>
@@ -105,10 +106,12 @@ const PasswordChange: React.FC = () => {
                 required
                 placeholder="Confirm Password"
                 value={formState.confirmPassword}
-                onChange={(e) => setFormState(prev => ({
-                  ...prev,
-                  confirmPassword: e.target.value
-                }))}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    confirmPassword: e.target.value,
+                  }))
+                }
                 className="appearance-none rounded-none relative block w-full px-3 py-2 mt-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               />
             </div>
@@ -120,7 +123,7 @@ const PasswordChange: React.FC = () => {
               disabled={isSubmitting}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {isSubmitting ? 'Changing Password...' : 'Change Password'}
+              {isSubmitting ? "Changing Password..." : "Change Password"}
             </button>
           </div>
         </form>

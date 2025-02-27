@@ -2,10 +2,41 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Plus, Loader2, Search, Edit, ChevronLeft, ChevronRight, Calendar, X } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,} from "@/components/ui/alert-dialog";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import {
+  Plus,
+  Loader2,
+  Search,
+  Edit,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  X,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "react-toastify";
 import api from "@/api/axios";
 
@@ -15,36 +46,36 @@ import { ScaleLoader } from "react-spinners";
 const ITEMS_PER_PAGE = 10;
 
 interface Employee {
+  _id: string;
+  name: string;
+  email: string;
+  mobile: string;
+  dob: string;
+  workMode: string;
+  department: {
     _id: string;
     name: string;
-    email: string;
-    mobile: string;
-    dob :string
-    workMode:string;
-    department: {
-      _id: string;
-      name: string;
-    };
-    position: string;
-    gender: string;
-    status: string;
-    role: string;
-    salary?: string;
-    employmentStartDate?: string;
-    profilePicture?: string;
-    address?: {
-      city?: string;
-      state?: string;
-      zipCode?: string;
-      country?: string;
-    };
-    qualifications?: Array<{
-      degree?: string;
-      institution?: string;
-      yearOfCompletion?: number;
-    }>;
-  }
-  
+  };
+  position: string;
+  gender: string;
+  status: string;
+  role: string;
+  salary?: string;
+  employmentStartDate?: string;
+  profilePicture?: string;
+  address?: {
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  qualifications?: Array<{
+    degree?: string;
+    institution?: string;
+    yearOfCompletion?: number;
+  }>;
+}
+
 interface Department {
   _id: string;
   name: string;
@@ -59,7 +90,9 @@ const MyTeam = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditMode, setIsEditMode] = useState(false);
   const [open, setOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null,
+  );
   const [showStatusAlert, setShowStatusAlert] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
 
@@ -76,18 +109,19 @@ const MyTeam = () => {
     workMode: "On-Site",
     salary: "",
     profilePicture: null,
-    qualifications: [{
-      degree: "",
-      institution: "",
-      yearOfCompletion: ""
-    }],
+    qualifications: [
+      {
+        degree: "",
+        institution: "",
+        yearOfCompletion: "",
+      },
+    ],
     address: {
-
       city: "",
       state: "",
       zipCode: "",
-      country: ""
-    }
+      country: "",
+    },
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -100,7 +134,7 @@ const MyTeam = () => {
     setIsLoading(true);
     try {
       const response = await api.get("/company/employees");
-      console.log("employees data at user",response.data.data);
+      console.log("employees data at user", response.data.data);
       setEmployees(response.data.data);
     } catch (error) {
       toast.error("Failed to load employees. Please try again.");
@@ -113,7 +147,9 @@ const MyTeam = () => {
   const fetchDepartments = async () => {
     try {
       const response = await api.get("/company/departments");
-      const activeDepartments = response.data.data.filter(dept => dept.status === "Active");
+      const activeDepartments = response.data.data.filter(
+        (dept) => dept.status === "Active",
+      );
       setDepartments(activeDepartments);
     } catch (error) {
       toast.error("Failed to load departments. Please try again.");
@@ -121,33 +157,30 @@ const MyTeam = () => {
     }
   };
 
- 
   const handleChange = (value: any, fieldPath: string) => {
-    setFormData(prev => {
-      const fields = fieldPath.split('.');
-      const newData = JSON.parse(JSON.stringify(prev)); 
-      
+    setFormData((prev) => {
+      const fields = fieldPath.split(".");
+      const newData = JSON.parse(JSON.stringify(prev));
+
       let current: any = newData;
       for (let i = 0; i < fields.length - 1; i++) {
         const key = fields[i];
         if (!current[key]) current[key] = {};
         current = current[key];
       }
-      
+
       const lastField = fields[fields.length - 1];
       current[lastField] = value;
-      
+
       return newData;
     });
-  
-    
-    setErrors(prev => {
+
+    setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[fieldPath];
       return newErrors;
     });
   };
-
 
   const handleStatusChange = (value: string) => {
     if (value === "Inactive" && formData.status === "Active") {
@@ -166,12 +199,12 @@ const MyTeam = () => {
     setShowStatusAlert(false);
   };
 
-  const handleSubmit = async (isValid: boolean) => {  
+  const handleSubmit = async (isValid: boolean) => {
     if (!isValid) {
       toast.error("Please fix all errors before submitting");
       return;
     }
-  
+
     setIsLoading(true);
     try {
       if (isEditMode && selectedEmployee) {
@@ -181,11 +214,12 @@ const MyTeam = () => {
         await api.post("/company/employees", formData);
         toast.success("Employee added successfully!");
       }
-      
+
       fetchEmployees();
       handleCloseModal();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 
+      const errorMessage =
+        error.response?.data?.message ||
         (isEditMode ? "Failed to update employee" : "Failed to add employee");
       toast.error(`${errorMessage}. Please try again.`);
       console.error("Error with employee operation:", error);
@@ -196,13 +230,12 @@ const MyTeam = () => {
   const handleEdit = (employee) => {
     setSelectedEmployee(employee);
     setFormData({
-   
       name: employee.name,
       email: employee.email,
       department: employee.department._id,
       gender: employee.gender,
       mobile: employee.mobile,
-      dob:  employee.dob.split('T')[0],
+      dob: employee.dob.split("T")[0],
       position: employee.position,
       status: employee.status,
       role: employee.role,
@@ -210,16 +243,18 @@ const MyTeam = () => {
         city: "",
         state: "",
         zipCode: "",
-        country: ""
+        country: "",
       },
       workMode: employee.workMode || "",
       salary: employee.salary || "",
       profilePicture: employee.profilePicture || "",
-      qualifications: employee.qualifications || [{
-        degree: "",
-        institution: "",
-        yearOfCompletion: ""
-      }]
+      qualifications: employee.qualifications || [
+        {
+          degree: "",
+          institution: "",
+          yearOfCompletion: "",
+        },
+      ],
     });
     setErrors({});
     setIsEditMode(true);
@@ -247,29 +282,30 @@ const MyTeam = () => {
         city: "",
         state: "",
         zipCode: "",
-        country: ""
+        country: "",
       },
       qualifications: [
         {
           degree: "",
           institution: "",
-          yearOfCompletion: ""
-        }
-      ]
+          yearOfCompletion: "",
+        },
+      ],
     });
     setErrors({});
   };
 
-  const filteredEmployees = employees.filter(emp =>
-    emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    emp.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    emp.department.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.department.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE);
   const paginatedEmployees = filteredEmployees.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   if (isLoading) {
@@ -293,11 +329,11 @@ const MyTeam = () => {
               Manage your company's Employee Details
             </CardDescription>
           </div>
-          <Button 
+          <Button
             onClick={() => {
               setIsEditMode(false);
               setOpen(true);
-            }} 
+            }}
             className="bg-primary hover:bg-primary/90"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -312,15 +348,16 @@ const MyTeam = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Deactivate Employee</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to deactivate this employee? This action may restrict their access to the system. 
-              You can reactivate them later if needed.
+              Are you sure you want to deactivate this employee? This action may
+              restrict their access to the system. You can reactivate them later
+              if needed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowStatusAlert(false)}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleStatusConfirm}
               className="bg-red-600 hover:bg-red-700"
             >
@@ -378,15 +415,15 @@ const MyTeam = () => {
               <TableBody>
                 {paginatedEmployees.length > 0 ? (
                   paginatedEmployees.map((emp) => (
-                    <TableRow 
+                    <TableRow
                       key={emp._id}
                       className={emp.status === "Inactive" ? "opacity-60" : ""}
                     >
                       <TableCell>
                         {emp.profilePicture && (
-                          <img 
-                            src={emp.profilePicture} 
-                            alt={emp.name} 
+                          <img
+                            src={emp.profilePicture}
+                            alt={emp.name}
                             className="w-12 h-12 rounded-full object-cover"
                           />
                         )}
@@ -399,9 +436,15 @@ const MyTeam = () => {
                       <TableCell>{emp.position}</TableCell>
                       <TableCell>{emp.role}</TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={emp.status === "Active" ? "success" : "destructive"}
-                          className={emp.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+                        <Badge
+                          variant={
+                            emp.status === "Active" ? "success" : "destructive"
+                          }
+                          className={
+                            emp.status === "Active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }
                         >
                           {emp.status}
                         </Badge>
@@ -429,9 +472,12 @@ const MyTeam = () => {
 
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to{" "}
-                {Math.min(currentPage * ITEMS_PER_PAGE, filteredEmployees.length)} of{" "}
-                {filteredEmployees.length} employees
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                {Math.min(
+                  currentPage * ITEMS_PER_PAGE,
+                  filteredEmployees.length,
+                )}{" "}
+                of {filteredEmployees.length} employees
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -458,20 +504,19 @@ const MyTeam = () => {
           </>
         )}
 
-
         {open && (
-     <EmployeeForm
-     isEditMode={isEditMode}
-     formData={formData}
-     handleChange={handleChange}
-     handleSubmit={(isValid: boolean) => handleSubmit(isValid)}
-     errors={errors}
-     setErrors={setErrors}
-     departments={departments}
-     isLoading={isLoading}
-     handleCloseModal={handleCloseModal}
-   />
-    )}
+          <EmployeeForm
+            isEditMode={isEditMode}
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={(isValid: boolean) => handleSubmit(isValid)}
+            errors={errors}
+            setErrors={setErrors}
+            departments={departments}
+            isLoading={isLoading}
+            handleCloseModal={handleCloseModal}
+          />
+        )}
       </CardContent>
     </Card>
   );

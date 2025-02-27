@@ -1,8 +1,20 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Search, Loader2, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import {
+  Search,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Building2,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +24,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "react-toastify";
 import api from "@/api/axios";
 
 const ITEMS_PER_PAGE = 10;
 
-type ApprovalStatus = 'Pending' | 'Approved' | 'Rejected';
+type ApprovalStatus = "Pending" | "Approved" | "Rejected";
 
 interface Company {
   _id: string;
@@ -33,7 +52,7 @@ interface Company {
 
 interface ActionDialogState {
   isOpen: boolean;
-  type: 'approve' | 'reject' | null;
+  type: "approve" | "reject" | null;
   companyId: string | null;
 }
 
@@ -58,7 +77,7 @@ const CompanyRequests = () => {
     try {
       const response = await api.get("/admin/companiesList");
       const pendingCompanies = response.data.filter(
-        (company: Company) => company.isApproved === 'Pending'
+        (company: Company) => company.isApproved === "Pending",
       );
       setCompanies(pendingCompanies);
     } catch (error) {
@@ -76,17 +95,16 @@ const CompanyRequests = () => {
     }
 
     try {
-      const newStatus: ApprovalStatus = actionDialog.type === 'approve' ? 'Approved' : 'Rejected';
-      
+      const newStatus: ApprovalStatus =
+        actionDialog.type === "approve" ? "Approved" : "Rejected";
+
       await api.put(`/admin/companiesList/${actionDialog.companyId}/approve`, {
         isApproved: newStatus,
         reason: actionReason,
       });
-      
-      toast.success(
-        `Company request ${newStatus.toLowerCase()} successfully`
-      );
-      
+
+      toast.success(`Company request ${newStatus.toLowerCase()} successfully`);
+
       fetchCompanies();
       closeActionDialog();
     } catch (error) {
@@ -95,7 +113,7 @@ const CompanyRequests = () => {
     }
   };
 
-  const openActionDialog = (companyId: string, type: 'approve' | 'reject') => {
+  const openActionDialog = (companyId: string, type: "approve" | "reject") => {
     setActionDialog({
       isOpen: true,
       type,
@@ -113,22 +131,23 @@ const CompanyRequests = () => {
     setActionReason("");
   };
 
-  const filteredCompanies = companies.filter(company =>
-    company.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCompanies = companies.filter(
+    (company) =>
+      company.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      company.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredCompanies.length / ITEMS_PER_PAGE);
   const paginatedCompanies = filteredCompanies.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -182,24 +201,30 @@ const CompanyRequests = () => {
                   {paginatedCompanies.length > 0 ? (
                     paginatedCompanies.map((company) => (
                       <TableRow key={company._id}>
-                        <TableCell className="font-medium">{company.companyName}</TableCell>
+                        <TableCell className="font-medium">
+                          {company.companyName}
+                        </TableCell>
                         <TableCell>{company.email}</TableCell>
                         <TableCell>{company.phone}</TableCell>
                         <TableCell>{formatDate(company.createdAt)}</TableCell>
                         <TableCell className="text-right space-x-2">
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="bg-green-50 text-green-600 hover:bg-green-100"
-                            onClick={() => openActionDialog(company._id, 'approve')}
+                            onClick={() =>
+                              openActionDialog(company._id, "approve")
+                            }
                           >
                             Approve
                           </Button>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="bg-red-50 text-red-600 hover:bg-red-100"
-                            onClick={() => openActionDialog(company._id, 'reject')}
+                            onClick={() =>
+                              openActionDialog(company._id, "reject")
+                            }
                           >
                             Reject
                           </Button>
@@ -219,9 +244,12 @@ const CompanyRequests = () => {
 
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to{" "}
-                {Math.min(currentPage * ITEMS_PER_PAGE, filteredCompanies.length)} of{" "}
-                {filteredCompanies.length} requests
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                {Math.min(
+                  currentPage * ITEMS_PER_PAGE,
+                  filteredCompanies.length,
+                )}{" "}
+                of {filteredCompanies.length} requests
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -249,14 +277,20 @@ const CompanyRequests = () => {
         )}
       </CardContent>
 
-      <Dialog open={actionDialog.isOpen} onOpenChange={(open) => !open && closeActionDialog()}>
+      <Dialog
+        open={actionDialog.isOpen}
+        onOpenChange={(open) => !open && closeActionDialog()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {actionDialog.type === 'approve' ? 'Approve' : 'Reject'} Company Request
+              {actionDialog.type === "approve" ? "Approve" : "Reject"} Company
+              Request
             </DialogTitle>
             <DialogDescription>
-              Please provide a reason for {actionDialog.type === 'approve' ? 'approving' : 'rejecting'} this company request.
+              Please provide a reason for{" "}
+              {actionDialog.type === "approve" ? "approving" : "rejecting"} this
+              company request.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -269,11 +303,13 @@ const CompanyRequests = () => {
             <Button variant="outline" onClick={closeActionDialog}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleAction}
-              className={actionDialog.type === 'approve' ? 'bg-green-600' : 'bg-red-600'}
+              className={
+                actionDialog.type === "approve" ? "bg-green-600" : "bg-red-600"
+              }
             >
-              {actionDialog.type === 'approve' ? 'Approve' : 'Reject'}
+              {actionDialog.type === "approve" ? "Approve" : "Reject"}
             </Button>
           </DialogFooter>
         </DialogContent>
