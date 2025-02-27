@@ -38,7 +38,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-// Custom hook with type safety
+
 export const useSocket = (): Socket | null => {
   const socket = useContext(SocketContext);
   if (socket === undefined) {

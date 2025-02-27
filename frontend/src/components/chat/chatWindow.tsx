@@ -38,7 +38,7 @@ const ChatWindow = ({
     }, 3000);
   };
   useEffect(() => {
-    // This needs to be modified because messageAreaRef might not directly access scrollHeight
+
     if (messageAreaRef.current) {
       const scrollContainer = messageAreaRef.current.querySelector(
         "[data-radix-scroll-area-viewport]",
@@ -59,14 +59,14 @@ const ChatWindow = ({
 
       const messageContent = mediaContent
         ? {
-            type: mediaContent.type,
-            content: mediaContent.type === "text" ? newMessage.trim() : "",
-            mediaUrl: mediaContent.url,
-          }
+          type: mediaContent.type,
+          content: mediaContent.type === "text" ? newMessage.trim() : "",
+          mediaUrl: mediaContent.url,
+        }
         : {
-            type: "text",
-            content: newMessage,
-          };
+          type: "text",
+          content: newMessage,
+        };
 
       const tempId = Date.now().toString();
       const payload = {
@@ -186,12 +186,12 @@ const ChatWindow = ({
     }
   }, [selectedChat, messages, markMessagesAsRead]);
 
-  // Call it once when new messages arrive
+
   useEffect(() => {
     if (selectedChat && !selectedChat.isGroupChat) {
       const timer = setTimeout(() => {
         markMessagesAsRead();
-      }, 1000); // Small delay to batch updates
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
@@ -223,10 +223,10 @@ const ChatWindow = ({
   const otherUser =
     selectedChat && !selectedChat.isGroupChat
       ? selectedChat.users.find(
-          (user) =>
-            String(user.userId._id || user._id) !==
-            String(currentUser.userData._id),
-        )
+        (user) =>
+          String(user.userId._id || user._id) !==
+          String(currentUser.userData._id),
+      )
       : null;
 
   const isOnline =
@@ -262,12 +262,12 @@ const ChatWindow = ({
     }
   };
 
-  // Add socket listeners for group updates
+
   useEffect(() => {
     if (!socket) return;
 
     const handleGroupUpdate = ({ chat, userId }) => {
-      // Update the selected chat if it's the current chat
+
       if (selectedChat?._id === chat._id) {
         setSelectedChat(chat);
       }
@@ -313,19 +313,17 @@ const ChatWindow = ({
                 </div>
                 {!selectedChat.isGroupChat && (
                   <span
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                      isOnline ? "bg-green-500" : "bg-gray-400"
-                    }`}
+                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"
+                      }`}
                   ></span>
                 )}
               </div>
               <div className="ml-3">
                 <div
-                  className={`font-semibold text-gray-900 ${
-                    selectedChat.isGroupChat
-                      ? "cursor-pointer hover:text-blue-500"
-                      : ""
-                  }`}
+                  className={`font-semibold text-gray-900 ${selectedChat.isGroupChat
+                    ? "cursor-pointer hover:text-blue-500"
+                    : ""
+                    }`}
                   onClick={() => {
                     if (selectedChat.isGroupChat) {
                       setShowGroupModal(true);
@@ -374,11 +372,10 @@ const ChatWindow = ({
                       className={`max-w-[70%] group relative ${!showAvatar && !isSender ? "ml-10" : ""}`}
                     >
                       <div
-                        className={`p-3 rounded-2xl ${
-                          isSender
-                            ? "bg-blue-500 text-white rounded-br-none"
-                            : "bg-white text-gray-900 rounded-bl-none shadow-sm"
-                        }`}
+                        className={`p-3 rounded-2xl ${isSender
+                          ? "bg-blue-500 text-white rounded-br-none"
+                          : "bg-white text-gray-900 rounded-bl-none shadow-sm"
+                          }`}
                       >
                         {renderMessage(msg)}
                       </div>
@@ -393,13 +390,12 @@ const ChatWindow = ({
                         </span>
                         {isSender && (
                           <CheckCheck
-                            className={`h-3 w-3 ${
-                              selectedChat.isGroupChat
-                                ? "text-gray-400"
-                                : msg.isRead
-                                  ? "text-blue-400"
-                                  : "text-gray-400"
-                            }`}
+                            className={`h-3 w-3 ${selectedChat.isGroupChat
+                              ? "text-gray-400"
+                              : msg.isRead
+                                ? "text-blue-400"
+                                : "text-gray-400"
+                              }`}
                           />
                         )}
                       </div>

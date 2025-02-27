@@ -36,3 +36,33 @@ export interface IMeetService {
     meetingId: string
   ): Promise<IMeetModel | null>;
 }
+
+export interface IMeetRepository {
+  getMeetings(
+    tenantConnection: Connection,
+    filters: any,
+    page: number,
+    pageSize: number
+  ): Promise<IMeetModel[]>;
+
+  getTotalMeetingsCount(
+    tenantConnection: Connection,
+    filters: any
+  ): Promise<number>;
+
+  createNewMeet(
+    tenantConnection: Connection,
+    meetData: any
+  ): Promise<IMeetModel>;
+
+  updateMeet(
+    tenantConnection: Connection,
+    id: string,
+    updateData: any
+  ): Promise<IMeetModel | null>;
+
+  deleteMeeting(
+    tenantConnection: Connection,
+    meetingId: string
+  ): Promise<IMeetModel | null>;
+}

@@ -101,7 +101,7 @@ const GlobalNotification = () => {
 
   return (
     <div className="relative">
-      {/* Toast Notification */}
+
       {showToast && latestNotification && (
         <div className="fixed top-4 right-4 z-50 animate-slide-in-right">
           <Alert
@@ -118,7 +118,7 @@ const GlobalNotification = () => {
         </div>
       )}
 
-      {/* Notification Dropdown */}
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="relative">

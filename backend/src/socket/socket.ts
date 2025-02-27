@@ -127,7 +127,7 @@ export const initializeSocket = (server: http.Server) => {
       }
     });
 
-    // Event: Typing notification (broadcast to everyone else in the room)
+    // Event: Typing notification
     socket.on('typing', (room: string) => {
       if (room) {
         socket.to(room).emit('typing');

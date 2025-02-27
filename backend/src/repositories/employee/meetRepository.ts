@@ -1,5 +1,5 @@
 import mongoose, { Connection } from 'mongoose';
-import { IMeetModel } from '../../interfaces/IMeet.types';
+import { IMeetModel, IMeetRepository } from '../../interfaces/IMeet.types';
 import { Model } from 'mongoose';
 import Meet from '../../models/meetModel';
 import Employee from '../../models/employeeModel';
@@ -7,7 +7,7 @@ import { IEmployee } from '../../interfaces/company/IEmployee.types';
 import { ICompanyDocument } from '../../interfaces/company/company.types';
 import Company from '../../models/companyModel';
 
-export class MeetRepository {
+export class MeetRepository implements IMeetRepository {
   private getMeetModel(connection: Connection): Model<IMeetModel> {
     return (
       connection.models.Meet ||

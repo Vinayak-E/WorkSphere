@@ -10,12 +10,10 @@ export class ChatService {
     private readonly employeeRepository: EmployeeRepository
   ) {}
 
-  // Determine user type based on role
   private determineUserModel(role: string): 'Employee' | 'Company' {
-    return role === 'COMPANY' ? 'Company' : 'Employee'; // Adjust based on your role definitions
+    return role === 'COMPANY' ? 'Company' : 'Employee';
   }
 
-  // Helper to get user model by ID
   private async getUserModelById(
     tenantConnection: mongoose.Connection,
     userId: string
