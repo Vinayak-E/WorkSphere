@@ -1,9 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-import { IMeetService } from '../../interfaces/IMeet.types';
 import mongoose from 'mongoose';
+import { Connection } from 'mongoose';
+import { injectable, inject } from 'tsyringe';
+import { Request, Response, NextFunction } from 'express';
+import { IMeetController } from '../Interface/IMeetController';
+import { IMeetService } from '../../services/Interface/IMeetService';
 
-export class MeetController {
-  constructor(private readonly meetService: IMeetService) {}
+@injectable()
+export class MeetController implements IMeetController {
+  constructor(@inject('MeetService') private meetService: IMeetService) {}
 
   getMeetings = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -89,7 +93,7 @@ export class MeetController {
         page,
         pageSize
       );
-
+      console.log('meetings', meetings);
       res.status(200).json({
         success: true,
         data: meetings,
@@ -103,32 +107,16 @@ export class MeetController {
     }
   };
 
-  createMeeting = async (req: Request, res: Response, next: NextFunction) => {
+  async createMeeting(req: Request, res: Response, next: NextFunction) {
     try {
-      const tenantConnection = req.tenantConnection;
-      if (!tenantConnection) {
-        res.status(500).json({
-          success: false,
-          message: 'Tenant connection not established',
-        });
-        return;
-      }
-
-      if (!req.userId) {
+      const tenantConnection = req.tenantConnection as Connection;
+      if (!req.userId || !req.user) {
         res.status(401).json({
           success: false,
-          message: 'User not authenticated',
+          message: 'User email not found in token',
         });
         return;
       }
-      if (!req.user) {
-        res.status(401).json({
-          success: false,
-          message: 'User not authenticated',
-        });
-        return;
-      }
-
       const createdByModel =
         req.user.role === 'COMPANY' ? 'Company' : 'Employee';
       const meetingData = {
@@ -137,65 +125,42 @@ export class MeetController {
         createdByModel,
       };
 
-      const newMeeting = await this.meetService.createMeeting(
+      const meeting = await this.meetService.createMeeting(
         tenantConnection,
         meetingData
       );
-
-      res.status(201).json({
-        success: true,
-        data: newMeeting,
-        message: 'Meeting created successfully',
-      });
+      res.status(201).json(meeting);
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  updateMeeting = async (req: Request, res: Response, next: NextFunction) => {
+  async updateMeeting(req: Request, res: Response, next: NextFunction) {
     try {
-      const tenantConnection = req.tenantConnection;
-      if (!tenantConnection) {
-        res.status(500).json({
-          success: false,
-          message: 'Tenant connection not established',
-        });
-        return;
-      }
-      const meetingId = req.params.id;
-      const meetingData = req.body;
-
-      const updatedMeeting = await this.meetService.updateMeeting(
+      const tenantConnection = req.tenantConnection as Connection;
+      const meeting = await this.meetService.updateMeeting(
         tenantConnection,
-        meetingId,
-        meetingData
+        req.params.id,
+        req.body
       );
-      res.status(200).json({
-        success: true,
-        data: updatedMeeting,
-      });
+      if (!meeting) res.status(404).json({ message: 'Meeting not found' });
+      res.status(200).json(meeting);
     } catch (error) {
       next(error);
     }
-  };
-  deleteMeeting = async (req: Request, res: Response, next: NextFunction) => {
+  }
+
+  async deleteMeeting(req: Request, res: Response, next: NextFunction) {
     try {
-      const tenantConnection = req.tenantConnection;
-      if (!tenantConnection) {
-        res.status(500).json({
-          success: false,
-          message: 'Tenant connection not established',
-        });
-        return;
-      }
-      const meetingId = req.params.id;
-      await this.meetService.deleteMeeting(tenantConnection, meetingId);
-      res.status(200).json({
-        success: true,
-        message: 'Meeting deleted successfully',
-      });
+      const tenantConnection = req.tenantConnection as Connection;
+      const meeting = await this.meetService.deleteMeeting(
+        tenantConnection,
+        req.params.id
+      );
+      if (!meeting) res.status(404).json({ message: 'Meeting not found' });
+      res.status(204).send();
     } catch (error) {
       next(error);
     }
-  };
+  }
 }

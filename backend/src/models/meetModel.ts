@@ -1,7 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import { IMeetModel } from '../interfaces/IMeet.types';
+// models/meet.model.ts
+import { Schema } from 'mongoose';
+import { IMeetModel } from '../interfaces/IMeet.types'; // Adjust path
 
-const MeetSchema = new Schema<IMeetModel>(
+export const MeetSchema = new Schema<IMeetModel>(
   {
     meetTitle: {
       type: String,
@@ -16,7 +17,6 @@ const MeetSchema = new Schema<IMeetModel>(
       type: String,
       required: [true, 'Meeting time is required'],
     },
-
     members: [
       {
         type: Schema.Types.ObjectId,
@@ -40,6 +40,4 @@ const MeetSchema = new Schema<IMeetModel>(
   { timestamps: true }
 );
 
-const Meet = mongoose.model<IMeetModel>('Meet', MeetSchema);
-
-export default Meet;
+// Do not export a model here; let BaseRepository create it per tenant

@@ -1,23 +1,18 @@
 import express from 'express';
-
-import { EmployeeRepository } from '../../repositories/employee/employeeRepository';
 import { verifyAuth } from '../../middlewares/authMiddleware';
 import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
-import { MeetController } from '../../controllers/employee/meet.controller';
-import { MeetService } from '../../services/employee/meet.service';
-import { MeetRepository } from '../../repositories/employee/meetRepository';
+import { MeetController } from '../../controllers/Implementation/meet.controller';
+import { container } from 'tsyringe';
 
 const router = express.Router();
-const employeeRepository = new EmployeeRepository();
-const meetRepository = new MeetRepository();
-const meetService = new MeetService(meetRepository, employeeRepository);
-const meetController = new MeetController(meetService);
+const meetController = container.resolve<MeetController>('MeetController');
+
 router.use(tenantMiddleware);
 router.use(verifyAuth);
 
-router.get('/', meetController.getMeetings);
-router.post('/', meetController.createMeeting);
-router.put('/:id', meetController.updateMeeting);
-router.delete('/:id', meetController.deleteMeeting);
+router.get('/', (req, res, next) => meetController.getMeetings(req, res, next));
+router.post('/', (req, res, next) => meetController.createMeeting(req, res, next));
+router.put('/:id', (req, res, next) => meetController.updateMeeting(req, res, next));
+router.delete('/:id', (req, res, next) => meetController.deleteMeeting(req, res, next));
 
 export default router;

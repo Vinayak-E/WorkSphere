@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import express from 'express';
 import { CompanyRepository } from '../repositories/company/companyRepository';
 import { UserRepository } from '../repositories/user/userRepository';
