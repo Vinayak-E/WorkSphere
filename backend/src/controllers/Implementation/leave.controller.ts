@@ -3,10 +3,11 @@ import { injectable, inject } from 'tsyringe';
 import { LeaveService } from '../../services/Implementation/leave.service';
 import { sendEmail } from '../../utils/email';
 import { ILeaveController } from '../Interface/ILeaveController';
+import { ILeaveService } from '../../services/Interface/ILeaveService';
 
 @injectable()
 export class LeaveController implements ILeaveController {
-  constructor(@inject('LeaveService') private leaveService: LeaveService) {}
+  constructor(@inject('LeaveService') private leaveService: ILeaveService) {}
 
   applyLeave = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,8 +24,8 @@ export class LeaveController implements ILeaveController {
         });
         return;
       }
-      const { startDate, endDate, reason } = req.body;
-      const leaveData = { startDate, endDate, reason };
+      const { startDate, endDate, reason, leaveType } = req.body;
+      const leaveData = { startDate, endDate, reason, leaveType };
       const leave = await this.leaveService.applyLeave(tenantConnection, employeeId, leaveData);
       res.status(201).json({ success: true, data: leave });
     } catch (error) {

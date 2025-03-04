@@ -1,7 +1,6 @@
 import { Connection } from 'mongoose';
 import { injectable, inject } from 'tsyringe';
 import { NextFunction, Request, Response } from 'express';
-import { AttendanceService } from '../../services/Implementation/attendance.service';
 import { IAttendanceController } from '../Interface/IAttendanceController';
 import { IAttendanceService } from '../../services/Interface/IAttendanceService';
 

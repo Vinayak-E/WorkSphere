@@ -28,11 +28,13 @@ const EmployeeLeaves = () => {
   const [endDate, setEndDate] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [leaveForm, setLeaveForm] = useState({
     startDate: "",
     endDate: "",
     reason: "",
+    leaveType: "Full Day",
   });
 
   const fetchLeaves = async () => {
@@ -62,6 +64,7 @@ const EmployeeLeaves = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     try {
       const response = await api.post("/employee/leaves", leaveForm);
 
@@ -69,9 +72,16 @@ const EmployeeLeaves = () => {
         setIsOpen(false);
         fetchLeaves();
         setLeaveForm({ startDate: "", endDate: "", reason: "" });
+      
+      }else{
+
+    
+          setError(response.data.message || "Failed to apply for leave");
+
       }
     } catch (error) {
       console.error("Error applying for leave:", error);
+      setError(error.response?.data?.message || "Failed to apply for leave")
     }
   };
 
@@ -85,6 +95,19 @@ const EmployeeLeaves = () => {
         return "bg-yellow-100 text-yellow-800";
     }
   };
+  const handleModalOpenChange = (open) => {
+    setIsOpen(open);
+    if (!open) {
+      setError("");
+      setLeaveForm({
+        startDate: "",
+        endDate: "",
+        reason: "",
+        leaveType: "Full Day",
+      });
+    }
+  };
+  
 
   return (
     <Card className="w-full max-w-6xl mx-auto border-gray-200 shadow-xl rounded-xl mt-6">
@@ -99,7 +122,7 @@ const EmployeeLeaves = () => {
               View and manage your leave applications
             </p>
           </div>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <Dialog open={isOpen} onOpenChange={handleModalOpenChange}>
             <DialogTrigger asChild>
               <Button className="shadow-md hover:shadow-lg transition-shadow">
                 <Plus size={18} className="mr-2" /> New Leave Request
@@ -112,6 +135,11 @@ const EmployeeLeaves = () => {
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                  <div className="text-red-500 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" /> {error}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
                     Start Date
@@ -158,6 +186,20 @@ const EmployeeLeaves = () => {
                         End Date cannot be in the past
                       </div>
                     )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Leave Type</label>
+                  <select
+                    value={leaveForm.leaveType}
+                    onChange={(e) =>
+                      setLeaveForm({ ...leaveForm, leaveType: e.target.value })
+                    }
+                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="Full Day">Full Day</option>
+                    <option value="Half Day">Half Day</option>
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
@@ -229,6 +271,7 @@ const EmployeeLeaves = () => {
                   {[
                     "Start Date",
                     "End Date",
+                    "Leave Type",
                     "Reason",
                     "Status",
                     "Applied On",
@@ -253,6 +296,9 @@ const EmployeeLeaves = () => {
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
                       {new Date(leave.endDate).toLocaleDateString("en-GB")}
+                    </td>
+                    <td className="px-4 py-3 text-sm whitespace-nowrap">
+                      {leave.leaveType}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate">
                       {leave.reason}

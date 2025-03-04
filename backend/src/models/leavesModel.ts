@@ -20,6 +20,11 @@ export const LeaveSchema = new Schema<ILeave>(
       type: String,
       required: true,
     },
+    leaveType: {
+      type: String,
+      enum: ['Full Day', 'Half Day'],
+      required: true,
+    },
     status: {
       type: String,
       enum: ['Pending', 'Approved', 'Rejected'],

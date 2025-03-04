@@ -1,13 +1,13 @@
 import { injectable, inject } from 'tsyringe';
 import mongoose, { Connection } from 'mongoose';
 import { IAttendance } from '../../interfaces/company/IAttendance.types';
-import { AttendanceRepository } from '../../repositories/Implementation/attendance.repository';
 import { IAttendanceService } from '../Interface/IAttendanceService';
+import { IAttendanceRepository } from '../../repositories/Interface/IAttendanceRepository';
 
 @injectable()
 export class AttendanceService implements IAttendanceService{
     constructor(
-        @inject('AttendanceRepository') private attendanceRepository: AttendanceRepository
+        @inject('AttendanceRepository') private attendanceRepository: IAttendanceRepository
       ) {}
 
       async checkIn(tenantConnection: Connection, employeeId: string): Promise<IAttendance> {

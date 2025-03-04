@@ -1,13 +1,13 @@
 import { injectable, inject } from 'tsyringe';
 import mongoose, { Connection } from 'mongoose';
-import { ILeave } from '../../interfaces/company/IAttendance.types';
-import { LeaveRepository } from '../../repositories/Implementation/leave.repository';
 import { ILeaveService } from '../Interface/ILeaveService';
+import { ILeave } from '../../interfaces/company/IAttendance.types';
+import { ILeaveRepository } from '../../repositories/Interface/ILeaveRepository';
 
 @injectable()
 export class LeaveService implements ILeaveService {
   constructor(
-    @inject('LeaveRepository') private leaveRepository: LeaveRepository
+    @inject('LeaveRepository') private leaveRepository: ILeaveRepository
   ) {}
 
   async applyLeave(
@@ -15,11 +15,33 @@ export class LeaveService implements ILeaveService {
     employeeId: string,
     leaveData: Partial<ILeave>
   ): Promise<ILeave> {
+    const { startDate, endDate, reason, leaveType } = leaveData;
+
+    if (!startDate || !endDate || !reason || !leaveType) {
+      throw new Error('All fields (startDate, endDate, reason, leaveType) are required');
+    }
+
+   
+    const overlappingLeaves = await this.leaveRepository.findOverlappingLeaves(
+      tenantConnection,
+      employeeId,
+      new Date(startDate),
+      new Date(endDate)
+    );
+
+    if (overlappingLeaves.length > 0) {
+      throw new Error('A leave request already exists for this period');
+    }
+
     const leave = {
-      ...leaveData,
       employeeId: new mongoose.Types.ObjectId(employeeId),
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      reason,
       status: 'Pending' as 'Pending',
+      leaveType: leaveType as 'Full Day' | 'Half Day',
     };
+
     return await this.leaveRepository.createLeave(tenantConnection, leave);
   }
 

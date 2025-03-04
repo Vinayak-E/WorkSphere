@@ -1,4 +1,3 @@
-// interfaces/company/ILeaveRepository.ts
 import { Connection } from 'mongoose';
 import { ILeave } from '../../interfaces/company/IAttendance.types';
 export interface ILeaveRepository {
@@ -19,4 +18,11 @@ export interface ILeaveRepository {
     leaveId: string,
     updateData: Partial<ILeave>
   ): Promise<ILeave | null>;
+
+  findOverlappingLeaves(
+    tenantConnection: Connection,
+    employeeId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<ILeave[]>;
 }

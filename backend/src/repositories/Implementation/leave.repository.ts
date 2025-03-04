@@ -44,4 +44,21 @@ export class LeaveRepository extends BaseRepository<ILeave> implements ILeaveRep
   ): Promise<ILeave | null> {
     return await this.update(tenantConnection, leaveId, updateData);
   }
+
+  async findOverlappingLeaves(
+    tenantConnection: Connection,
+    employeeId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<ILeave[]> {
+    const model = this.getModel(tenantConnection);
+    return await model.find({
+      employeeId,
+      $or: [
+        { startDate: { $lte: endDate }, endDate: { $gte: startDate } },
+        { startDate: { $gte: startDate, $lte: endDate } },
+        { endDate: { $gte: startDate, $lte: endDate } },
+      ],
+    }).exec();
+  }
 }
