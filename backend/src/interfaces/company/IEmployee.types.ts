@@ -80,27 +80,6 @@ export interface IEmployeeService {
     connection: Connection,
     updateData: IUpdateEmployee
   ): Promise<IEmployee>;
-  checkIn(connection: Connection, employeeId: string): Promise<IAttendance>;
-  checkOut(connection: Connection, employeeId: string): Promise<IAttendance>;
-  getAttendanceStatus(
-    connection: Connection,
-    employeeId: string
-  ): Promise<IAttendance | null>;
-  getLeaves(
-    connection: Connection,
-    email: string,
-    page: number,
-    limit: number,
-    startDate?: string,
-    endDate?: string
-  ): Promise<{ leaves: ILeave[]; total: number }>;
-  applyLeave(
-    connection: Connection,
-    email: string,
-    startDate: string,
-    endDate: string,
-    reason: string
-  ): Promise<ILeave>;
   getDepartmentEmployees(
     connection: Connection,
     userEmail: string

@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { ILeave } from '../interfaces/company/IAttendance.types';
 
-export const leaveSchema = new Schema<ILeave>(
+export const LeaveSchema = new Schema<ILeave>(
   {
     employeeId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -33,6 +33,6 @@ export const leaveSchema = new Schema<ILeave>(
   { timestamps: true }
 );
 
-const Leave = mongoose.model<ILeave>('Leave', leaveSchema);
+const Leave = mongoose.model<ILeave>('Leave', LeaveSchema);
 
 export default Leave;

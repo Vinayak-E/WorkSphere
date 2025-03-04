@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { IAttendance } from '../interfaces/company/IAttendance.types';
 
-export const attendanceSchema = new Schema<IAttendance>(
+export const AttendanceSchema = new Schema<IAttendance>(
   {
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
     date: {
@@ -30,6 +30,3 @@ export const attendanceSchema = new Schema<IAttendance>(
   { timestamps: true }
 );
 
-const Attendance = mongoose.model<IAttendance>('Attendance', attendanceSchema);
-
-export default Attendance;

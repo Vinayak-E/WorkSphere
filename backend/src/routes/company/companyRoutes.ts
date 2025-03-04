@@ -1,4 +1,5 @@
 import express from 'express';
+import { container } from 'tsyringe';
 import { DepartmentController } from '../../controllers/company/departmentController';
 import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
 import { DepartmentService } from '../../services/company/department.service';
@@ -13,8 +14,13 @@ import { ProjectService } from '../../services/employee/project.service';
 import { ProjectRepository } from '../../repositories/employee/projectRepository';
 import { ProjectController } from '../../controllers/employee/project.controller';
 import { CompanyController } from '../../controllers/company/company.controller';
+import { AttendanceController } from '../../controllers/Implementation/attendance.controller';
+import { LeaveController } from '../../controllers/Implementation/leave.controller';
 
 const router = express.Router();
+const attendanceController = container.resolve<AttendanceController>('AttendanceController');
+const leaveController = container.resolve<LeaveController>('LeaveController');
+
 const deparmentRepository = new DepartmentRepository();
 const userRepository = new UserRepository();
 const companyRepository = new CompanyRepository();
@@ -43,11 +49,15 @@ router.put('/departments/:id', departmentController.updateDepartment);
 router.get('/employees', employeeController.getEmployees);
 router.post('/employees', employeeController.addEmployee);
 router.put('/employees/:id', employeeController.updateEmployee);
-router.get('/leaves', employeeController.getLeaveRequests);
-router.patch('/leaves/:id', employeeController.updateLeaveStatus);
-router.get('/attendance', employeeController.getAttendance);
 
 router.get('/projects', projectController.getAllProjects);
 router.patch('/updateProfile/:id', companyController.updateProfile);
+//
 
+router.get('/attendance', attendanceController.getAllAttendance);
+
+router.get('/leaves', leaveController.getAllLeaves);
+router.patch('/leaves/:id', leaveController.updateLeaveStatus);
+
+//
 export default router;

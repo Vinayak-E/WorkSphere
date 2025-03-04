@@ -17,7 +17,7 @@ import {
 import Leave from '../../models/leavesModel';
 import { IEmployee } from '../../interfaces/company/IEmployee.types';
 import Employee from '../../models/employeeModel';
-import Attendance from '../../models/attendanceModel';
+import {AttendanceSchema} from '../../models/attendanceModel';
 import { log } from 'console';
 
 export class CompanyRepository implements ICompanyRepository {
@@ -48,7 +48,7 @@ export class CompanyRepository implements ICompanyRepository {
   private getAttendanceModel(connection: Connection): Model<IAttendance> {
     return (
       connection.models.Attendance ||
-      connection.model<IAttendance>('Attendance', Attendance.schema)
+      connection.model<IAttendance>('Attendance', AttendanceSchema)
     );
   }
 

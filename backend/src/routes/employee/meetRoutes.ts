@@ -10,9 +10,9 @@ const meetController = container.resolve<MeetController>('MeetController');
 router.use(tenantMiddleware);
 router.use(verifyAuth);
 
-router.get('/', (req, res, next) => meetController.getMeetings(req, res, next));
-router.post('/', (req, res, next) => meetController.createMeeting(req, res, next));
-router.put('/:id', (req, res, next) => meetController.updateMeeting(req, res, next));
-router.delete('/:id', (req, res, next) => meetController.deleteMeeting(req, res, next));
+router.get('/', meetController.getMeetings);
+router.post('/',  meetController.createMeeting);
+router.put('/:id', meetController.updateMeeting);
+router.delete('/:id', meetController.deleteMeeting);
 
 export default router;

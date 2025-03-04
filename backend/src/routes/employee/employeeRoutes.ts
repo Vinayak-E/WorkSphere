@@ -1,18 +1,24 @@
 import express from 'express';
+import { container } from 'tsyringe';
+import { JwtService } from '../../services/jwt.service';
+import { verifyAuth } from '../../middlewares/authMiddleware';
 import { CompanyRepository } from '../../repositories/company/companyRepository';
 import { UserRepository } from '../../repositories/user/userRepository';
-import { JwtService } from '../../services/jwt.service';
 import { EmployeeController } from '../../controllers/employee/employee.controller';
 import { AuthService } from '../../services/company/authentication.service';
 import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
-import { verifyAuth } from '../../middlewares/authMiddleware';
 import { EmployeeRepository } from '../../repositories/employee/employeeRepository';
 import { EmployeeService } from '../../services/employee/employee.service';
 import { ProjectController } from '../../controllers/employee/project.controller';
 import { ProjectService } from '../../services/employee/project.service';
 import { ProjectRepository } from '../../repositories/employee/projectRepository';
+import { AttendanceController } from '../../controllers/Implementation/attendance.controller';
+import { LeaveController } from '../../controllers/Implementation/leave.controller';
 
 const router = express.Router();
+const attendanceController = container.resolve<AttendanceController>('AttendanceController');
+const leaveController = container.resolve<LeaveController>('LeaveController');
+
 const jwtService = new JwtService();
 const userRepository = new UserRepository();
 const companyRepository = new CompanyRepository();
@@ -37,11 +43,8 @@ router.use(tenantMiddleware);
 router.use(verifyAuth);
 router.get('/myProfile', employeeController.getProfile);
 router.patch('/updateProfile/:id', employeeController.updateProfile);
-router.post('/attendance/check-in', employeeController.checkIn);
-router.post('/attendance/check-out', employeeController.checkOut);
-router.get('/attendance/status/:id', employeeController.getAttendanceStatus);
-router.get('/leaves', employeeController.getLeaves);
-router.post('/leaves', employeeController.applyLeave);
+
+
 router.get('/projects', projectController.getProjects);
 router.post('/projects', projectController.createProject);
 router.get('/projects/:id', projectController.projectDetails);
@@ -55,4 +58,15 @@ router.put(
   projectController.editProjectTask
 );
 router.get('/department', employeeController.getDepartmentEmployees);
+
+
+
+//
+router.post('/attendance/check-in', attendanceController.checkIn);
+router.post('/attendance/check-out', attendanceController.checkOut);
+router.get('/attendance/status/:id', attendanceController.getTodayAttendance);
+
+router.get('/leaves', leaveController.getEmployeeLeaves);
+router.post('/leaves', leaveController.applyLeave);
+//
 export default router;

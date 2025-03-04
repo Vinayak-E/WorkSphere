@@ -571,8 +571,7 @@ const MeetingManagement: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {isCompany ||
-                        (isManager && (
+                      {(isManager || isCompany )&& (
                           <>
                             <Button
                               variant="ghost"
@@ -595,7 +594,7 @@ const MeetingManagement: React.FC = () => {
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </>
-                        ))}
+                        )}
                       <DeleteConfirmationDialog
                         open={isDialogOpen}
                         onClose={closeDialog}

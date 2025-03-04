@@ -1,4 +1,3 @@
-// models/meet.model.ts
 import { Schema } from 'mongoose';
 import { IMeetModel } from '../interfaces/IMeet.types'; // Adjust path
 
@@ -39,5 +38,3 @@ export const MeetSchema = new Schema<IMeetModel>(
   },
   { timestamps: true }
 );
-
-// Do not export a model here; let BaseRepository create it per tenant

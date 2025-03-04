@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { ICompanyDocument } from '../interfaces/company/company.types';
 
-const companySchema = new Schema<ICompanyDocument>({
+export const CompanySchema = new Schema<ICompanyDocument>({
   companyName: { type: String },
   email: { type: String, unique: true },
   password: { type: String },
@@ -31,9 +31,9 @@ const companySchema = new Schema<ICompanyDocument>({
   passwordResetExpires: { type: Date, select: false },
 });
 
-companySchema.virtual('name').get(function () {
+CompanySchema.virtual('name').get(function () {
   return this.companyName;
 });
 
-const Company = mongoose.model<ICompanyDocument>('Company', companySchema);
+const Company = mongoose.model<ICompanyDocument>('Company', CompanySchema);
 export default Company;

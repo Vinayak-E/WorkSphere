@@ -15,10 +15,6 @@ import {
 } from '../../helpers/helperFunctions';
 import { ICompanyDocument } from '../../interfaces/company/company.types';
 import { CompanyRepository } from '../../repositories/company/companyRepository';
-import {
-  IAttendance,
-  ILeave,
-} from '../../interfaces/company/IAttendance.types';
 
 export class CompanyService {
   constructor(
@@ -142,82 +138,5 @@ export class CompanyService {
     }
   }
 
-  async getLeaves(
-    connection: Connection,
-    page: number,
-    limit: number,
-    startDate?: string,
-    endDate?: string,
-    status?: string
-  ): Promise<{ leaves: ILeave[]; total: number }> {
-    try {
-      return await this.companyRepository.getLeaveRequests(
-        connection,
-        page,
-        limit,
-        startDate,
-        endDate,
-        status
-      );
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async updateLeaveStatus(
-    leaveId: string,
-    status: string,
-    connection: Connection
-  ): Promise<ILeave> {
-    try {
-      const updatedLeave = await this.companyRepository.updateLeaveStatus(
-        leaveId,
-        status,
-        connection
-      );
-
-      if (!updatedLeave) {
-        throw new Error('Leave request not found');
-      }
-
-      if (updatedLeave.employeeId) {
-        const employee = await this.companyRepository.findById(
-          updatedLeave.employeeId.toString(),
-          connection
-        );
-
-        if (employee && employee.email) {
-          const statusMessage = `Your leave request from ${new Date(updatedLeave.startDate).toLocaleDateString()} to ${new Date(updatedLeave.endDate).toLocaleDateString()} has been ${status.toLowerCase()}.`;
-
-          await sendEmail(
-            employee.email,
-            'Leave Request Status Update',
-            statusMessage
-          );
-        }
-      }
-
-      return updatedLeave;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getAttendance(
-    connection: Connection,
-    page: number,
-    limit: number,
-    date?: string
-  ): Promise<{ attendance: IAttendance[]; total: number }> {
-    try {
-      return await this.companyRepository.getAttendanceRecords(
-        connection,
-        page,
-        limit,
-        date
-      );
-    } catch (error) {
-      throw error;
-    }
-  }
+  
 }

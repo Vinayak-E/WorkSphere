@@ -8,7 +8,7 @@ import {
 import mongoose, { Connection, Types } from 'mongoose';
 import { Model } from 'mongoose';
 import Employee from '../../models/employeeModel';
-import Attendance from '../../models/attendanceModel';
+import {AttendanceSchema} from '../../models/attendanceModel';
 import Leave from '../../models/leavesModel';
 import {
   IAttendance,
@@ -32,7 +32,7 @@ export class EmployeeRepository {
   private getAttendanceModel(connection: Connection) {
     return (
       connection.models.Attendance ||
-      connection.model<IAttendance>('Attendance', Attendance.schema)
+      connection.model<IAttendance>('Attendance', AttendanceSchema)
     );
   }
 

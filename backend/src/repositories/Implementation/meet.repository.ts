@@ -2,6 +2,8 @@ import { Connection } from 'mongoose';
 import { injectable } from 'tsyringe';
 import BaseRepository from '../baseRepository';
 import { MeetSchema } from '../../models/meetModel';
+import { CompanySchema } from '../../models/companyModel';
+import { EmployeeSchema } from '../../models/employeeModel';
 import { IMeetModel } from '../../interfaces/IMeet.types';
 import { IMeetRepository } from '../Interface/IMeetRepository';
 
@@ -21,6 +23,12 @@ export class MeetRepository
     pageSize: number
   ): Promise<IMeetModel[]> {
     const model = this.getModel(tenantConnection);
+    if (!tenantConnection.models['Employee']) {
+      tenantConnection.model('Employee', EmployeeSchema);
+    }
+    if (!tenantConnection.models['Company']) {
+      tenantConnection.model('Company', CompanySchema);
+    }
     return await model
       .find(filters)
       .populate('members', 'name email')
