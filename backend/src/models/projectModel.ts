@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { IProject } from '../interfaces/company/IProject.types';
 
-export const projectSchema = new Schema<IProject>({
+export const ProjectSchema = new Schema<IProject>({
   name: { type: String },
   description: { type: String },
   isActive: { type: Boolean, default: true },
@@ -17,5 +17,3 @@ export const projectSchema = new Schema<IProject>({
   createdAt: { type: Date, default: Date.now },
 });
 
-const Project = mongoose.model<IProject>('Project', projectSchema);
-export default Project;

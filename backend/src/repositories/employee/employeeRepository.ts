@@ -14,7 +14,8 @@ import {
   IAttendance,
   ILeave,
 } from '../../interfaces/company/IAttendance.types';
-
+import { injectable } from 'tsyringe';
+@injectable()
 export class EmployeeRepository {
   private getEmployeeModel(connection: Connection): Model<IEmployee> {
     return (

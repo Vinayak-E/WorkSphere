@@ -8,6 +8,13 @@ import { AttendanceController } from '../controllers/Implementation/attendance.c
 import { LeaveRepository } from '../repositories/Implementation/leave.repository';
 import { LeaveService } from '../services/Implementation/leave.service';
 import { LeaveController } from '../controllers/Implementation/leave.controller';
+import { ProjectRepository } from '../repositories/Implementation/project.repository';
+import { ProjectService } from '../services/Implementation/project.service';
+import { ProjectController } from '../controllers/Implementation/project.controller';
+import { EmployeeRepository } from '../repositories/employee/employeeRepository';
+import { TaskRepository } from '../repositories/Implementation/task.repository';
+import { TaskService } from '../services/Implementation/task.service';
+import { TaskController } from '../controllers/Implementation/task.controller';
 
 export function registerContainer() {
     container.register('MeetRepository', { useClass: MeetRepository });
@@ -21,4 +28,14 @@ export function registerContainer() {
     container.register('LeaveRepository', { useClass: LeaveRepository });
     container.register('LeaveService', { useClass: LeaveService });
     container.register('LeaveController', { useClass: LeaveController});
+
+    container.register('ProjectRepository', { useClass: ProjectRepository });
+    container.register('ProjectService', { useClass: ProjectService });
+    container.register('ProjectController', { useClass: ProjectController});
+
+    container.register('TaskRepository', { useClass: TaskRepository });
+    container.register('TaskService', { useClass: TaskService });
+    container.register('TaskController', { useClass: TaskController});
+
+    container.register('EmployeeRepository', { useClass: EmployeeRepository});
   }

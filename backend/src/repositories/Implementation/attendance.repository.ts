@@ -31,7 +31,6 @@ export class AttendanceRepository extends BaseRepository<IAttendance> implements
     }
 
     const attendance = await model
-
       .find(query)
       .populate('employeeId')
       .skip((page - 1) * limit)

@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { ITask } from '../interfaces/company/IProject.types';
 
-const taskSchema = new Schema<ITask>({
+export const TaskSchema = new Schema<ITask>({
   title: { type: String },
   description: { type: String },
   project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
@@ -15,5 +15,5 @@ const taskSchema = new Schema<ITask>({
   createdAt: { type: Date, default: Date.now },
 });
 
-const Task = mongoose.model<ITask>('Task', taskSchema);
+const Task = mongoose.model<ITask>('Task', TaskSchema);
 export default Task;

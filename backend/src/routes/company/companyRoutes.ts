@@ -10,16 +10,17 @@ import { EmployeeRepository } from '../../repositories/employee/employeeReposito
 import { UserRepository } from '../../repositories/user/userRepository';
 import { verifyAuth } from '../../middlewares/authMiddleware';
 import { CompanyRepository } from '../../repositories/company/companyRepository';
-import { ProjectService } from '../../services/employee/project.service';
-import { ProjectRepository } from '../../repositories/employee/projectRepository';
-import { ProjectController } from '../../controllers/employee/project.controller';
+
+
 import { CompanyController } from '../../controllers/company/company.controller';
 import { AttendanceController } from '../../controllers/Implementation/attendance.controller';
 import { LeaveController } from '../../controllers/Implementation/leave.controller';
+import { ProjectController } from '../../controllers/Implementation/project.controller';
 
 const router = express.Router();
 const attendanceController = container.resolve<AttendanceController>('AttendanceController');
 const leaveController = container.resolve<LeaveController>('LeaveController');
+const projectController = container.resolve<ProjectController>('ProjectController');
 
 const deparmentRepository = new DepartmentRepository();
 const userRepository = new UserRepository();
@@ -33,12 +34,8 @@ const companyService = new CompanyService(
   companyRepository
 );
 const employeeController = new ManageEmployeeController(companyService);
-const projectRepository = new ProjectRepository();
-const projectService = new ProjectService(
-  projectRepository,
-  employeeRepository
-);
-const projectController = new ProjectController(projectService);
+
+
 const companyController = new CompanyController(companyService);
 router.use(tenantMiddleware);
 router.use(verifyAuth);
@@ -50,10 +47,10 @@ router.get('/employees', employeeController.getEmployees);
 router.post('/employees', employeeController.addEmployee);
 router.put('/employees/:id', employeeController.updateEmployee);
 
-router.get('/projects', projectController.getAllProjects);
 router.patch('/updateProfile/:id', companyController.updateProfile);
 //
 
+router.get('/projects', projectController.getAllProjects);
 router.get('/attendance', attendanceController.getAllAttendance);
 
 router.get('/leaves', leaveController.getAllLeaves);

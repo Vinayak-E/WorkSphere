@@ -34,7 +34,7 @@ const CompanyProjectDetails = () => {
     const loadProject = async () => {
       try {
         const response = await ProjectService.getProjectById(id!);
-        setProject(response.data.project);
+        setProject(response.data);
         setTasks(response.data.tasks);
         setDepartmentEmployees(response.data.departmentEmployees);
       } catch (error) {
@@ -132,7 +132,6 @@ const CompanyProjectDetails = () => {
         <Button
           variant="outline"
           onClick={() => navigate(-1)}
-          className="hover:bg-gray-50"
         >
           ← Back to Projects
         </Button>
@@ -152,7 +151,7 @@ const CompanyProjectDetails = () => {
         <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 border-b-gray-50 rounded-t-xl">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-3xl font-bold flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold flex items-center gap-3">
                 <Briefcase className="w-8 h-8 text-blue-400" />
                 {project.name}
               </CardTitle>
@@ -171,7 +170,7 @@ const CompanyProjectDetails = () => {
               <PencilIcon className="w-6 h-6 text-gray-600" />
             </button>
           </div>
-          <p className="text-gray-500 text-lg mt-4">{project.description}</p>
+          <p className="text-gray-500 text-md mt-4">{project.description}</p>
         </CardHeader>
 
         <CardContent className="p-8">

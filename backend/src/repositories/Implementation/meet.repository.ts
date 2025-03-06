@@ -19,7 +19,7 @@ export class MeetRepository
   async getMeetings(
     tenantConnection: Connection,
     filters: any,
-    page: number,
+    page: number, 
     pageSize: number
   ): Promise<IMeetModel[]> {
     const model = this.getModel(tenantConnection);
