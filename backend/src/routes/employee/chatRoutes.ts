@@ -2,12 +2,14 @@ import express from 'express';
 import { ChatController } from '../../controllers/employee/chat.controller';
 import { ChatService } from '../../services/employee/chat.service';
 import { ChatRepository } from '../../repositories/employee/chatRepository';
-import { EmployeeRepository } from '../../repositories/employee/employeeRepository';
+
 import { verifyAuth } from '../../middlewares/authMiddleware';
 import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
+import { EmployeeRepository } from '../../repositories/Implementation/employee.repository';
+import mongoose from 'mongoose';
 
 const router = express.Router();
-const employeeRepository = new EmployeeRepository();
+const employeeRepository = new EmployeeRepository(mongoose.connection);
 const chatRepository = new ChatRepository();
 const chatService = new ChatService(chatRepository, employeeRepository);
 const chatController = new ChatController(chatService);

@@ -6,9 +6,10 @@ import {
   GetProjectsOptions,
 } from '../../interfaces/company/IProject.types';
 import { ProjectRepository } from '../../repositories/Implementation/project.repository';
-import { EmployeeRepository } from '../../repositories/employee/employeeRepository';
+
 import { TaskRepository } from '../../repositories/Implementation/task.repository';
 import { IProjectService } from '../Interface/IProjectService';
+import { EmployeeRepository } from '../../repositories/Implementation/employee.repository';
 
 @injectable()
 export class ProjectService implements IProjectService {
@@ -122,7 +123,7 @@ export class ProjectService implements IProjectService {
         0,
         1000
       ),
-      this.employeeRepository.getEmployeesByDepartment(
+      this.employeeRepository.getDepartmentEmployees(
         connection,
         departmentId
       ),

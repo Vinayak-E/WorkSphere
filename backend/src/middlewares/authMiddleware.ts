@@ -4,14 +4,11 @@ import mongoose from 'mongoose';
 import { ICompanyDocument } from '../interfaces/company/company.types';
 import { IEmployee } from '../interfaces/company/IEmployee.types';
 import { IUser } from '../interfaces/IUser.types';
-import { CompanyService } from '../services/company/company.service';
-import { EmployeeRepository } from '../repositories/employee/employeeRepository';
-import { UserRepository } from '../repositories/user/userRepository';
-import { CompanyRepository } from '../repositories/company/companyRepository';
-import { EmployeeService } from '../services/employee/employee.service';
-import { AdminService } from '../services/admin/admin.service';
-import { AdminRepository } from '../repositories/admin/adminRepository';
-import { JwtService } from '../services/jwt.service';
+import { container } from 'tsyringe';
+import { CompanyService } from '../services/Implementation/company.service';
+import { EmployeeService } from '../services/Implementation/employee.service';
+import { AdminService } from '../services/Implementation/admin.service';
+
 
 interface JwtPayload {
   email: string;
@@ -81,27 +78,11 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
     }
 
     req.user = decoded;
+    const companyService = container.resolve(CompanyService);
+    const employeeService = container.resolve(EmployeeService);
+    const adminService = container.resolve(AdminService);
 
-    const employeeRepository = new EmployeeRepository();
-    const userRepository = new UserRepository();
-    const companyRepository = new CompanyRepository();
-    const companyService = new CompanyService(
-      employeeRepository,
-      userRepository,
-      companyRepository
-    );
-    const employeeService = new EmployeeService(
-      employeeRepository,
-      userRepository
-    );
-    const adminRepository = new AdminRepository();
-    const jwtService = new JwtService();
-    const adminService = new AdminService(
-      jwtService,
-      adminRepository,
-      companyRepository
-    );
-
+    
     const tenantConnection = req.tenantConnection;
     if (tenantConnection) {
       let userData: ICompanyDocument | IEmployee | IUser | null;

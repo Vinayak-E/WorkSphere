@@ -1,40 +1,43 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import {
-  IAuthService,
   ICompanyDocument,
 } from '../../interfaces/company/company.types';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { firebaseAdmin } from '../../configs/firebase.config';
 import { IPayload } from '../../interfaces/IJwtService.types';
 import {
   IEmployee,
-  IEmployeeService,
 } from '../../interfaces/company/IEmployee.types';
-import { CompanyService } from '../../services/company/company.service';
-import { IAdminService } from '../../interfaces/admin/admin.types';
 import { IUser } from '../../interfaces/IUser.types';
+import { injectable, inject } from 'tsyringe';
+import { AuthService } from '../../services/Implementation/auth.service';
+import { EmployeeService } from '../../services/Implementation/employee.service';
 
-export class AuthenticationController {
+import { CompanyService } from '../../services/Implementation/company.service';
+import { AdminService } from '../../services/Implementation/admin.service';
+
+@injectable()
+export class AuthController {
   constructor(
-    private readonly authService: IAuthService,
-    private readonly companyService: CompanyService,
-    private readonly employeeService: IEmployeeService,
-    private readonly adminService: IAdminService
+    @inject('AuthService') private authService: AuthService,
+    @inject('EmployeeService') private employeeService: EmployeeService,
+    @inject('CompanyService') private companyService: CompanyService,
+    @inject('AdminService') private adminService: AdminService 
   ) {}
 
   signup: RequestHandler = async (req, res, next) => {
     try {
       const data = req.body;
+      console.log('data at controller',data)
+      const { businessRegNo } = req.body;
+      console.log("bussinesRegNo",businessRegNo)
       const registeredMail = await this.authService.signup(data);
       if (registeredMail) {
         res.status(201).json({ success: true, registeredMail });
       } else {
-        res
-          .status(400)
-          .json({
-            success: false,
-            message: 'This company is already registered!',
-          });
+        res.status(400).json({
+          success: false,
+          message: 'This company is already registered!',
+        });
       }
     } catch (error) {
       next(error);
@@ -95,6 +98,7 @@ export class AuthenticationController {
           maxAge: 15 * 60 * 1000,
         });
       }
+   
       res.status(200).json({
         success: true,
         email: response.user.email,
@@ -263,53 +267,6 @@ export class AuthenticationController {
       });
     } catch (error) {
       next(error);
-    }
-  };
-
-  googleLogin: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const { idToken } = req.body;
-    try {
-      const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
-      const user = await this.authService.findOrCreateCompany(decodedToken);
-      if (
-        !process.env.ACCESS_TOKEN_SECRET ||
-        !process.env.REFRESH_TOKEN_SECRET
-      ) {
-        throw new Error('JWT secrets are not configured');
-      }
-      const accessToken = jwt.sign(
-        { userId: user.uid },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '20s' }
-      );
-      const refreshToken = jwt.sign(
-        { userId: user.uid },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: '1h' }
-      );
-
-      res.status(200).json({
-        success: true,
-        accessToken,
-        refreshToken,
-        user: {
-          email: user.email,
-          isAdmin: false,
-        },
-      });
-    } catch (error: any) {
-      if (error.code === 'auth/invalid-id-token') {
-        res.status(400).json({ message: 'Invalid Google ID Token' });
-      } else {
-        res.status(500).json({
-          message: 'Something went wrong during login',
-          error: error.message,
-        });
-      }
     }
   };
 }

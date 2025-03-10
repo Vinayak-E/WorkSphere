@@ -1,5 +1,5 @@
 import { Connection } from 'mongoose';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import BaseRepository from '../baseRepository';
 import { EmployeeSchema } from '../../models/employeeModel';
 import { AttendanceSchema } from '../../models/attendanceModel';
@@ -8,15 +8,15 @@ import { IAttendanceRepository } from '../Interface/IAttendanceRepository';
 
 @injectable()
 export class AttendanceRepository extends BaseRepository<IAttendance> implements IAttendanceRepository{
-  constructor() {
-    super('Attendance', AttendanceSchema);
+  constructor(@inject('MainConnection') mainConnection: Connection) {
+    super('Attendance', AttendanceSchema,mainConnection);
   }
 
   async createAttendance(
     tenantConnection: Connection,
     attendanceData: Partial<IAttendance>
   ): Promise<IAttendance> {
-    return await this.create(tenantConnection, attendanceData);
+    return await this.create(attendanceData,tenantConnection);
   }
 
   async getAttendance(
@@ -45,7 +45,7 @@ export class AttendanceRepository extends BaseRepository<IAttendance> implements
     attendanceId: string,
     updateData: Partial<IAttendance>
   ): Promise<IAttendance | null> {
-    return await this.update(tenantConnection, attendanceId, updateData);
+    return await this.update(attendanceId, updateData,tenantConnection);
   }
 
   async findTodayAttendance(

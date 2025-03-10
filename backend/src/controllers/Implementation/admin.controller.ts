@@ -1,8 +1,10 @@
-import { IAdminService } from '../../interfaces/admin/admin.types';
-import { RequestHandler } from 'express-serve-static-core';
+import { injectable, inject } from 'tsyringe';
+import { RequestHandler } from 'express';
+import { AdminService } from '../../services/Implementation/admin.service';
 
-export class AdminAuthController {
-  constructor(private readonly adminService: IAdminService) {}
+@injectable()
+export class AdminController {
+  constructor(@inject('AdminService') private readonly adminService: AdminService) {}
 
   adminLogin: RequestHandler = async (req, res, next) => {
     try {
@@ -42,7 +44,18 @@ export class AdminAuthController {
 
   companiesList: RequestHandler = async (req, res, next) => {
     try {
+      console.log('hello')
       const companies = await this.adminService.getCompanies();
+      console.log("companies",companies)
+      res.status(200).json(companies);
+    } catch (error) {
+      next(error);
+    }
+  };
+  companyRequests: RequestHandler = async (req, res, next) => {
+    try {
+      const companies = await this.adminService.getCompanyRequests();
+      console.log("companies",companies)
       res.status(200).json(companies);
     } catch (error) {
       next(error);
@@ -53,7 +66,7 @@ export class AdminAuthController {
     try {
       const { companyId } = req.params;
       const { isActive } = req.body;
-
+console.log("companyId",companyId)
       if (typeof isActive !== 'boolean') {
         res.status(400).json({
           success: false,
@@ -62,10 +75,7 @@ export class AdminAuthController {
         return;
       }
 
-      const updatedCompany = await this.adminService.updateCompanyStatus(
-        companyId,
-        isActive
-      );
+      const updatedCompany = await this.adminService.updateCompanyStatus(companyId, isActive);
 
       if (!updatedCompany) {
         res.status(404).json({
@@ -90,11 +100,7 @@ export class AdminAuthController {
       const { companyId } = req.params;
       const { isApproved, reason } = req.body;
 
-      const updatedCompany = await this.adminService.updateCompanyRequest(
-        companyId,
-        isApproved,
-        reason
-      );
+      const updatedCompany = await this.adminService.updateCompanyRequest(companyId, isApproved, reason);
 
       if (!updatedCompany) {
         res.status(404).json({

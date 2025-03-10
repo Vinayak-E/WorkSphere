@@ -1,4 +1,4 @@
-import mongoose, { Connection } from 'mongoose';
+import mongoose, { Connection, Document } from 'mongoose';
 import { IAttendance, ILeave } from './IAttendance.types';
 import { IDepartment } from './IDepartment.types';
 

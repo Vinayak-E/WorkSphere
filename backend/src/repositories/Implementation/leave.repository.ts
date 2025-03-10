@@ -1,5 +1,5 @@
 import { Connection } from 'mongoose';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { ILeave } from '../../interfaces/company/IAttendance.types';
 import BaseRepository from '../baseRepository';
 import { LeaveSchema } from '../../models/leavesModel';
@@ -8,12 +8,12 @@ import { ILeaveRepository } from '../Interface/ILeaveRepository';
 
 @injectable()
 export class LeaveRepository extends BaseRepository<ILeave> implements ILeaveRepository {
-  constructor() {
-    super('Leave', LeaveSchema);
+  constructor(@inject('MainConnection') mainConnection: Connection) {
+    super('Leave', LeaveSchema ,mainConnection);
   }
 
   async createLeave(tenantConnection: Connection, leaveData: Partial<ILeave>): Promise<ILeave> {
-    return await this.create(tenantConnection, leaveData);
+    return await this.create(leaveData,tenantConnection);
   }
 
   async getLeaves(
@@ -42,7 +42,7 @@ export class LeaveRepository extends BaseRepository<ILeave> implements ILeaveRep
     leaveId: string,
     updateData: Partial<ILeave>
   ): Promise<ILeave | null> {
-    return await this.update(tenantConnection, leaveId, updateData);
+    return await this.update(leaveId, updateData,tenantConnection);
   }
 
   async findOverlappingLeaves(

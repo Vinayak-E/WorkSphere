@@ -12,7 +12,7 @@ export const validateForm = (formState: any): ValidationRules => {
     state: "",
     country: "",
     zipcode: "",
-    bussinessRegNum: "",
+    businessRegNo: "",
     confirmPassword: "",
   };
 
@@ -36,8 +36,8 @@ export const validateForm = (formState: any): ValidationRules => {
     errors.industry = "Industry is required";
   }
 
-  if (!formState.bussinessRegNum.value.trim()) {
-    errors.bussinessRegNum = "Bussiness Registration number is required";
+  if (!formState.businessRegNo.value.trim()) {
+    errors.businessRegNo = "Bussiness Registration number is required";
   }
   if (!formState.city.value.trim()) {
     errors.city = "City is required";

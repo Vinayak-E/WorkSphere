@@ -9,7 +9,7 @@ export interface SignupData {
   email: string;
   phone: string;
   industry: string;
-  bussinessRegNum: string;
+  businessRegNo: string;
   city: string;
   state: string;
   country: string;
@@ -22,7 +22,7 @@ export type FieldName =
   | "email"
   | "phone"
   | "industry"
-  | "bussinessRegNum"
+  | "businessRegNo"
   | "city"
   | "state"
   | "zipcode"
@@ -35,7 +35,7 @@ export interface FormState {
   email: FieldState;
   phone: FieldState;
   industry: FieldState;
-  bussinessRegNum: FieldState;
+  businessRegNo: FieldState;
   city: FieldState;
   state: FieldState;
   country: FieldState;
@@ -55,7 +55,7 @@ export interface ValidationRules {
   email: string;
   phone: string;
   industry: string;
-  bussinessRegNum: string;
+  businessRegNo: string;
   city: string;
   state: string;
   country: string;

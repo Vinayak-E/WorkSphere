@@ -1,8 +1,8 @@
 import express from 'express';
+import { container } from 'tsyringe';
 import { verifyAuth } from '../../middlewares/authMiddleware';
 import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
 import { MeetController } from '../../controllers/Implementation/meet.controller';
-import { container } from 'tsyringe';
 
 const router = express.Router();
 const meetController = container.resolve<MeetController>('MeetController');

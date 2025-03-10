@@ -1,6 +1,5 @@
-import { ObjectId } from 'mongoose';
-import { IUser } from '../IUser.types';
-import { refreshToken } from 'firebase-admin/app';
+
+import { Document } from 'mongoose';
 import { IPayload } from '../IJwtService.types';
 
 export interface ISignup {
@@ -137,7 +136,7 @@ export interface IAuthService {
   }>;
   sendResetLink(email: string): Promise<boolean | null>;
   resetPassword(email: string, password: string): Promise<void>;
-  findOrCreateCompany(profile: any): Promise<any>;
+
 }
 
 export interface ICompanyRepository {

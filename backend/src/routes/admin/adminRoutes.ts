@@ -1,31 +1,21 @@
 import expres from 'express';
-import { AdminAuthController } from '../../controllers/admin/admin.auth.controller';
-import { AdminService } from '../../services/admin/admin.service';
-import { JwtService } from '../../services/jwt.service';
-import { AdminRepository } from '../../repositories/admin/adminRepository';
-import { CompanyRepository } from '../../repositories/company/companyRepository';
+import { container } from 'tsyringe';
+import { AdminController } from '../../controllers/Implementation/admin.controller';
 
 const router = expres.Router();
-const jwtService = new JwtService();
-const adminRepository = new AdminRepository();
-const companyRepository = new CompanyRepository();
-const adminService = new AdminService(
-  jwtService,
-  adminRepository,
-  companyRepository
-);
-const adminAuthController = new AdminAuthController(adminService);
+const adminController = container.resolve<AdminController>('AdminController');
 
-router.post('/login', adminAuthController.adminLogin);
-router.get('/companiesList', adminAuthController.companiesList);
+router.post('/login', adminController.adminLogin);
+router.get('/companiesList', adminController.companiesList);
+router.get('/companyRequests', adminController.companyRequests);
 
 router.put(
   '/companiesList/:companyId/status',
-  adminAuthController.updateCompanyStatus
+  adminController.updateCompanyStatus
 );
 router.put(
   '/companiesList/:companyId/approve',
-  adminAuthController.updateCompanyRequest
+  adminController.updateCompanyRequest
 );
 
 export default router;

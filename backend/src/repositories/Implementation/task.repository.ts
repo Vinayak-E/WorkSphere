@@ -1,5 +1,5 @@
 import { Connection } from 'mongoose';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { ITask } from '../../interfaces/company/IProject.types';
 import { ProjectSchema } from '../../models/projectModel';
 import BaseRepository from '../baseRepository';
@@ -8,8 +8,8 @@ import { ITaskRepository } from '../Interface/ITaskRepository';
 
 @injectable()
 export class TaskRepository extends BaseRepository<ITask>  implements ITaskRepository {
-  constructor() {
-    super('Task', TaskSchema);
+  constructor(@inject('MainConnection') mainConnection: Connection) {
+    super('Task', TaskSchema,mainConnection);
   }
 
   async findTasks(
@@ -39,7 +39,7 @@ export class TaskRepository extends BaseRepository<ITask>  implements ITaskRepos
     connection: Connection,
     taskData: Partial<ITask>
   ): Promise<ITask> {
-    return await this.create(connection, taskData);
+    return await this.create(taskData,connection);
   }
 
   async findTaskById(
@@ -55,11 +55,11 @@ export class TaskRepository extends BaseRepository<ITask>  implements ITaskRepos
     taskId: string,
     taskData: Partial<ITask>
   ): Promise<ITask | null> {
-    return await this.update(connection, taskId, taskData);
+    return await this.update(taskId, taskData,connection);
   }
 
   async deleteTask(connection: Connection, taskId: string): Promise<boolean> {
-    const deleted = await this.delete(connection, taskId);
+    const deleted = await this.delete(taskId,connection);
     return deleted !== null;
   }
 }

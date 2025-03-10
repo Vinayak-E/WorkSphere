@@ -14,7 +14,7 @@ export class LeaveController implements ILeaveController {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
       res.status(500).json({ success: false, message: 'Tenant connection not established' });
-      return 
+      return;
       }
       const employeeId = req.userId;
       if (!employeeId) {

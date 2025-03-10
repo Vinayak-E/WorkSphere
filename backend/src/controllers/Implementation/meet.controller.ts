@@ -107,7 +107,7 @@ export class MeetController implements IMeetController {
     }
   };
 
-  async createMeeting(req: Request, res: Response, next: NextFunction) {
+   createMeeting  = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       if (!req.userId || !req.user) {
@@ -135,7 +135,7 @@ export class MeetController implements IMeetController {
     }
   }
 
-  async updateMeeting(req: Request, res: Response, next: NextFunction) {
+ updateMeeting  = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       const meeting = await this.meetService.updateMeeting(
@@ -150,7 +150,7 @@ export class MeetController implements IMeetController {
     }
   }
 
-  async deleteMeeting(req: Request, res: Response, next: NextFunction) {
+  deleteMeeting  = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       const meeting = await this.meetService.deleteMeeting(

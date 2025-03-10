@@ -22,7 +22,7 @@ export const handleSignup = async (
       email: formState.email.value,
       phone: formState.phone.value,
       industry: formState.industry.value,
-      bussinessRegNum: formState.bussinessRegNum.value,
+      businessRegNo: formState.businessRegNo.value,
       city: formState.city.value,
       state: formState.state.value,
       country: formState.country.value,

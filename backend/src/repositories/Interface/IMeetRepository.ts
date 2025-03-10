@@ -15,13 +15,13 @@ export interface IMeetRepository {
   ): Promise<number>;
 
   create(
-    tenantConnection: Connection,
-    data: Partial<IMeetModel>
+    data: Partial<IMeetModel>,
+    tenantConnection: Connection
   ): Promise<IMeetModel>;
   update(
-    tenantConnection: Connection,
     id: string,
-    data: Partial<IMeetModel>
+    data: Partial<IMeetModel>,
+    tenantConnection: Connection,
   ): Promise<IMeetModel | null>;
-  delete(tenantConnection: Connection, id: string): Promise<IMeetModel | null>;
+  delete(id: string,tenantConnection: Connection): Promise<IMeetModel | null>;
 }

@@ -1,5 +1,5 @@
 import { Connection } from 'mongoose';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import BaseRepository from '../baseRepository';
 import { MeetSchema } from '../../models/meetModel';
 import { CompanySchema } from '../../models/companyModel';
@@ -12,8 +12,8 @@ export class MeetRepository
   extends BaseRepository<IMeetModel>
   implements IMeetRepository
 {
-  constructor() {
-    super('Meet', MeetSchema);
+  constructor(@inject('MainConnection') mainConnection: Connection) {
+    super('Meet', MeetSchema ,mainConnection)
   }
 
   async getMeetings(
@@ -45,4 +45,5 @@ export class MeetRepository
     const model = this.getModel(tenantConnection);
     return await model.countDocuments(filters).exec();
   }
+
 }

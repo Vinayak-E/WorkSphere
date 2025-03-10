@@ -13,7 +13,6 @@ export const CompanySchema = new Schema<ICompanyDocument>({
   state: { type: String },
   country: { type: String },
   zipcode: { type: String },
-
   subscriptionPlan: {
     type: String,
     enum: ['free', 'basic', 'premium', 'enterprise'],
@@ -29,7 +28,7 @@ export const CompanySchema = new Schema<ICompanyDocument>({
   refreshToken: { type: String, select: false },
   passwordResetToken: { type: String, select: false },
   passwordResetExpires: { type: Date, select: false },
-});
+}, { timestamps: true });
 
 CompanySchema.virtual('name').get(function () {
   return this.companyName;

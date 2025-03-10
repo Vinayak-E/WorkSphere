@@ -1,8 +1,8 @@
 import { Connection, Model } from 'mongoose';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { IProject } from '../../interfaces/company/IProject.types';
 import { ProjectSchema } from '../../models/projectModel';
-import { departmentSchema } from '../../models/departmentModel';
+import { DepartmentSchema } from '../../models/departmentModel';
 import { EmployeeSchema } from '../../models/employeeModel';
 import BaseRepository from '../baseRepository';
 import { IProjectRepository } from '../Interface/IProjectRepository';
@@ -10,10 +10,10 @@ import { IProjectRepository } from '../Interface/IProjectRepository';
 
 @injectable()
 export class ProjectRepository extends BaseRepository<IProject>  implements IProjectRepository{
-  constructor() {
-    super('Project', ProjectSchema);
+  constructor(@inject('MainConnection') mainConnection: Connection) {
+    super('Project', ProjectSchema,mainConnection);
   }
-
+ 
   async findProjects(
     connection: Connection,
     query: any,
@@ -23,7 +23,7 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
     const projectModel = this.getModel(connection);
 
     if (!connection.models['Department']) {
-      connection.model('Department', departmentSchema);
+      connection.model('Department', DepartmentSchema);
     }
     if (!connection.models['Employee']) {
       connection.model('Employee', EmployeeSchema);
@@ -45,7 +45,7 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
     connection: Connection,
     projectData: Partial<IProject>
   ): Promise<IProject> {
-    return await this.create(connection, projectData);
+    return await this.create(projectData,connection);
   }
 
   async findProjectById(
@@ -54,7 +54,7 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
   ): Promise<IProject | null> {
     const projectModel = this.getModel(connection);
     if (!connection.models['Department']) {
-      connection.model('Department', departmentSchema);
+      connection.model('Department', DepartmentSchema);
     }
     if (!connection.models['Employee']) {
       connection.model('Employee', EmployeeSchema);
@@ -70,14 +70,14 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
     projectId: string,
     projectData: Partial<IProject>
   ): Promise<IProject | null> {
-    return await this.update(connection, projectId, projectData);
+    return await this.update(projectId, projectData,connection);
   }
 
   async deleteProject(
     connection: Connection,
     projectId: string
   ): Promise<boolean> {
-    const deleted = await this.delete(connection, projectId);
+    const deleted = await this.delete(projectId,connection);
     return deleted !== null;
   }
 

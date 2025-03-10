@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 function App() {
   return (
     <>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <BrowserRouter>
           <AppRoutes />
           <ToastContainer

@@ -1,16 +1,10 @@
 import { redisClient } from '../../configs/redisClient';
-import { IJwtService, IPayload } from '../../interfaces/IJwtService.types';
-import { IUserRepository } from '../../interfaces/IUser.types';
+import { IPayload } from '../../interfaces/IJwtService.types';
 import {
-  ICompanySignup,
   IVerifyOtpDto,
-  IAuthService,
-  ICompanyRepository,
   ICompanyUser,
-  DecodedToken,
 } from '../../interfaces/company/company.types';
 import { sendEmail, sendResetEmail } from '../../utils/email';
-
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import slugify from 'slugify';
@@ -23,13 +17,22 @@ import {
   checkCompanyPrefix,
 } from '../../helpers/helperFunctions';
 import { ISignup } from '../../interfaces/company/company.types';
+import { injectable, inject } from 'tsyringe';
+import { JwtService } from '../jwt.service';
+import { UserRepository } from '../../repositories/Implementation/user.repository';
+import { CompanyRepository } from '../../repositories/Implementation/company.repository';
+import { CompanyRequestRepository } from '../../repositories/Implementation/companyRequest.repository';
 
-export class AuthService implements IAuthService {
-  constructor(
-    private readonly companyRepository: ICompanyRepository,
-    private readonly userRepository: IUserRepository,
-    private readonly jwtService: IJwtService
-  ) {}
+
+@injectable()
+export class AuthService {
+    constructor(
+        @inject('UserRepository') private userRepository: UserRepository,
+        @inject('CompanyRepository') private companyRepository: CompanyRepository,
+        @inject('CompanyRequestRepository') private companyRequestRepository: CompanyRequestRepository,
+        @inject('JwtService') private jwtService: JwtService,
+      ) {}
+    
 
   async signup(data: ISignup): Promise<string | boolean> {
     try {
@@ -44,6 +47,7 @@ export class AuthService implements IAuthService {
         state,
         zipcode,
       } = data;
+      console.log('bussinessRegno at service',businessRegNo)
       const companyName = generateCompanySlug(data.companyName);
       const existingUser = await this.userRepository.findByEmailOrCompanyName(
         data.email,
@@ -87,7 +91,8 @@ export class AuthService implements IAuthService {
       if (parsedData.otp !== data.otp) throw new Error('Invalid OTP');
       parsedData.role = 'COMPANY';
       await this.userRepository.createUser(parsedData);
-      await this.companyRepository.createTempCompany(parsedData);
+      console.log('parsed data',parsedData)
+      await this.companyRequestRepository.createTempCompany(parsedData);
       await redisClient.del(redisKey);
       return true;
     } catch (error) {
@@ -182,7 +187,7 @@ export class AuthService implements IAuthService {
         resetToken,
         tokenExpiry
       );
-      const resetLink = `http://localhost:5173/resetPassword?token=${resetToken}`;
+      const resetLink = `http://localhost:5176/resetPassword?token=${resetToken}`;
       await sendResetEmail(
         email,
         'Password Reset',
@@ -241,20 +246,5 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async findOrCreateCompany(profile: any): Promise<any> {
-    const email = profile.email;
-    const existingUser = await this.companyRepository.findByEmail(email);
-
-    if (existingUser) {
-      return existingUser;
-    }
-
-    const newUser = {
-      companyName: null,
-      email,
-      phone: null,
-      googleId: profile.uid,
-      password: profile.password || null,
-    };
-  }
+  
 }

@@ -1,7 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { IUser } from '../interfaces/IUser.types';
 
-const UserSchema = new Schema<IUser>(
+export const UserSchema = new Schema<IUser>(
   {
     companyName: { type: String },
     email: { type: String },

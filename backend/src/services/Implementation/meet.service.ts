@@ -43,8 +43,9 @@ export class MeetService implements IMeetService {
     tenantConnection: Connection,
     meetData: Partial<IMeetModel>
   ) {
+    console.log('hello')
     meetData.meetId = generateMeetingId();
-    return await this.meetRepository.create(tenantConnection, meetData);
+    return await this.meetRepository.create(meetData,tenantConnection);
   }
 
   async updateMeeting(
@@ -53,13 +54,13 @@ export class MeetService implements IMeetService {
     meetData: Partial<IMeetModel>
   ) {
     return await this.meetRepository.update(
-      tenantConnection,
       meetingId,
-      meetData
+      meetData,
+      tenantConnection
     );
   }
 
   async deleteMeeting(tenantConnection: Connection, meetingId: string) {
-    return await this.meetRepository.delete(tenantConnection, meetingId);
+    return await this.meetRepository.delete(meetingId,tenantConnection,);
   }
 }
