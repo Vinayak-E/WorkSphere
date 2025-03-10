@@ -27,7 +27,7 @@ export class CompanyService {
     tenantConnection: Connection,
     tenantId: string
   ): Promise<IEmployee> {
-    // Check if a user with the same email already exists
+
     if(!employeeData.email) {
         throw new Error('Email Not found');
       }
@@ -36,12 +36,12 @@ export class CompanyService {
       throw new Error('This email already exists');
     }
 
-    // Generate a password based on company rules and hash it
+
     const randomPassword = generateCompanyBasedPassword(tenantId);
     console.log('Password',randomPassword)
     const hashPassword = await bcrypt.hash(randomPassword, 10);
 
-    // Create a new user record
+
     const userData = {
       email: employeeData.email,
       companyName: tenantId,
@@ -57,7 +57,7 @@ export class CompanyService {
       `Your Password is: ${randomPassword}`
     );
 
-    // Generate an employee ID and create the employee record
+
     const employeeId = generateEmployeeId();
     const newEmployee = await this.employeeRepository.createEmployee(
       { ...employeeData, employeeId },

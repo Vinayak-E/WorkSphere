@@ -9,12 +9,14 @@ import { AttendanceController } from '../../controllers/Implementation/attendanc
 import { LeaveController } from '../../controllers/Implementation/leave.controller';
 import { ProjectController } from '../../controllers/Implementation/project.controller';
 import { CompanyController } from '../../controllers/Implementation/company.controller';
+import { DashboardController } from '../../controllers/Implementation/dashboard.controller';
 
 const router = express.Router();
 const attendanceController = container.resolve<AttendanceController>('AttendanceController');
 const leaveController = container.resolve<LeaveController>('LeaveController');
 const projectController = container.resolve<ProjectController>('ProjectController');
 const companyController = container.resolve<CompanyController>('CompanyController');
+const dashboardController = container.resolve<DashboardController>('DashboardController');
 
 const deparmentRepository = new DepartmentRepository();
 
@@ -23,6 +25,8 @@ const departmentController = new DepartmentController(departmentService);
 
 router.use(tenantMiddleware);
 router.use(verifyAuth);
+
+router.get('/dashboard', dashboardController.getDashboard);
 
 router.get('/departments', departmentController.getDepartments);
 router.post('/departments', departmentController.addDepartment);

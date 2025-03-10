@@ -91,4 +91,13 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
       .findByIdAndUpdate(projectId, { $addToSet: { employees: employeeId } })
       .exec();
   }
+  async getProjectStats(connection: Connection): Promise<any> {
+    const projectModel = this.getModel(connection);
+    const total = await projectModel.countDocuments().exec();
+    const statusChart = await projectModel.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).exec();
+
+    return { total, statusChart };
+  }
 }

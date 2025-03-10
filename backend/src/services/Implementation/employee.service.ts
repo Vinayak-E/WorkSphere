@@ -30,14 +30,13 @@ export class EmployeeService {
   }
 
   async getDepartmentEmployees(connection: Connection, userEmail: string): Promise<IEmployee[]> {
-    // First, retrieve the current employee to determine their department
+
     const currentEmployee = await this.employeeRepository.getEmployeeByEmail(connection, userEmail);
     if (!currentEmployee || !currentEmployee.department) {
       throw new Error('Employee or department not found');
     }
     const departmentId = currentEmployee.department._id;
     const departmentEmployees = await this.employeeRepository.getDepartmentEmployees(connection, departmentId);
-    // Exclude the current employee from the list
     return departmentEmployees.filter((emp) => emp.email !== userEmail);
   }
 }

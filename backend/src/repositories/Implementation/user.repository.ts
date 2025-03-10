@@ -19,14 +19,15 @@ export class UserRepository  extends BaseRepository<IUser>  {
   async findByEmail(email: string): Promise<IUser | null> {
     return await this.findOne({ email });
   }
-
-  async resetPassword(email: string, password: string): Promise<void> {
-    try {
-      await this.update(email, { password });
-    } catch (error) {
-      console.error('Error saving the new password!', error);
-    }
+async resetPassword(email: string, password: string): Promise<void> {
+  try {
+    await this.findOneAndUpdate({ email }, { password }, { new: true })
+  } catch (error) {
+    console.error('Error updating the password!', error);
+    throw new Error('Failed to reset password');
   }
+}
+
   async updateRequest(companyId: string, isApproved: string) {
     return await this.findOneAndUpdate(
       { _id: companyId },

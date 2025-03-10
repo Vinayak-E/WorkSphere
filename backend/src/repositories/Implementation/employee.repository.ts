@@ -44,4 +44,24 @@ export class EmployeeRepository extends BaseRepository<IEmployee> {
       .select('name email role department')
       .exec();
   }
+
+  async getEmployeeStats(connection: Connection): Promise<any> {
+    const employeeModel = this.getModel(connection);
+    if (!connection.models['Department']) {
+      connection.model('Department', DepartmentSchema);
+    }
+    const total = await employeeModel.countDocuments().exec();
+    const byDepartment = await employeeModel.aggregate([
+      { $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'departmentInfo' } },
+      { $unwind: '$departmentInfo' },
+      { $group: { _id: '$department', name: { $first: '$departmentInfo.name' }, count: { $sum: 1 } } }
+    ]).exec();
+    const workload = await employeeModel.aggregate([
+      { $lookup: { from: 'tasks', localField: '_id', foreignField: 'assignee', as: 'tasks' } },
+      { $project: { name: 1, taskCount: { $size: '$tasks' } } },
+      { $sort: { taskCount: -1 } },
+      { $limit: 5 }
+    ]).exec();
+    return { total, byDepartment, workload };
+  }
 }

@@ -9,7 +9,6 @@ export class CompanyController {
     @inject('CompanyService') private readonly companyService: CompanyService
   ) {}
 
-  // Endpoint for updating the company profile
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -35,7 +34,6 @@ export class CompanyController {
     }
   };
 
-  // Endpoint for retrieving a list of employees
   getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -51,7 +49,6 @@ export class CompanyController {
     }
   };
 
-  // Endpoint for adding a new employee
   addEmployee  = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -72,8 +69,7 @@ export class CompanyController {
       next(error);
     }
   };
-
-  // Endpoint for updating an employee
+  
   updateEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;

@@ -30,6 +30,8 @@ import { AdminRepository } from '../repositories/Implementation/admin.repository
 import { AdminService } from '../services/Implementation/admin.service';
 import { AdminController } from '../controllers/Implementation/admin.controller';
 import { CompanyRequestRepository } from '../repositories/Implementation/companyRequest.repository';
+import { DashboardService } from '../services/Implementation/dashboard.service';
+import { DashboardController } from '../controllers/Implementation/dashboard.controller';
 
 export function registerContainer() {
   console.log('Registering dependencies...');
@@ -43,6 +45,10 @@ export function registerContainer() {
 
    container.register('UserRepository', { useClass: UserRepository });
    container.register('CompanyRequestRepository', { useClass: CompanyRequestRepository });
+
+
+   container.register('DashboardService', { useClass: DashboardService });
+   container.register('DashboardController', { useClass: DashboardController });
 
    container.register('CompanyRepository', { useClass: CompanyRepository });
    container.register('CompanyService', { useClass: CompanyService });
