@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import { IEmployee } from '../interfaces/company/IEmployee.types';
 
-export const employeeSchema = new Schema<IEmployee>(
+export const EmployeeSchema = new Schema<IEmployee>(
   {
     employeeId: { type: String },
     name: { type: String, required: true },
@@ -40,6 +40,6 @@ export const employeeSchema = new Schema<IEmployee>(
   }
 );
 
-const Employee = mongoose.model<IEmployee>('Employee', employeeSchema);
+const Employee = mongoose.model<IEmployee>('Employee', EmployeeSchema);
 
 export default Employee;

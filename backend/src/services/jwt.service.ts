@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { envConfig } from '../configs/envConfig';
 import { IJwtService, IPayload } from '../interfaces/IJwtService.types';
+import { injectable } from 'tsyringe';
 
+@injectable()
 export class JwtService implements IJwtService {
   public async generateRefreshToken(data: IPayload): Promise<string> {
     const secretKey = envConfig.JWT_SECRETKEY || '';

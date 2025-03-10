@@ -19,6 +19,7 @@ export interface ILeave extends Document {
   startDate: Date;
   endDate: Date;
   reason: string;
+  leaveType: "Full Day" | "Half Day";
   status: 'Pending' | 'Approved' | 'Rejected';
   appliedAt?: Date;
   updatedAt?: Date;

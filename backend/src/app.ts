@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -17,7 +18,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:5176'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -31,10 +32,10 @@ app.use(express.urlencoded({ limit: '10mb', extended: false }));
 app.use('/auth', indexRouter);
 app.use('/admin', adminRoter);
 
+ app.use('/meetings', meetRouter);
 app.use('/company', companyRouter);
 app.use('/employee', emloyeeRouter);
 app.use('/chat', chatRouter);
-app.use('/meetings', meetRouter);
 
 app.use(errorHandler);
 

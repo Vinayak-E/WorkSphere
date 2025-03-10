@@ -61,6 +61,7 @@ const CompanyListing = () => {
     setIsLoading(true);
     try {
       const response = await api.get("/admin/companiesList");
+      console.log('response',response)
       setCompanies(response.data);
     } catch (error) {
       toast.error("Failed to load companies. Please try again.");
@@ -182,7 +183,7 @@ const CompanyListing = () => {
                               <DropdownMenuItem
                                 onClick={() =>
                                   handleStatusChange(
-                                    company._id,
+                                    company.email,
                                     !company.isActive,
                                   )
                                 }

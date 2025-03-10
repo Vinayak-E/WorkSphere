@@ -61,6 +61,7 @@ const ProjectList = () => {
           department:
             selectedDepartment !== "all" ? selectedDepartment : undefined,
         });
+        console.log('data',data)
         setProjects(data);
         setTotalPages(totalPages);
       } catch (error) {
@@ -245,10 +246,7 @@ const ProjectList = () => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-600">
-                          <ListTodo className="w-4 h-4" />
-                          <span className="text-sm font-medium">
-                            {project.tasks?.length || 0}
-                          </span>
+                   
                         </div>
                         {project.deadline && (
                           <div className="flex items-center gap-2 justify-end">

@@ -75,11 +75,9 @@ const CompanyRequests = () => {
   const fetchCompanies = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/admin/companiesList");
-      const pendingCompanies = response.data.filter(
-        (company: Company) => company.isApproved === "Pending",
-      );
-      setCompanies(pendingCompanies);
+      const response = await api.get("/admin/companyRequests");
+
+      setCompanies(response.data);
     } catch (error) {
       toast.error("Failed to load company requests. Please try again.");
       console.error("Error fetching companies:", error);
@@ -97,7 +95,6 @@ const CompanyRequests = () => {
     try {
       const newStatus: ApprovalStatus =
         actionDialog.type === "approve" ? "Approved" : "Rejected";
-
       await api.put(`/admin/companiesList/${actionDialog.companyId}/approve`, {
         isApproved: newStatus,
         reason: actionReason,
@@ -193,7 +190,13 @@ const CompanyRequests = () => {
                     <TableHead>Company</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Phone</TableHead>
+                    <TableHead>Industry</TableHead>
+                    <TableHead>Businees Reg No</TableHead>
                     <TableHead>Request Date</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>State</TableHead>
+                    <TableHead>ZipCode</TableHead>
+
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -206,6 +209,11 @@ const CompanyRequests = () => {
                         </TableCell>
                         <TableCell>{company.email}</TableCell>
                         <TableCell>{company.phone}</TableCell>
+                        <TableCell>{company.industry}</TableCell>
+                        <TableCell>{company.businessRegNo}</TableCell>
+                        <TableCell>{company.city}</TableCell>
+                        <TableCell>{company.state}</TableCell>
+                        <TableCell>{company.zipcode}</TableCell>
                         <TableCell>{formatDate(company.createdAt)}</TableCell>
                         <TableCell className="text-right space-x-2">
                           <Button

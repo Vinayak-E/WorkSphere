@@ -1,81 +1,68 @@
-import { Model, Document, PopulateOptions } from 'mongoose';
-import { IBaseRepository } from '../interfaces/IUser.types';
+import { Connection, Document, Model, PopulateOptions, Schema } from 'mongoose';
 
-class BaseRepository<T extends Document> implements IBaseRepository<T> {
-  protected model: Model<T>;
+class BaseRepository<T extends Document> {
+  private modelName: string;
+  private schema: Schema;
+  protected defaultConnection: Connection; 
 
-  constructor(model: Model<T>) {
-    if (!model) {
-      throw new Error('Model is required for BaseRepository');
-    }
-    this.model = model;
+  constructor(modelName: string, schema: Schema ,defaultConnection: Connection) {
+    this.modelName = modelName;
+    this.schema = schema;
+    this.defaultConnection = defaultConnection;
   }
 
-  async create(data: Partial<T>): Promise<T> {
-    try {
-      const document = new this.model(data);
-      return await document.save();
-    } catch (error) {
-      throw new Error(`Error creating document: ${(error as Error).message}`);
-    }
+  protected getModel(tenantConnection?: Connection): Model<T> {
+    return (tenantConnection || this.defaultConnection).model<T>(this.modelName, this.schema);
   }
 
-  async findById(id: string): Promise<T | null> {
-    try {
-      return await this.model.findById(id).exec();
-    } catch (error) {
-      throw new Error(
-        `Error finding document by ID: ${(error as Error).message}`
-      );
-    }
+  async create(data: Partial<T>, tenantConnection?: Connection): Promise<T> {
+    const model = this.getModel(tenantConnection);
+    const document = new model(data);
+    return await document.save();
   }
 
-  async findAll(query: Record<string, any> = {}): Promise<T[]> {
-    try {
-      return await this.model.find(query).exec();
-    } catch (error) {
-      throw new Error(`Error finding documents: ${(error as Error).message}`);
-    }
+  async findById(id: string, tenantConnection?: Connection): Promise<T | null> {
+    const model = this.getModel(tenantConnection);
+    return await model.findById(id).exec();
   }
 
-  async findOne(query: Record<string, any>): Promise<T | null> {
-    try {
-      return await this.model.findOne(query).exec();
-    } catch (error) {
-      throw new Error(
-        `Error finding one document: ${(error as Error).message}`
-      );
-    }
+  async findAll(query: Record<string, any> = {}, tenantConnection?: Connection): Promise<T[]> {
+    const model = this.getModel(tenantConnection);
+    return await model.find(query).exec();
   }
 
-  async update(id: string, data: Partial<T>): Promise<T | null> {
-    try {
-      return await this.model.findByIdAndUpdate(id, data, { new: true }).exec();
-    } catch (error) {
-      throw new Error(`Error updating document: ${(error as Error).message}`);
-    }
+  async findOne(query: Record<string, any>, tenantConnection?: Connection): Promise<T | null> {
+    const model = this.getModel(tenantConnection);
+    return await model.findOne(query).exec();
   }
 
-  async delete(id: string): Promise<T | null> {
-    try {
-      return await this.model.findByIdAndDelete(id).exec();
-    } catch (error) {
-      throw new Error(`Error deleting document: ${(error as Error).message}`);
-    }
+  async update(id: string, data: Partial<T>, tenantConnection?: Connection): Promise<T | null> {
+    const model = this.getModel(tenantConnection);
+    return await model.findByIdAndUpdate(id, data, { new: true }).exec();
+  }
+
+  async delete(id: string, tenantConnection?: Connection): Promise<T | null> {
+    const model = this.getModel(tenantConnection);
+    return await model.findByIdAndDelete(id).exec();
   }
 
   async findByIdAndPopulate(
     id: string,
-    populateFields: (string | PopulateOptions)[]
+    populateFields: (string | PopulateOptions)[],
+    tenantConnection?: Connection
   ): Promise<T | null> {
-    try {
-      return await this.model.findById(id).populate(populateFields).exec();
-    } catch (error) {
-      throw new Error(
-        `Error finding and populating document: ${(error as Error).message}`
-      );
-    }
+    const model = this.getModel(tenantConnection);
+    return await model.findById(id).populate(populateFields).exec();
+  }
+
+  async findOneAndUpdate(
+    query: Record<string, any>,
+    update: Partial<T>,
+    options: Record<string, any> = {},
+    tenantConnection?: Connection
+  ): Promise<T | null> {
+    const model = this.getModel(tenantConnection);
+    return await model.findOneAndUpdate(query, update, { ...options, new: true }).exec();
   }
 }
-
 export default BaseRepository;

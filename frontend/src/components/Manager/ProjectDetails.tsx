@@ -59,7 +59,8 @@ const ProjectDetails = () => {
     const loadProject = async () => {
       try {
         const response = await ProjectService.getProjectById(id!);
-        setProject(response.data.project);
+        setProject(response.data);
+        console.log('response',response)
         setDepartmentEmployees(response.data.departmentEmployees);
         setTasks(response.data.tasks);
       } catch (error) {

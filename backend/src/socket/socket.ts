@@ -3,17 +3,18 @@ import http from 'http';
 import mongoose from 'mongoose';
 import { ChatService } from '../services/employee/chat.service';
 import { ChatRepository } from '../repositories/employee/chatRepository';
-import { EmployeeRepository } from '../repositories/employee/employeeRepository';
-import { connectTenantDB as getTenantConnection } from '../configs/db.config';
 
-const employeeRepository = new EmployeeRepository();
+import { connectTenantDB as getTenantConnection } from '../configs/db.config';
+import { EmployeeRepository } from '../repositories/Implementation/employee.repository';
+
+const employeeRepository = new EmployeeRepository(mongoose.connection);
 const chatRepository = new ChatRepository();
 const chatService = new ChatService(chatRepository, employeeRepository);
 
 export const initializeSocket = (server: http.Server) => {
   const io = new Server(server, {
     cors: {
-      origin: ['http://localhost:5000', 'http://localhost:5173'],
+      origin: ['http://localhost:5000', 'http://localhost:5176'],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization'],

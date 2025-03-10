@@ -119,7 +119,6 @@ export class ProjectController {
         taskId,
         taskData,
       );
-      toast.success("Task updated successfully");
       return updatedTask;
     } catch (error) {
       this.handleError(error, "update task");

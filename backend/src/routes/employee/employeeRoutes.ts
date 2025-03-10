@@ -1,58 +1,48 @@
 import express from 'express';
-import { CompanyRepository } from '../../repositories/company/companyRepository';
-import { UserRepository } from '../../repositories/user/userRepository';
-import { JwtService } from '../../services/jwt.service';
-import { EmployeeController } from '../../controllers/employee/employee.controller';
-import { AuthService } from '../../services/company/authentication.service';
-import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
+import { container } from 'tsyringe';
 import { verifyAuth } from '../../middlewares/authMiddleware';
-import { EmployeeRepository } from '../../repositories/employee/employeeRepository';
-import { EmployeeService } from '../../services/employee/employee.service';
-import { ProjectController } from '../../controllers/employee/project.controller';
-import { ProjectService } from '../../services/employee/project.service';
-import { ProjectRepository } from '../../repositories/employee/projectRepository';
+import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
+import { TaskController } from '../../controllers/Implementation/task.controller';
+import { LeaveController } from '../../controllers/Implementation/leave.controller';
+import { ProjectController } from '../../controllers/Implementation/project.controller';
+import { EmployeeController } from '../../controllers/Implementation/employee.controller';
+import { AttendanceController } from '../../controllers/Implementation/attendance.controller';
 
 const router = express.Router();
-const jwtService = new JwtService();
-const userRepository = new UserRepository();
-const companyRepository = new CompanyRepository();
-const employeeRepository = new EmployeeRepository();
-const projectRepository = new ProjectRepository();
-const projectService = new ProjectService(
-  projectRepository,
-  employeeRepository
-);
-const employeeService = new EmployeeService(employeeRepository, userRepository);
-const authService = new AuthService(
-  companyRepository,
-  userRepository,
-  jwtService
-);
-const employeeController = new EmployeeController(authService, employeeService);
-const projectController = new ProjectController(projectService);
+const leaveController = container.resolve<LeaveController>('LeaveController');
+const attendanceController = container.resolve<AttendanceController>('AttendanceController');
+const projectController = container.resolve<ProjectController>('ProjectController');
+const taskController = container.resolve<TaskController>('TaskController');
+const employeeController = container.resolve<EmployeeController>('EmployeeController');
+
+
+
 
 router.post('/changePassword', employeeController.changePassword);
-
 router.use(tenantMiddleware);
 router.use(verifyAuth);
 router.get('/myProfile', employeeController.getProfile);
 router.patch('/updateProfile/:id', employeeController.updateProfile);
-router.post('/attendance/check-in', employeeController.checkIn);
-router.post('/attendance/check-out', employeeController.checkOut);
-router.get('/attendance/status/:id', employeeController.getAttendanceStatus);
-router.get('/leaves', employeeController.getLeaves);
-router.post('/leaves', employeeController.applyLeave);
+router.get('/department', employeeController.getDepartmentEmployees);
+
+router.get('/leaves', leaveController.getEmployeeLeaves);
+router.post('/leaves', leaveController.applyLeave);
+
+router.post('/attendance/check-in', attendanceController.checkIn);
+router.post('/attendance/check-out', attendanceController.checkOut);
+router.get('/attendance/status/:id', attendanceController.getTodayAttendance);
+
 router.get('/projects', projectController.getProjects);
 router.post('/projects', projectController.createProject);
-router.get('/projects/:id', projectController.projectDetails);
-router.patch('/projects/:projectId', projectController.editProject);
-router.post('/projects/:id/tasks', projectController.addTask);
+router.get('/projects/:id', projectController.getProjectById);
+router.patch('/projects/:projectId', projectController.updateProject);
 router.patch('/projects/:id/status', projectController.updateProjectStatus);
-router.get('/tasks', projectController.getEmployeeTasks);
-router.patch('/tasks/:id/status', projectController.updateTaskStatus);
-router.put(
-  '/projects/:projectId/tasks/:taskId',
-  projectController.editProjectTask
-);
-router.get('/department', employeeController.getDepartmentEmployees);
+
+
+router.post('/projects/:id/tasks', taskController.createTask);
+router.get('/tasks', taskController.getEmployeeTasks);
+router.patch('/tasks/:id/status', taskController.updateTaskStatus);
+router.put('/projects/:projectId/tasks/:taskId',taskController.updateTask);
+
+//
 export default router;

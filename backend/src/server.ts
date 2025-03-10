@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+import { registerContainer } from './configs/container';
+registerContainer(); 
 import connectDb from './configs/db.config';
 import { createServer } from 'http';
 import app from './app';

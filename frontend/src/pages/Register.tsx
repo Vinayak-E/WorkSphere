@@ -12,7 +12,7 @@ const Register = () => {
     email: { value: "", error: "", touched: false, isValid: false },
     phone: { value: "", error: "", touched: false, isValid: false },
     industry: { value: "", error: "", touched: false, isValid: false },
-    bussinessRegNum: { value: "", error: "", touched: false, isValid: false },
+    businessRegNo: { value: "", error: "", touched: false, isValid: false },
     city: { value: "", error: "", touched: false, isValid: false },
     state: { value: "", error: "", touched: false, isValid: false },
     country: { value: "", error: "", touched: false, isValid: false },
@@ -20,7 +20,6 @@ const Register = () => {
     password: { value: "", error: "", touched: false, isValid: false },
     confirmPassword: { value: "", error: "", touched: false, isValid: false },
   });
-
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -210,23 +209,23 @@ const Register = () => {
 
               <div>
                 <label
-                  htmlFor="bussinessRegNum"
+                  htmlFor="businessRegNo"
                   className="block text-sm font-medium text-foreground"
                 >
                   Business Registration Number
                 </label>
                 <input
                   type="text"
-                  id="bussinessRegNum"
+                  id="businessRegNo"
                   placeholder="Enter your registration number"
-                  value={formState.bussinessRegNum.value}
-                  onChange={handleChange("bussinessRegNum")}
-                  className={getInputStyle(formState.bussinessRegNum)}
+                  value={formState.businessRegNo.value}
+                  onChange={handleChange("businessRegNo")}
+                  className={getInputStyle(formState.businessRegNo)}
                 />
-                {formState.bussinessRegNum.touched &&
-                  formState.bussinessRegNum.error && (
+                {formState.businessRegNo.touched &&
+                  formState.businessRegNo.error && (
                     <p className="text-sm text-destructive mt-1">
-                      {formState.bussinessRegNum.error}
+                      {formState.businessRegNo.error}
                     </p>
                   )}
               </div>

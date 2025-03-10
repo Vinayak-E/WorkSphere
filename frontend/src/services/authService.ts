@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 
 export const signup = async (data: SignupData) => {
   try {
+    console.log("data at frontend",data)
     const response = await api.post("/auth/signup", data);
     return response.data;
   } catch (error) {

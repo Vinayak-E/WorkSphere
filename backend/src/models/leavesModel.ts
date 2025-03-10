@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { ILeave } from '../interfaces/company/IAttendance.types';
 
-export const leaveSchema = new Schema<ILeave>(
+export const LeaveSchema = new Schema<ILeave>(
   {
     employeeId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,6 +20,11 @@ export const leaveSchema = new Schema<ILeave>(
       type: String,
       required: true,
     },
+    leaveType: {
+      type: String,
+      enum: ['Full Day', 'Half Day'],
+      required: true,
+    },
     status: {
       type: String,
       enum: ['Pending', 'Approved', 'Rejected'],
@@ -33,6 +38,6 @@ export const leaveSchema = new Schema<ILeave>(
   { timestamps: true }
 );
 
-const Leave = mongoose.model<ILeave>('Leave', leaveSchema);
+const Leave = mongoose.model<ILeave>('Leave', LeaveSchema);
 
 export default Leave;

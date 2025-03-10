@@ -1,4 +1,4 @@
-import mongoose, { Connection, Document } from 'mongoose';
+import mongoose, {Document } from 'mongoose';
 
 export interface IMeetModel extends Document {
   meetTitle: string;
@@ -10,59 +10,4 @@ export interface IMeetModel extends Document {
   createdByModel: 'Employee' | 'Company';
   createdAt: Date;
   updatedAt: Date;
-}
-export interface IMeetService {
-  getMeetings(
-    tenantConnection: Connection,
-    filters: any,
-    userId: string | mongoose.Types.ObjectId,
-    page: number,
-    pageSize: number
-  ): Promise<{
-    meetings: IMeetModel[];
-    total: number;
-  }>;
-  createMeeting(
-    tenantConnection: Connection,
-    meetData: any
-  ): Promise<IMeetModel>;
-  updateMeeting(
-    tenantConnection: Connection,
-    meetingId: string,
-    meetingData: any
-  ): Promise<IMeetModel | null>;
-  deleteMeeting(
-    tenantConnection: Connection,
-    meetingId: string
-  ): Promise<IMeetModel | null>;
-}
-
-export interface IMeetRepository {
-  getMeetings(
-    tenantConnection: Connection,
-    filters: any,
-    page: number,
-    pageSize: number
-  ): Promise<IMeetModel[]>;
-
-  getTotalMeetingsCount(
-    tenantConnection: Connection,
-    filters: any
-  ): Promise<number>;
-
-  createNewMeet(
-    tenantConnection: Connection,
-    meetData: any
-  ): Promise<IMeetModel>;
-
-  updateMeet(
-    tenantConnection: Connection,
-    id: string,
-    updateData: any
-  ): Promise<IMeetModel | null>;
-
-  deleteMeeting(
-    tenantConnection: Connection,
-    meetingId: string
-  ): Promise<IMeetModel | null>;
 }

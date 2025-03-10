@@ -150,6 +150,7 @@ const LeaveManagement = () => {
                     "Start Date",
                     "End Date",
                     "Duration",
+                    "Leave Type",
                     "Reason",
                     "Status",
                     "Applied On",
@@ -191,6 +192,9 @@ const LeaveManagement = () => {
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
                       {calculateDuration(leave.startDate, leave.endDate)} days
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate">
+                      {leave.leaveType}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate">
                       {leave.reason}
