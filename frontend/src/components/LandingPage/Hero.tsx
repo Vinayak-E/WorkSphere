@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import  { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import IMAGES from "@/assets/images/image";
 import { Link } from "react-router-dom";
@@ -12,7 +12,7 @@ const Hero = () => {
     const tl = gsap.timeline();
 
     tl.fromTo(
-      [titleRef.current, subtitleRef.current],
+      [titleRef.current, subtitleRef.current, imageRef.current],
       {
         opacity: 0,
         y: 50,
@@ -21,22 +21,8 @@ const Hero = () => {
         opacity: 1,
         y: 0,
         duration: 1,
-        stagger: 0.3,
         ease: "power2.out",
-      },
-    ).fromTo(
-      imageRef.current,
-      {
-        opacity: 0,
-        scale: 0.95,
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        duration: 0.5,
-        ease: "power2.out",
-      },
-      "-=0.5",
+      }
     );
   }, []);
 
@@ -81,7 +67,7 @@ const Hero = () => {
                 <img
                   src={IMAGES.man}
                   alt="Dashboard Analytics"
-                  className="object-cover w-full h-full rounded-xl  transition-transform duration-300 group-hover:scale-[1.02]"
+                  className="object-cover w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-[1.02]"
                 />
               </div>
             </div>

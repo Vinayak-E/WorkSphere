@@ -1,4 +1,3 @@
-import{ Document, Types } from "mongoose";
 export default interface ISubscription extends Document {
   planName: string;
   description: string;
@@ -6,8 +5,9 @@ export default interface ISubscription extends Document {
   planType: "Trial" | "Basic" | "Premium";
   durationInMonths: number;
   features: string[];
-  employeeCount?: number | null;
-  projectCount?: number | null;
-
+  employeeCount: number | null;
+  projectCount: number | null;
   isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
