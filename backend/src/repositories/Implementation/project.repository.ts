@@ -7,13 +7,15 @@ import { EmployeeSchema } from '../../models/employeeModel';
 import BaseRepository from '../baseRepository';
 import { IProjectRepository } from '../Interface/IProjectRepository';
 
-
 @injectable()
-export class ProjectRepository extends BaseRepository<IProject>  implements IProjectRepository{
+export class ProjectRepository
+  extends BaseRepository<IProject>
+  implements IProjectRepository
+{
   constructor(@inject('MainConnection') mainConnection: Connection) {
-    super('Project', ProjectSchema,mainConnection);
+    super('Project', ProjectSchema, mainConnection);
   }
- 
+
   async findProjects(
     connection: Connection,
     query: any,
@@ -45,7 +47,7 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
     connection: Connection,
     projectData: Partial<IProject>
   ): Promise<IProject> {
-    return await this.create(projectData,connection);
+    return await this.create(projectData, connection);
   }
 
   async findProjectById(
@@ -70,14 +72,14 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
     projectId: string,
     projectData: Partial<IProject>
   ): Promise<IProject | null> {
-    return await this.update(projectId, projectData,connection);
+    return await this.update(projectId, projectData, connection);
   }
 
   async deleteProject(
     connection: Connection,
     projectId: string
   ): Promise<boolean> {
-    const deleted = await this.delete(projectId,connection);
+    const deleted = await this.delete(projectId, connection);
     return deleted !== null;
   }
 
@@ -90,5 +92,14 @@ export class ProjectRepository extends BaseRepository<IProject>  implements IPro
     await projectModel
       .findByIdAndUpdate(projectId, { $addToSet: { employees: employeeId } })
       .exec();
+  }
+  async getProjectStats(connection: Connection): Promise<any> {
+    const projectModel = this.getModel(connection);
+    const total = await projectModel.countDocuments().exec();
+    const statusChart = await projectModel
+      .aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }])
+      .exec();
+
+    return { total, statusChart };
   }
 }

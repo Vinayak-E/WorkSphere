@@ -136,7 +136,7 @@ export class AttendanceController implements IAttendanceController {
             success: false,
             message: 'Tenant connection not established',
           });
-        return; // Added missing return
+        return; 
       }
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;

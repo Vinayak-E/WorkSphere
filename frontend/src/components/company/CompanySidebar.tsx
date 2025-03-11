@@ -29,6 +29,11 @@ const items = [
     icon: Home,
   },
   {
+    title: "Departments",
+    url: "/company/departments",
+    icon: Home,
+  },
+  {
     title: "My Team",
     url: "/company/myteam",
     icon: Users,

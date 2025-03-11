@@ -1,4 +1,5 @@
-import { Route, Routes } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Layout from "@/components/company/CompanyLayout";
 import Departments from "@/components/company/Departments";
 import MyTeamC from "@/components/company/Team";
@@ -10,12 +11,15 @@ import CompanyProjectDetails from "@/components/company/ProjectDetails";
 import MeetingManagement from "@/components/Meeting/MeetingTable";
 import VideoCall from "../components/Meeting/VideoCall";
 import ChatContainer from "@/components/chat/chat";
+import Dashboard from "@/components/company/Dashboard";
+
 
 const CompanyRoutes = () => {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Departments />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/departments" element={<Departments />} />
         <Route path="/profile" element={<CompanyProfilePage />} />
         <Route path="/myteam" element={<MyTeamC />} />
         <Route path="/leaveRequests" element={<LeaveManagement />} />

@@ -62,4 +62,19 @@ export class TaskRepository extends BaseRepository<ITask>  implements ITaskRepos
     const deleted = await this.delete(taskId,connection);
     return deleted !== null;
   }
+
+
+  async getTaskStats(connection: Connection): Promise<any> {
+    const taskModel = this.getModel(connection);
+    const total = await taskModel.countDocuments().exec();
+    const statusChart = await taskModel.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).exec();
+    const overdue = await taskModel.countDocuments({ deadline: { $lt: new Date() }, status: { $ne: 'Completed' } }).exec();
+    const dueSoon = await taskModel.countDocuments({
+      deadline: { $gte: new Date(), $lte: new Date(Date.now() + 24 * 60 * 60 * 1000) },
+      status: { $ne: 'Completed' }
+    }).exec();
+    return { total, statusChart, overdue, dueSoon };
+  }
 }

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { IMeetModel } from '../interfaces/IMeet.types'; // Adjust path
+import { IMeetModel } from '../interfaces/IMeet.types'; 
 
 export const MeetSchema = new Schema<IMeetModel>(
   {

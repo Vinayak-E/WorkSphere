@@ -10,7 +10,7 @@ export class EmployeeController {
     @inject('AuthService') private readonly authService: AuthService
   ) {}
 
-  // Endpoint to get an employee profile based on email
+
   getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -33,7 +33,6 @@ export class EmployeeController {
     }
   };
 
-  // Endpoint to update an employee profile
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -59,7 +58,6 @@ export class EmployeeController {
     }
   };
 
-  // Endpoint to retrieve colleagues from the same department
   getDepartmentEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         console.log
@@ -88,6 +86,7 @@ export class EmployeeController {
   
   changePassword: RequestHandler = async (req, res, next) => {
     const { email, newPassword } = req.body;
+    console.log("dd",email,newPassword)
     try {
       await this.authService.resetPassword(email, newPassword);
       res.status(200).json({

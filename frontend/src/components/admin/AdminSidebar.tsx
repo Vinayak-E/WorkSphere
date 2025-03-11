@@ -29,22 +29,13 @@ const items = [
     url: "/admin/requests",
     icon: FileText,
   },
-  {
-    title: "Messages",
-    url: "/messages",
-    icon: Inbox,
-    badge: 1,
-  },
+
   {
     title: "Subscription Plans",
-    url: "/plans",
+    url: "/admin/subscriptions",
     icon: BarChart,
   },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
-  },
+
 ];
 
 export function AdminSidebar() {

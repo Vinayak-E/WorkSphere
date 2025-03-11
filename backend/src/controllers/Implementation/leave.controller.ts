@@ -33,7 +33,6 @@ export class LeaveController implements ILeaveController {
     }
   };
 
-  // Employee: Get own leaves
   getEmployeeLeaves = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -74,7 +73,6 @@ export class LeaveController implements ILeaveController {
     }
   };
 
-  // Company: Get all leave requests
   getAllLeaves = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -107,7 +105,7 @@ export class LeaveController implements ILeaveController {
     }
   };
 
-  // Company: Update leave status
+
   updateLeaveStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
@@ -122,7 +120,7 @@ export class LeaveController implements ILeaveController {
         res.status(404).json({ success: false, message: 'Leave not found' });
         return 
       }
-      // Send email notification
+
       // const employee = await this.employeeRepository.findById(updatedLeave.employeeId.toString(), tenantConnection);
       // if (employee && employee.email) {
       //   const statusMessage = `Your leave request from ${new Date(updatedLeave.startDate).toLocaleDateString()} to ${new Date(updatedLeave.endDate).toLocaleDateString()} has been ${status.toLowerCase()}.`;

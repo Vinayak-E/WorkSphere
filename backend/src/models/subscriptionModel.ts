@@ -38,7 +38,6 @@ const subscriptionPlanSchema: Schema<ISubscription> = new Schema(
       type: Number,
       default: null,
     },
-  
     isActive: {
       type: Boolean,
       required: true,

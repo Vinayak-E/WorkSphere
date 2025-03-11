@@ -43,7 +43,7 @@ const ChatComponent = () => {
 
   const currentUser = useSelector((state) => state.auth.user);
 
-  // Socket connection setup
+
   useEffect(() => {
     const newSocket = io("http://localhost:5000", {
       withCredentials: true,

@@ -108,7 +108,7 @@ const ProjectList = () => {
       return ((project.completedTasks || 0) / project.totalTasks) * 100;
     }
 
-    // Fallback to timeline-based calculation
+  
     if (!project.deadline || !project.createdAt) return 0;
     if (project.status === "Completed") return 100;
 
