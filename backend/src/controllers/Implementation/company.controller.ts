@@ -2,11 +2,13 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { ICompanyDocument } from '../../interfaces/company/company.types';
 import { CompanyService } from '../../services/Implementation/company.service';
+import { PaymentService } from '../../services/Implementation/payment.service';
 
 @injectable()
 export class CompanyController {
   constructor(
-    @inject('CompanyService') private readonly companyService: CompanyService
+    @inject('CompanyService') private readonly companyService: CompanyService,
+    @inject('PaymentService') private paymentService: PaymentService
   ) {}
 
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -91,6 +93,52 @@ export class CompanyController {
       });
       return;
     } catch (error) {
+      next(error);
+    }
+  };
+  getCompanyPaymentHistory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const companyId = req.userId;
+      if (!companyId) {
+        res.status(400).json({
+          success: false,
+          message: 'Company ID not found in request',
+        });
+        return;
+      }
+      
+      const payments = await this.paymentService.getCompanyPaymentHistory(companyId);
+      
+      res.status(200).json({
+        success: true,
+        data: payments,
+      });
+    } catch (error) {
+      console.error('Payment history error:', error);
+      next(error);
+    }
+  };
+
+  getCurrentPlan = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const companyId = req.userId
+      const tenantId = req.tenantId;
+      console.log('companyid',companyId)
+      console.log('tenantd',tenantId)
+      if (!companyId || !tenantId) {
+        res.status(400).json({
+          success: false,
+          message: 'Company ID or Tenant ID not found in request',
+        });
+        return;
+      }
+      const currentPlan = await this.paymentService.getCompanyCurrentPlan(companyId, tenantId);
+      res.status(200).json({
+        success: true,
+        data: currentPlan,
+      });
+    } catch (error) {
+      console.error('Current plan error:', error);
       next(error);
     }
   };

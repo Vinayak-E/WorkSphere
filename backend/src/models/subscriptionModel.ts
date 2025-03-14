@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
-import ISubscription from "../interfaces/ISubscription.types";
+import { Schema } from 'mongoose';
+import ISubscription from '../interfaces/ISubscription.types';
 
-const subscriptionPlanSchema: Schema<ISubscription> = new Schema(
+export const subscriptionPlanSchema: Schema<ISubscription> = new Schema(
   {
     planName: {
       type: String,
@@ -33,7 +33,6 @@ const subscriptionPlanSchema: Schema<ISubscription> = new Schema(
       type: Number,
       default: null,
     },
-
     projectCount: {
       type: Number,
       default: null,
@@ -46,11 +45,3 @@ const subscriptionPlanSchema: Schema<ISubscription> = new Schema(
   },
   { timestamps: true }
 );
-
-
-const Subscription = mongoose.model<ISubscription>(
-  "Subscription",
-  subscriptionPlanSchema
-);
-
-export default Subscription;

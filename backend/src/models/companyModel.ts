@@ -13,23 +13,23 @@ export const CompanySchema = new Schema<ICompanyDocument>({
   state: { type: String },
   country: { type: String },
   zipcode: { type: String },
-
   subscriptionPlan: {
-    type: String,
-    enum: ['free', 'basic', 'premium', 'enterprise'],
-    default: 'free',
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SubscriptionPlan', 
+  
   },
   subscriptionStatus: {
     type: String,
-    enum: ['active', 'inactive', 'expired'],
-    default: 'inactive',
+    enum: ['Active', 'Inactive', 'Expired'],
+    default: 'Inactive',
   },
-  subscriptionExpiry: { type: Date },
-  lastLogin: { type: Date },
-  refreshToken: { type: String, select: false },
-  passwordResetToken: { type: String, select: false },
-  passwordResetExpires: { type: Date, select: false },
-});
+  subscriptionStartDate: {
+    type: Date,
+  },
+  subscriptionEndDate: {
+    type: Date,
+  },
+} , { timestamps: true });
 
 CompanySchema.virtual('name').get(function () {
   return this.companyName;

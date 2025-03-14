@@ -42,4 +42,11 @@ async resetPassword(email: string, password: string): Promise<void> {
       { new: true }
     );
   }
+  async storeResetToken(
+    email: string,
+    resetToken: string,
+    resetTokenExpiry: Date,
+  ): Promise<void> {
+    await this.findOneAndUpdate({email} ,{ resetToken, resetTokenExpiry });
+  }
 }

@@ -1,10 +1,10 @@
-import { generateDepartmentId } from '../../helpers/helperFunctions';
+import { generateDepartmentId } from '../helpers/helperFunctions';
 import {
   IDepartment,
   ICreateDepartment,
   IUpdateDepartment,
-} from '../../interfaces/company/IDepartment.types';
-import { DepartmentRepository } from '../../repositories/company/departmentRepository';
+} from '../interfaces/company/IDepartment.types';
+import { DepartmentRepository } from '../repositories/department.repository';
 import { Connection } from 'mongoose';
 
 export class DepartmentService {

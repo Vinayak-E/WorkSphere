@@ -60,7 +60,7 @@ export class EmployeeController {
 
   getDepartmentEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log
+   
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
          res.status(500).json({ success: false, message: 'Tenant connection not established' });
@@ -76,7 +76,6 @@ export class EmployeeController {
         return;
       }
       const departmentEmployees = await this.employeeService.getDepartmentEmployees(tenantConnection, email);
-      console.log('department employees',departmentEmployees)
        res.status(200).json({ success: true, data: departmentEmployees });
        return;
     } catch (error) {
@@ -86,7 +85,6 @@ export class EmployeeController {
   
   changePassword: RequestHandler = async (req, res, next) => {
     const { email, newPassword } = req.body;
-    console.log("dd",email,newPassword)
     try {
       await this.authService.resetPassword(email, newPassword);
       res.status(200).json({

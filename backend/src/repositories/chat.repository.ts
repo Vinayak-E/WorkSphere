@@ -3,14 +3,14 @@ import {
   IChatDocument,
   IChatRepository,
   IMessageDocument,
-} from '../../interfaces/IChat.types';
-import { getChatModel } from '../../models/chatModel';
-import { getMessageModel } from '../../models/messageModel';
+} from '../interfaces/IChat.types';
+import { getChatModel } from '../models/chatModel';
+import { getMessageModel } from '../models/messageModel';
 import { Connection, Model } from 'mongoose';
-import { IEmployee } from '../../interfaces/company/IEmployee.types';
-import Employee from '../../models/employeeModel';
-import { ICompanyDocument } from '../../interfaces/company/company.types';
-import Company from '../../models/companyModel';
+import { IEmployee } from '../interfaces/company/IEmployee.types';
+import Employee from '../models/employeeModel';
+import { ICompanyDocument } from '../interfaces/company/company.types';
+import Company from '../models/companyModel';
 
 export class ChatRepository implements IChatRepository {
   getEmployeeModel(connection: Connection): Model<IEmployee> {

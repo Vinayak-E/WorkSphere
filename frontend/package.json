@@ -32,6 +32,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@react-oauth/google": "^0.12.1",
     "@reduxjs/toolkit": "^2.5.0",
+    "@stripe/stripe-js": "^6.0.0",
     "@toolpad/core": "^0.11.0",
     "@zegocloud/zego-uikit-prebuilt": "^2.14.1",
     "axios": "^1.8.2",

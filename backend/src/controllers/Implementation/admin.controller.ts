@@ -1,10 +1,12 @@
 import { injectable, inject } from 'tsyringe';
 import { RequestHandler } from 'express';
 import { AdminService } from '../../services/Implementation/admin.service';
+import { PaymentService } from '../../services/Implementation/payment.service';
 
 @injectable()
 export class AdminController {
-  constructor(@inject('AdminService') private readonly adminService: AdminService) {}
+  constructor(@inject('AdminService') private readonly adminService: AdminService,
+  @inject('PaymentService') private paymentService: PaymentService) {}
 
   adminLogin: RequestHandler = async (req, res, next) => {
     try {
@@ -44,9 +46,7 @@ export class AdminController {
 
   companiesList: RequestHandler = async (req, res, next) => {
     try {
-      console.log('hello')
       const companies = await this.adminService.getCompanies();
-      console.log("companies",companies)
       res.status(200).json(companies);
     } catch (error) {
       next(error);
@@ -55,7 +55,6 @@ export class AdminController {
   companyRequests: RequestHandler = async (req, res, next) => {
     try {
       const companies = await this.adminService.getCompanyRequests();
-      console.log("companies",companies)
       res.status(200).json(companies);
     } catch (error) {
       next(error);
@@ -66,7 +65,6 @@ export class AdminController {
     try {
       const { companyId } = req.params;
       const { isActive } = req.body;
-console.log("companyId",companyId)
       if (typeof isActive !== 'boolean') {
         res.status(400).json({
           success: false,
@@ -119,4 +117,60 @@ console.log("companyId",companyId)
       next(error);
     }
   };
+
+  getRevenueStats :RequestHandler = async (req , res, next) => {
+    try {
+      console.log("@ get revenueStats")
+      const revenueStats = await this.paymentService.getRevenueStats();
+       console.log("revenueStats",revenueStats)
+      res.status(200).json({
+        success: true,
+        data: revenueStats,
+      });
+    } catch (error) {
+      console.error('Revenue stats error:', error);
+      next(error);
+    }
+  };
+
+  getCompanyPayments:RequestHandler = async (req, res, next) => {
+    try {
+      const { companyId } = req.params;
+      console.log("companyid",companyId)
+      const payments = await this.paymentService.getCompanyPaymentHistory(companyId);
+      console.log('payments',payments)
+      res.status(200).json({
+        success: true,
+        data: payments,
+      });
+    } catch (error) {
+      console.error('Company payments error:', error);
+      next(error);
+    }
+  };
+
+  getCompanyById: RequestHandler = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      
+      const companyDetails = await this.adminService.getCompanyDetails(id);
+      
+      if (!companyDetails) {
+         res.status(404).json({
+          success: false,
+          message: 'Company not found'
+        });
+        return
+      }
+      
+      res.status(200).json({
+        success: true,
+        data: companyDetails
+      });
+    } catch (error) {
+      console.error('Get company details error:', error);
+      next(error);
+    }
+  };
+
 }

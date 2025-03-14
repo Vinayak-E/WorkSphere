@@ -22,6 +22,7 @@ import { JwtService } from '../jwt.service';
 import { UserRepository } from '../../repositories/Implementation/user.repository';
 import { CompanyRepository } from '../../repositories/Implementation/company.repository';
 import { CompanyRequestRepository } from '../../repositories/Implementation/companyRequest.repository';
+import { Connection } from 'mongoose';
 
 
 @injectable()
@@ -181,11 +182,11 @@ export class AuthService {
       const resetToken = jwt.sign(payload, process.env.RESET_LINK_SECRET, {
         expiresIn: '1h',
       });
-      const tokenExpiry = new Date(Date.now() + 3600 * 1000);
-      await this.companyRepository.storeResetToken(
+      const resetTokenExpiry = new Date(Date.now() + 3600 * 1000);
+      await this.userRepository.storeResetToken(
         email,
         resetToken,
-        tokenExpiry
+        resetTokenExpiry,
       );
       const resetLink = `http://localhost:5173/resetPassword?token=${resetToken}`;
       await sendResetEmail(

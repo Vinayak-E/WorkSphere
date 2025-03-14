@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { DepartmentService } from '../../services/company/department.service';
+import { DepartmentService } from '../services/department.service';
 import {
   ICreateDepartment,
   IUpdateDepartment,
-} from '../../interfaces/company/IDepartment.types';
+} from '../interfaces/company/IDepartment.types';
 
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}

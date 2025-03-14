@@ -28,8 +28,6 @@ export class AuthController {
     try {
       const data = req.body;
       console.log('data at controller',data)
-      const { businessRegNo } = req.body;
-      console.log("bussinesRegNo",businessRegNo)
       const registeredMail = await this.authService.signup(data);
       if (registeredMail) {
         res.status(201).json({ success: true, registeredMail });

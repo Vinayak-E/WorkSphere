@@ -9,7 +9,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { 
   createSubscription, 
-  deleteSubscription, 
   fetchSubscriptions, 
   updateSubscription 
 } from "@/services/admin/subscription";
@@ -19,7 +18,7 @@ import { Loader2, Plus, Search, Edit, Trash, ChevronLeft, ChevronRight, Check } 
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -67,7 +66,8 @@ const SubscriptionAdmin = () => {
     setIsLoading(true);
     try {
       const data = await fetchSubscriptions();
-      setPlans(data);
+      console.log("data",data)
+      setPlans(data.data);
     } finally {
       setIsLoading(false);
     }
@@ -88,12 +88,7 @@ const SubscriptionAdmin = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this plan?")) {
-      await deleteSubscription(id);
-      loadSubscriptions();
-    }
-  };
+
 
   const addFeature = () => {
     if (featureInput.trim()) {
@@ -225,19 +220,15 @@ const SubscriptionAdmin = () => {
                     )}
                     
                     <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
-                      {plan.employeeCount !== null && (
-                        <div className="bg-gray-50 p-2 rounded">
-                          <span className="font-medium">Employees: </span>
-                          {plan.employeeCount}
-                        </div>
-                      )}
-                      {plan.projectCount !== null && (
-                        <div className="bg-gray-50 p-2 rounded">
-                          <span className="font-medium">Projects: </span>
-                          {plan.projectCount}
-                        </div>
-                      )}
-                    </div>
+  <div className="bg-gray-50 p-2 rounded">
+    <span className="font-medium">Employees: </span>
+    {plan.employeeCount ?? 'Unlimited'}
+  </div>
+  <div className="bg-gray-50 p-2 rounded">
+    <span className="font-medium">Projects: </span>
+    {plan.projectCount ?? 'Unlimited'}
+  </div>
+</div>
                   </CardContent>
                   
                   <CardFooter className="border-t pt-4 flex justify-end gap-2">
@@ -253,14 +244,7 @@ const SubscriptionAdmin = () => {
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="destructive"
-                      onClick={() => handleDelete(plan._id)}
-                    >
-                      <Trash className="h-4 w-4 mr-2" />
-                      Delete
-                    </Button>
+                   
                   </CardFooter>
                 </Card>
               ))}
@@ -361,6 +345,7 @@ const SubscriptionAdmin = () => {
                   placeholder="0.00" 
                   value={formData.price}
                   onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
+                  min="0"
                   required
                 />
               </div>

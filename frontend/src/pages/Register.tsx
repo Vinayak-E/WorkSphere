@@ -1,33 +1,33 @@
-import { useState, FormEvent } from "react";
-import IMAGES from "../assets/images/image";
-import { Link, useNavigate } from "react-router-dom";
-import { handleSignup } from "@/controllers/authController";
-import { validateForm } from "@/utils/validations";
-import { FormState, FieldState, FieldName } from "@/types/types";
-import { toast } from "react-toastify";
+import { useState, FormEvent } from 'react';
+import IMAGES from '../assets/images/image';
+import { Link, useNavigate } from 'react-router-dom';
+import { handleSignup } from '@/controllers/authController';
+import { validateForm } from '@/utils/validations';
+import { FormState, FieldState, FieldName } from '@/types/types';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [formState, setFormState] = useState<FormState>({
-    companyName: { value: "", error: "", touched: false, isValid: false },
-    email: { value: "", error: "", touched: false, isValid: false },
-    phone: { value: "", error: "", touched: false, isValid: false },
-    industry: { value: "", error: "", touched: false, isValid: false },
-    businessRegNo: { value: "", error: "", touched: false, isValid: false },
-    city: { value: "", error: "", touched: false, isValid: false },
-    state: { value: "", error: "", touched: false, isValid: false },
-    country: { value: "", error: "", touched: false, isValid: false },
-    zipcode: { value: "", error: "", touched: false, isValid: false },
-    password: { value: "", error: "", touched: false, isValid: false },
-    confirmPassword: { value: "", error: "", touched: false, isValid: false },
+    companyName: { value: '', error: '', touched: false, isValid: false },
+    email: { value: '', error: '', touched: false, isValid: false },
+    phone: { value: '', error: '', touched: false, isValid: false },
+    industry: { value: '', error: '', touched: false, isValid: false },
+    businessRegNo: { value: '', error: '', touched: false, isValid: false },
+    city: { value: '', error: '', touched: false, isValid: false },
+    state: { value: '', error: '', touched: false, isValid: false },
+    country: { value: '', error: '', touched: false, isValid: false },
+    zipcode: { value: '', error: '', touched: false, isValid: false },
+    password: { value: '', error: '', touched: false, isValid: false },
+    confirmPassword: { value: '', error: '', touched: false, isValid: false },
   });
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange =
     (name: FieldName) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      setFormState((prev) => ({
+      setFormState(prev => ({
         ...prev,
         [name]: { ...prev[name], value: e.target.value, touched: true },
       }));
@@ -40,7 +40,7 @@ const Register = () => {
     let isValid = true;
     const updatedFormState = { ...formState };
 
-    (Object.keys(errors) as FieldName[]).forEach((key) => {
+    (Object.keys(errors) as FieldName[]).forEach(key => {
       updatedFormState[key].error = errors[key];
       updatedFormState[key].isValid = !errors[key];
       if (errors[key]) isValid = false;
@@ -53,27 +53,27 @@ const Register = () => {
           formState,
           navigate,
           setErrorMessage,
-          setIsSubmitting,
+          setIsSubmitting
         );
         toast.success(
-          "Registration successful! Please check your email for OTP.",
+          'Registration successful! Please check your email for OTP.'
         );
       } catch (error) {
         toast.error(
           error instanceof Error
             ? error.message
-            : "Registration failed. Please try again.",
+            : 'Registration failed. Please try again.'
         );
       }
     } else {
-      toast.error("Please fill the details correctly before submitting.");
+      toast.error('Please fill the details correctly before submitting.');
     }
   };
 
   const getInputStyle = (field: FieldState) => `
     w-full pb-2 border-b-2 
-    ${field.touched && field.error ? "border-red-500" : "border-gray-300"}
-    ${field.touched && !field.error ? "border-green-500" : ""}
+    ${field.touched && field.error ? 'border-red-500' : 'border-gray-300'}
+    ${field.touched && !field.error ? 'border-green-500' : ''}
     focus:border-black outline-none
   `;
 
@@ -128,7 +128,7 @@ const Register = () => {
                 id="companyName"
                 placeholder="Enter your company name"
                 value={formState.companyName.value}
-                onChange={handleChange("companyName")}
+                onChange={handleChange('companyName')}
                 className={getInputStyle(formState.companyName)}
               />
               {formState.companyName.touched && formState.companyName.error && (
@@ -151,7 +151,7 @@ const Register = () => {
                   id="email"
                   placeholder="name@company.com"
                   value={formState.email.value}
-                  onChange={handleChange("email")}
+                  onChange={handleChange('email')}
                   className={getInputStyle(formState.email)}
                 />
                 {formState.email.touched && formState.email.error && (
@@ -173,7 +173,7 @@ const Register = () => {
                   id="phone"
                   placeholder="Enter phone number"
                   value={formState.phone.value}
-                  onChange={handleChange("phone")}
+                  onChange={handleChange('phone')}
                   className={getInputStyle(formState.phone)}
                 />
                 {formState.phone.touched && formState.phone.error && (
@@ -197,7 +197,7 @@ const Register = () => {
                   id="industry"
                   placeholder="e.g.Retail,Finance,IT Services"
                   value={formState.industry.value}
-                  onChange={handleChange("industry")}
+                  onChange={handleChange('industry')}
                   className={getInputStyle(formState.industry)}
                 />
                 {formState.industry.touched && formState.industry.error && (
@@ -219,7 +219,7 @@ const Register = () => {
                   id="businessRegNo"
                   placeholder="Enter your registration number"
                   value={formState.businessRegNo.value}
-                  onChange={handleChange("businessRegNo")}
+                  onChange={handleChange('businessRegNo')}
                   className={getInputStyle(formState.businessRegNo)}
                 />
                 {formState.businessRegNo.touched &&
@@ -244,7 +244,7 @@ const Register = () => {
                   id="city"
                   placeholder="Enter your City"
                   value={formState.city.value}
-                  onChange={handleChange("city")}
+                  onChange={handleChange('city')}
                   className={getInputStyle(formState.city)}
                 />
                 {formState.city.touched && formState.city.error && (
@@ -266,7 +266,7 @@ const Register = () => {
                   id="state"
                   placeholder="Enter your State"
                   value={formState.state.value}
-                  onChange={handleChange("state")}
+                  onChange={handleChange('state')}
                   className={getInputStyle(formState.state)}
                 />
                 {formState.state.touched && formState.state.error && (
@@ -288,7 +288,7 @@ const Register = () => {
                 <select
                   id="country"
                   value={formState.country.value}
-                  onChange={handleChange("country")}
+                  onChange={handleChange('country')}
                   className={getInputStyle(formState.country)}
                 >
                   <option value="">Select a country</option>
@@ -318,7 +318,7 @@ const Register = () => {
                   id="zipcode"
                   placeholder="Enter your State"
                   value={formState.zipcode.value}
-                  onChange={handleChange("zipcode")}
+                  onChange={handleChange('zipcode')}
                   className={getInputStyle(formState.zipcode)}
                 />
                 {formState.zipcode.touched && formState.zipcode.error && (
@@ -342,7 +342,7 @@ const Register = () => {
                   id="password"
                   placeholder="Create a strong password"
                   value={formState.password.value}
-                  onChange={handleChange("password")}
+                  onChange={handleChange('password')}
                   className={getInputStyle(formState.password)}
                 />
                 {formState.password.touched && formState.password.error && (
@@ -364,7 +364,7 @@ const Register = () => {
                   id="confirmPassword"
                   placeholder="Confirm your password"
                   value={formState.confirmPassword.value}
-                  onChange={handleChange("confirmPassword")}
+                  onChange={handleChange('confirmPassword')}
                   className={getInputStyle(formState.confirmPassword)}
                 />
                 {formState.confirmPassword.touched &&
@@ -385,7 +385,7 @@ const Register = () => {
               disabled={isSubmitting}
               className="w-full bg-primary  text-card py-3 px-6 rounded-xl hover:bg-[#3D7EBD] transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Creating Account..." : "Create Account"}
+              {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </button>
 
             {/* <div className="relative flex items-center justify-center">
@@ -414,13 +414,13 @@ const Register = () => {
         </button> */}
 
             <p className="text-sm text-gray-500 text-center">
-              Already using WorkSphere?{" "}
-              <a
-                href="/login"
+              Already using WorkSphere?{' '}
+              <Link
+                to="/login"
                 className="text-primary hover:text-blue-700 font-medium"
               >
                 Sign in to your workspace
-              </a>
+              </Link>
             </p>
           </form>
         </div>
