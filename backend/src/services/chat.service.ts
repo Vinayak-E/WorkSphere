@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import { IChatDocument, IMessageDocument } from '../../interfaces/IChat.types';
-import { ChatRepository } from '../../repositories/employee/chatRepository';
+import { IChatDocument, IMessageDocument } from '../interfaces/IChat.types';
+import { ChatRepository } from '../repositories/chat.repository';
 
-import { IEmployee } from '../../interfaces/company/IEmployee.types';
-import { ICompanyDocument } from '../../interfaces/company/company.types';
-import { EmployeeRepository } from '../../repositories/Implementation/employee.repository';
+import { IEmployee } from '../interfaces/company/IEmployee.types';
+import { ICompanyDocument } from '../interfaces/company/company.types';
+import { EmployeeRepository } from '../repositories/Implementation/employee.repository';
 export class ChatService {
   constructor(
     private readonly chatRepository: ChatRepository,

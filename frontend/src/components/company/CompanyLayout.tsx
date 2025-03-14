@@ -1,7 +1,8 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/company/CompanySidebar";
-import { Header } from "@/layouts/HeaderLayout";
+
 import { Outlet } from "react-router-dom";
+import { CompanyHeader } from "./CompanyHeader";
 
 const Layout = () => {
   return (
@@ -10,7 +11,7 @@ const Layout = () => {
         <AppSidebar />
 
         <div className="flex flex-col flex-1 overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100">
-          <Header />
+          <CompanyHeader />
           <main className="flex-1 overflow-auto bg-gray-">
             <Outlet />
           </main>

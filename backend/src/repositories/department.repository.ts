@@ -1,10 +1,10 @@
 import { Connection, Model } from 'mongoose';
-import Department from '../../models/departmentModel';
+import Department from '../models/departmentModel';
 import {
   ICreateDepartment,
   IDepartment,
   IUpdateDepartment,
-} from '../../interfaces/company/IDepartment.types';
+} from '../interfaces/company/IDepartment.types';
 
 export class DepartmentRepository {
   private getDepartmentModel(connection: Connection): Model<IDepartment> {

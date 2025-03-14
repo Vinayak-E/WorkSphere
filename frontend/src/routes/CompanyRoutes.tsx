@@ -12,6 +12,9 @@ import MeetingManagement from "@/components/Meeting/MeetingTable";
 import VideoCall from "../components/Meeting/VideoCall";
 import ChatContainer from "@/components/chat/chat";
 import Dashboard from "@/components/company/Dashboard";
+import SelectPlanPage from "@/components/company/SelectPlan";
+import PaymentSuccessPage from "@/components/company/PaymentSuccessPage";
+import CompanyTransactionsDashboard from "@/components/company/Transactions";
 
 
 const CompanyRoutes = () => {
@@ -29,6 +32,9 @@ const CompanyRoutes = () => {
         <Route path="/chat" element={<ChatContainer />} />
         <Route path="/meeting" element={<MeetingManagement />} />
         <Route path="/video-call" element={<VideoCall />} />
+        <Route path="/select-plan" element={<SelectPlanPage />} />
+        <Route path="/payment/success" element={<PaymentSuccessPage />} />
+        <Route path="/transactions" element={<CompanyTransactionsDashboard />} />
       </Route>
     </Routes>
   );

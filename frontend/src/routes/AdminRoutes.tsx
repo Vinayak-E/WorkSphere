@@ -4,6 +4,7 @@ import AdminDashboard from "@/components/admin/AdminDasboard";
 import CompaniesList from "@/components/admin/CompaniesList";
 import CompanyRequests from "@/components/admin/CompanyRequests";
 import SubscriptionAdmin from "@/components/admin/Subscription";
+import CompanyDetailView from "@/components/admin/CompanyDetails";
 
 const AdminRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const AdminRoutes = () => {
           <Route path="/companiesList" element={<CompaniesList />} />
           <Route path="/requests" element={<CompanyRequests />} />
           <Route path="/subscriptions" element={<SubscriptionAdmin />} />
+          <Route path="/companies/:id" element={<CompanyDetailView />} />
         </Route>
       </Routes>
     </>

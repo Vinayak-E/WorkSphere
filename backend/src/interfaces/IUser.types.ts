@@ -7,14 +7,10 @@ export interface IUser extends Document {
   password: string;
   phone: string;
   role: string;
-  industry: string;
-  businessRegNo: string;
-  city: string;
-  state: string;
-  country: string;
-  zipcode: string;
   isActive: boolean;
   isApproved: string;
+  resetToken :string;
+  resetTokenExpiry :Date;
   createdAt: Date;
   updatedAt: Date;
 }

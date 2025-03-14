@@ -1,7 +1,7 @@
 import express from 'express';
-import { ChatController } from '../../controllers/employee/chat.controller';
-import { ChatService } from '../../services/employee/chat.service';
-import { ChatRepository } from '../../repositories/employee/chatRepository';
+import { ChatController } from '../../controllers/chat.controller';
+import { ChatService } from '../../services/chat.service';
+import { ChatRepository } from '../../repositories/chat.repository';
 
 import { verifyAuth } from '../../middlewares/authMiddleware';
 import { tenantMiddleware } from '../../middlewares/tenantMiddleware';

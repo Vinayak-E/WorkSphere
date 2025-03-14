@@ -110,13 +110,6 @@ const CompanyProfilePage = () => {
     return null;
   }
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -149,9 +142,7 @@ const CompanyProfilePage = () => {
                   {company.businessRegNo}
                 </span>
               </div>
-              <div className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                {company.subscriptionPlan} Plan
-              </div>
+            
             </div>
           </div>
         </div>
@@ -193,29 +184,7 @@ const CompanyProfilePage = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Subscription Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center">
-                <BadgeDollarSign className="w-5 h-5 text-gray-500 mr-3" />
-                <span>Plan: {company.subscriptionPlan}</span>
-              </div>
-              <div className="flex items-center">
-                <CalendarCheck className="w-5 h-5 text-gray-500 mr-3" />
-                <span>Status: {company.subscriptionStatus}</span>
-              </div>
-              {company.subscriptionExpiry && (
-                <div className="flex items-center">
-                  <CalendarCheck className="w-5 h-5 text-gray-500 mr-3" />
-                  <span>
-                    Expiry: {formatDate(company.subscriptionExpiry.toString())}
-                  </span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+       
 
           <Card>
             <CardHeader>

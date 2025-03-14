@@ -151,7 +151,6 @@ export class AttendanceController implements IAttendanceController {
           limit,
           filters
         );
-      console.log('attendance', attendance);
       res.status(200).json({
         success: true,
         attendance,

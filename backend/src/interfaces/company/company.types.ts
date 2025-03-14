@@ -1,6 +1,7 @@
 
 import { Document } from 'mongoose';
 import { IPayload } from '../IJwtService.types';
+import mongoose from 'mongoose';
 
 export interface ISignup {
   companyName: string;
@@ -14,22 +15,7 @@ export interface ISignup {
   country: string;
   zipcode: string;
 }
-export interface ICompanySignup {
-  companyName: string | null;
-  email: string;
-  password: string;
-  phone: string | null;
-}
 
-export interface ICreateCompany {
-  companyName: string | null;
-  phone: string | null;
-  email: string;
-}
-export interface IGoogleSignup {
-  email: string;
-  googleId: string;
-}
 
 export interface ICompanyDocument extends Document {
   _id: string;
@@ -43,19 +29,12 @@ export interface ICompanyDocument extends Document {
   state: string;
   country: string;
   zipcode: string;
-
   isActive?: boolean;
-
   role: string;
-
-  logo?: string;
   subscriptionPlan?: string;
-  subscriptionStatus?: 'active' | 'inactive' | 'expired';
-  subscriptionExpiry?: Date;
-  lastLogin?: Date;
-  refreshToken?: string;
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
+  subscriptionStatus?: 'Active' | 'Inactive' | 'Expired';
+  subscriptionStartDate?: Date;
+  subscriptionEndDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 
@@ -92,15 +71,12 @@ export interface ICompanyRequest extends Document {
   zipcode: string;
   industry: string;
   businessRegNo: string;
-
   isActive?: boolean;
-
   role: string;
-
-  logo?: string;
   subscriptionPlan?: string;
-  subscriptionStatus?: 'active' | 'inactive' | 'expired';
-  subscriptionExpiry?: Date;
+  subscriptionStatus?: 'Active' | 'Inactive' | 'Expired';
+  subscriptionStartDate?: Date;
+  subscriptionEndDate?: Date;
   lastLogin?: Date;
   refreshToken?: string;
   passwordResetToken?: string;
@@ -112,44 +88,8 @@ export interface ICompanyRequest extends Document {
   hasValidSubscription(): boolean;
 }
 
-export interface IAuthService {
-  signup(
-    data: ICompanySignup
-  ): Promise<string | boolean | null | { message: string }>;
-  verifyOtp(data: IVerifyOtpDto): Promise<boolean>;
-  verifyLogin(
-    email: string,
-    password: string,
-    userType: string
-  ): Promise<{
-    user: ICompanyUser;
-    refreshToken: string;
-    accessToken: string;
-    tenantId: string;
-    forcePasswordChange?: boolean;
-  } | null>;
-  resendOtp(email: string): Promise<boolean>;
-  verifyAccessToken(token: string): Promise<DecodedToken | null>;
-  refreshTokens(refreshToken: string): Promise<{
-    accessToken: string;
-    decodedToken: IPayload;
-  }>;
-  sendResetLink(email: string): Promise<boolean | null>;
-  resetPassword(email: string, password: string): Promise<void>;
 
-}
 
-export interface ICompanyRepository {
-  findByEmail(email: string): Promise<ICompanyDocument | null>;
-  storeResetToken(email: string, resetToken: string, tokenExpiry: Date): any;
-  createTenantCompany(
-    tenantId: string,
-    companyData: ICreateCompany
-  ): Promise<ICompanyDocument | null>;
-  createTempCompany(parsedData: ICompanyRequest): Promise<ICompanyRequest>;
-}
 
-export interface IOtpRepository {
-  storeOtp(email: string, otp: string): Promise<void>;
-  verifyOtp(email: string, otp: string): Promise<boolean>;
-}
+
+

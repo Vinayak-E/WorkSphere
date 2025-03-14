@@ -1,6 +1,7 @@
 import axios from "axios";
 import { store } from "../redux/store";
 import { logout } from "../redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
   baseURL: "http://localhost:5000",
@@ -13,12 +14,20 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    const status = error.response?.status;
+    const data = error.response?.data;
+
+    if (status === 401) {
       store.dispatch(logout());
       if (!window.location.pathname.includes("/login")) {
         window.location.href = "/login";
       }
+    } 
+    else if (status === 403 && data?.redirectTo) {
+      alert(data.message); // Show alert for expired subscription
+      window.location.href = data.redirectTo; // Redirect to plan selection
     }
+
     return Promise.reject(error);
   },
 );

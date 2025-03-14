@@ -1,8 +1,8 @@
 import { Server } from 'socket.io';
 import http from 'http';
 import mongoose from 'mongoose';
-import { ChatService } from '../services/employee/chat.service';
-import { ChatRepository } from '../repositories/employee/chatRepository';
+import { ChatService } from '../services/chat.service';
+import { ChatRepository } from '../repositories/chat.repository';
 
 import { connectTenantDB as getTenantConnection } from '../configs/db.config';
 import { EmployeeRepository } from '../repositories/Implementation/employee.repository';

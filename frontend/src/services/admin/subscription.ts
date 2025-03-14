@@ -19,7 +19,4 @@ export const updateSubscription = async (id: string, subscriptionData: any) => {
   return response.data;
 };
 
-export const deleteSubscription = async (id: string) => {
-  const response = await api.delete(`${API_BASE_URL}/${id}`);
-  return response.data;
-};
+

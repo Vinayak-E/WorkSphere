@@ -32,6 +32,12 @@ import { AdminController } from '../controllers/Implementation/admin.controller'
 import { CompanyRequestRepository } from '../repositories/Implementation/companyRequest.repository';
 import { DashboardService } from '../services/Implementation/dashboard.service';
 import { DashboardController } from '../controllers/Implementation/dashboard.controller';
+import { SubscriptionRepository } from '../repositories/Implementation/subscription.repository';
+import { SubscriptionService } from '../services/Implementation/subscription.service';
+import { SubscriptionController } from '../controllers/Implementation/subscription.controller';
+import { CheckoutController } from '../controllers/Implementation/checkout.controller';
+import { PaymentRepository } from '../repositories/Implementation/payment.repository';
+import { PaymentService } from '../services/Implementation/payment.service';
 
 export function registerContainer() {
   console.log('Registering dependencies...');
@@ -39,11 +45,14 @@ export function registerContainer() {
    container.register('MainConnection', { useValue: mongoose.connection });
 
    container.register('AuthController', { useClass: AuthController });
+   container.register('CheckoutController', { useClass: CheckoutController });
    container.register('AuthService', { useClass: AuthService });
 
    container.register('JwtService', { useClass: JwtService });
 
    container.register('UserRepository', { useClass: UserRepository });
+   container.register('PaymentRepository', { useClass: PaymentRepository });
+   container.register('PaymentService', { useClass: PaymentService });
    container.register('CompanyRequestRepository', { useClass: CompanyRequestRepository });
 
 
@@ -82,6 +91,10 @@ export function registerContainer() {
     container.register('AdminRepository', { useClass: AdminRepository });
     container.register('AdminService', { useClass: AdminService });
     container.register('AdminController', { useClass: AdminController });
+
+    container.register('SubscriptionRepository', { useClass: SubscriptionRepository });
+    container.register('SubscriptionService', { useClass: SubscriptionService });
+    container.register('SubscriptionController', { useClass: SubscriptionController });
     
     console.log('Dependencies registered.');
   }

@@ -12,6 +12,8 @@ export const UserSchema = new Schema<IUser>(
     isApproved: { type: String, default: 'Pending' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    resetToken :{type :String },
+    resetTokenExpiry:{type:Date}
   },
   { timestamps: true }
 );

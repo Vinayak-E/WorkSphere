@@ -1,4 +1,7 @@
+import { Document } from "mongoose";
+
 export default interface ISubscription extends Document {
+  _id: string;
   planName: string;
   description: string;
   price: number;

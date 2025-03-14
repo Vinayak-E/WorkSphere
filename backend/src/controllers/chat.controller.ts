@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { IChatService } from '../../interfaces/IChat.types';
+import { IChatService } from '../interfaces/IChat.types';
 
 export class ChatController {
   constructor(private readonly chatService: IChatService) {}

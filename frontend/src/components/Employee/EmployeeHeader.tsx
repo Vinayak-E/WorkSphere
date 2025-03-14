@@ -69,8 +69,6 @@ export function Header() {
               <DropdownMenuItem asChild>
                 <Link to="/employee/profile">Profile</Link>
               </DropdownMenuItem>
-              {/* <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem> */}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-red-600 "

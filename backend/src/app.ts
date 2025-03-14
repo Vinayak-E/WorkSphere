@@ -11,6 +11,8 @@ import emloyeeRouter from './routes/employee/employeeRoutes';
 import chatRouter from './routes/employee/chatRoutes';
 import meetRouter from './routes/employee/meetRoutes';
 import { errorHandler } from './middlewares/errorMiddleware';
+import { container } from "tsyringe";
+import { CheckoutController } from "./controllers/Implementation/checkout.controller";
 dotenv.config();
 
 const app = express();
@@ -26,9 +28,14 @@ app.use(
 );
 app.use(morgan('dev'));
 app.use(cookieParser());
+const checkoutController  = container.resolve<CheckoutController>('CheckoutController');
+
+app.use('/api/webhook', 
+  express.raw({ type: 'application/json' }), 
+checkoutController.handleWebhook
+);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: false }));
-
 app.use('/auth', indexRouter);
 app.use('/admin', adminRoter);
 

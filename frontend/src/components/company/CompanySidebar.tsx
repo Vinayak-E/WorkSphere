@@ -61,10 +61,16 @@ const items = [
   },
   { title: "Meetings", url: "/company/meeting", icon: Video },
   {
+    title: "Subscription Plans",
+    url: "/company/transactions",
+    icon: BarChart,
+  },
+  {
     title: "Settings",
     url: "/company/profile",
     icon: Settings,
   },
+
 ];
 
 export function AppSidebar() {

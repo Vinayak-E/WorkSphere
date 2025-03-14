@@ -91,14 +91,29 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
           userData = await companyService.getCompanyByEmail(
             decoded!.email,
             tenantConnection
-          );
-          break;
+            );
+           
+            if (userData && userData.subscriptionEndDate && new Date() > userData.subscriptionEndDate) {
+              console.log('subscription expired')
+              console.log('first called')
+              if (req.path === '/checkout/create-session' || req.path === '/checkout/payment-success') {
+                return next();
+              }
+              console.log("second call")
+               res.status(403).json({ 
+                message: 'Your subscription has expired. Please select a plan to continue.', 
+                redirectTo: '/company/select-plan' 
+              });
+              return
+            }
+          break; 
         case 'EMPLOYEE':
         case 'MANAGER':
           userData = await employeeService.getEmployeeProfile(
             tenantConnection,
             decoded!.email
           );
+          console.log("userData at middleware for employee",userData)
           break;
         case 'ADMIN':
           userData = await adminService.getProfile(decoded!.email);
