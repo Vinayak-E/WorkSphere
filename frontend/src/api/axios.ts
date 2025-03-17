@@ -24,8 +24,8 @@ api.interceptors.response.use(
       }
     } 
     else if (status === 403 && data?.redirectTo) {
-      alert(data.message); // Show alert for expired subscription
-      window.location.href = data.redirectTo; // Redirect to plan selection
+      alert(data.message); 
+      window.location.href = data.redirectTo; 
     }
 
     return Promise.reject(error);

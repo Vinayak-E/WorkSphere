@@ -38,6 +38,9 @@ import { SubscriptionController } from '../controllers/Implementation/subscripti
 import { CheckoutController } from '../controllers/Implementation/checkout.controller';
 import { PaymentRepository } from '../repositories/Implementation/payment.repository';
 import { PaymentService } from '../services/Implementation/payment.service';
+import { DepartmentRepository } from '../repositories/Implementation/department.repository';
+import { DepartmentService } from '../services/Implementation/department.service';
+import { DepartmentController } from '../controllers/Implementation/department.controller';
 
 export function registerContainer() {
   console.log('Registering dependencies...');
@@ -74,6 +77,10 @@ export function registerContainer() {
     container.register('LeaveRepository', { useClass: LeaveRepository });
     container.register('LeaveService', { useClass: LeaveService });
     container.register('LeaveController', { useClass: LeaveController});
+
+    container.register('DepartmentRepository', { useClass: DepartmentRepository });
+    container.register('DepartmentService', { useClass: DepartmentService });
+    container.register('DepartmentController', { useClass: DepartmentController});
 
     
     container.register('AttendanceRepository', { useClass: AttendanceRepository });

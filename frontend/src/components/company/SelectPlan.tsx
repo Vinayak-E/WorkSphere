@@ -20,19 +20,23 @@ const SelectPlanPage = () => {
       try {
         setLoading(true);
         const response = await fetchSubscriptions();
-    
-        const activePlans = response.data.filter(plan => plan.isActive);
+  
+        // Exclude plans with planType "Trial" and keep only active plans
+        const activePlans = response.data.filter(
+          (plan) => plan.isActive && plan.planType !== "Trial"
+        );
         setSubscriptions(activePlans);
       } catch (err) {
-        setError('Failed to load subscription plans. Please try again later.');
-        console.error('Error fetching subscriptions:', err);
+        setError("Failed to load subscription plans. Please try again later.");
+        console.error("Error fetching subscriptions:", err);
       } finally {
         setLoading(false);
       }
     };
-
+  
     getSubscriptions();
   }, []);
+  
 
   const handleSelectPlan = (plan) => {
     setSelectedPlan(plan);

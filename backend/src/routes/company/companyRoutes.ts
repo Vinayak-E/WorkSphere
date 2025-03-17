@@ -1,9 +1,7 @@
 import express from 'express';
 import { container } from 'tsyringe';
-import { DepartmentController } from '../../controllers/department.controller';
+import { DepartmentController } from '../../controllers/Implementation/department.controller';
 import { tenantMiddleware } from '../../middlewares/tenantMiddleware';
-import { DepartmentService } from '../../services/department.service';
-import { DepartmentRepository } from '../../repositories/department.repository';
 import { verifyAuth } from '../../middlewares/authMiddleware';
 import { AttendanceController } from '../../controllers/Implementation/attendance.controller';
 import { LeaveController } from '../../controllers/Implementation/leave.controller';
@@ -19,11 +17,9 @@ const projectController = container.resolve<ProjectController>('ProjectControlle
 const companyController = container.resolve<CompanyController>('CompanyController');
 const dashboardController = container.resolve<DashboardController>('DashboardController');
 const checkoutController  = container.resolve<CheckoutController>('CheckoutController');
+const departmentController = container.resolve<DepartmentController>('DepartmentController');
 
-const deparmentRepository = new DepartmentRepository();
 
-const departmentService = new DepartmentService(deparmentRepository);
-const departmentController = new DepartmentController(departmentService);
 
 router.use(tenantMiddleware);
 
@@ -37,7 +33,7 @@ router.get('/departments', departmentController.getDepartments);
 router.post('/departments', departmentController.addDepartment);
 router.put('/departments/:id', departmentController.updateDepartment);
 
-//
+
 
 router.patch('/updateProfile/:id', companyController.updateProfile);
 
@@ -53,5 +49,5 @@ router.patch('/leaves/:id', leaveController.updateLeaveStatus);
 
 router.get('/payment-history', companyController.getCompanyPaymentHistory);
 router.get('/current-plan',companyController.getCurrentPlan );
-//
+
 export default router;

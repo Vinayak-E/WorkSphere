@@ -146,7 +146,7 @@ export class AdminService implements AdminService {
           companyInfo.subscriptionPlan
         );
         
-        // Return company info with populated subscription plan
+       
         return {
           ...companyInfo.toObject(),
           subscriptionPlan: subscriptionPlanDetails

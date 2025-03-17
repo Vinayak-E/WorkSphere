@@ -1,14 +1,16 @@
-import { generateDepartmentId } from '../helpers/helperFunctions';
+import { inject, injectable } from 'tsyringe';
+import { generateDepartmentId } from '../../helpers/helperFunctions';
 import {
   IDepartment,
   ICreateDepartment,
   IUpdateDepartment,
-} from '../interfaces/company/IDepartment.types';
-import { DepartmentRepository } from '../repositories/department.repository';
+} from '../../interfaces/company/IDepartment.types';
+import { DepartmentRepository } from '../../repositories/Implementation/department.repository';
 import { Connection } from 'mongoose';
 
+@injectable()
 export class DepartmentService {
-  constructor(private readonly departmentRepository: DepartmentRepository) {}
+  constructor( @inject('DepartmentRepository') private departmentRepository: DepartmentRepository,) {}
 
   async getDepartments(tenantConnection: Connection): Promise<IDepartment[]> {
     try {

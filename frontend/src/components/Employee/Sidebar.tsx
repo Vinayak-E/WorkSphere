@@ -57,21 +57,19 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       className={`group flex items-center gap-2 rounded-md px-4 py-2 transition-colors
-                        ${
-                          isActive
-                            ? // Active styles
-                              "border-l-4 border-blue-600 bg-blue-50 text-blue-700 font-medium"
-                            : // Default & hover
-                              "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        ${isActive
+                          ? // Active styles
+                          "border-l-4 border-blue-600 bg-blue-50 text-blue-700 font-medium"
+                          : // Default & hover
+                          "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                         }
                       `}
                     >
                       <item.icon
                         className={`h-5 w-5 flex-shrink-0 
-                          ${
-                            isActive
-                              ? "text-blue-600"
-                              : "text-gray-400 group-hover:text-gray-600"
+                          ${isActive
+                            ? "text-blue-600"
+                            : "text-gray-400 group-hover:text-gray-600"
                           }
                         `}
                       />

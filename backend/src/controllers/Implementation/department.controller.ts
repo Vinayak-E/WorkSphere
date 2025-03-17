@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { DepartmentService } from '../services/department.service';
+import { DepartmentService } from '../../services/Implementation/department.service';
 import {
   ICreateDepartment,
   IUpdateDepartment,
-} from '../interfaces/company/IDepartment.types';
+} from '../../interfaces/company/IDepartment.types';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 export class DepartmentController {
-  constructor(private readonly departmentService: DepartmentService) {}
+  constructor(@inject('DepartmentService') private departmentService: DepartmentService) {}
 
   getDepartments: RequestHandler = async (req, res, next) => {
     try {

@@ -11,7 +11,7 @@ export default async () => {
     container.register('MainConnection', { useValue: mongoose.connection });
   } catch (err) {
     console.log('Database connection error:', err);
-    throw err; // Rethrow to allow handling in server.ts if needed
+    throw err; 
   }
 };
 export const connectTenantDB = async (tenantId: string) => {

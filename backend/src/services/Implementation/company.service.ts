@@ -38,7 +38,7 @@ export class CompanyService {
 
     const randomPassword = generateCompanyBasedPassword(tenantId);
     const hashPassword = await bcrypt.hash(randomPassword, 10);
-
+       console.log('password',randomPassword)
     const userData = {
       email: employeeData.email,
       companyName: tenantId,
