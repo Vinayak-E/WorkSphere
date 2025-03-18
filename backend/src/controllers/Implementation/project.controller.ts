@@ -1,13 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
-import { GetCompanyProjectsOptions } from '../../interfaces/company/IProject.types';
-import { ProjectService } from '../../services/Implementation/project.service';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
+import { Request, Response, NextFunction } from 'express';
 import { IProjectController } from '../Interface/IProjectController';
-
+import { ProjectService } from '../../services/Implementation/project.service';
+import { GetCompanyProjectsOptions } from '../../interfaces/company/IProject.types';
 
 @injectable()
 export class ProjectController implements IProjectController {
-  constructor(@inject('ProjectService') private projectService: ProjectService) {}
+  constructor(
+    @inject('ProjectService') private projectService: ProjectService
+  ) {}
 
   getProjects = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -15,7 +18,9 @@ export class ProjectController implements IProjectController {
       const { page = 1, limit = 6, search = '', employeeId } = req.query;
 
       if (!tenantConnection || !employeeId) {
-        res.status(400).json({ success: false, message: 'Missing required parameters' });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.MISSING_FIELDS });
         return;
       }
 
@@ -26,9 +31,12 @@ export class ProjectController implements IProjectController {
         employeeId: employeeId as string,
       };
 
-      const result = await this.projectService.getManagerProjects(tenantConnection, options);
+      const result = await this.projectService.getManagerProjects(
+        tenantConnection,
+        options
+      );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: result.data,
         totalPages: result.totalPages,
@@ -43,15 +51,20 @@ export class ProjectController implements IProjectController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const { employeeId } = req.body;
 
       const projectData = { ...req.body, manager: employeeId };
-      const newProject = await this.projectService.createProject(tenantConnection, projectData);
+      const newProject = await this.projectService.createProject(
+        tenantConnection,
+        projectData
+      );
 
-      res.status(201).json({ success: true, data: newProject });
+      res.status(HttpStatus.CREATED).json({ success: true, data: newProject });
     } catch (error) {
       next(error);
     }
@@ -61,18 +74,23 @@ export class ProjectController implements IProjectController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const projectId = req.params.id;
-      const project = await this.projectService.getProjectById(tenantConnection, projectId);
-         console.log('project',project)
+      const project = await this.projectService.getProjectById(
+        tenantConnection,
+        projectId
+      );
       if (!project) {
-        res.status(404).json({ success: false, message: 'Project not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.PROJECT_NOT_FOUND });
         return;
       }
-      console.log('project data',project)
-      res.status(200).json({ success: true, data: project });
+      res.status(HttpStatus.OK).json({ success: true, data: project });
     } catch (error) {
       next(error);
     }
@@ -82,39 +100,59 @@ export class ProjectController implements IProjectController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const projectId = req.params.projectId;
       const projectData = req.body;
-      const updatedProject = await this.projectService.updateProject(tenantConnection, projectId, projectData);
+      const updatedProject = await this.projectService.updateProject(
+        tenantConnection,
+        projectId,
+        projectData
+      );
 
       if (!updatedProject) {
-        res.status(404).json({ success: false, message: 'Project not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.PROJECT_NOT_FOUND });
         return;
       }
-      res.status(200).json({ success: true, data: updatedProject });
+      res.status(HttpStatus.OK).json({ success: true, data: updatedProject });
     } catch (error) {
       next(error);
     }
   };
 
-  updateProjectStatus = async (req: Request, res: Response, next: NextFunction) => {
+  updateProjectStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const projectId = req.params.id;
       const { status } = req.body;
 
-      const updatedProject = await this.projectService.updateProjectStatus(tenantConnection, projectId, status);
+      const updatedProject = await this.projectService.updateProjectStatus(
+        tenantConnection,
+        projectId,
+        status
+      );
       if (!updatedProject) {
-        res.status(404).json({ success: false, message: 'Project not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.PROJECT_NOT_FOUND });
         return;
       }
-      res.status(200).json({ success: true, data: updatedProject });
+      res.status(HttpStatus.OK).json({ success: true, data: updatedProject });
     } catch (error) {
       next(error);
     }
@@ -124,17 +162,24 @@ export class ProjectController implements IProjectController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const projectId = req.params.id;
-      const deleted = await this.projectService.deleteProject(tenantConnection, projectId);
+      const deleted = await this.projectService.deleteProject(
+        tenantConnection,
+        projectId
+      );
 
       if (!deleted) {
-        res.status(404).json({ success: false, message: 'Project not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.PROJECT_NOT_FOUND });
         return;
       }
-      res.status(204).send();
+      res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
       next(error);
     }
@@ -144,10 +189,18 @@ export class ProjectController implements IProjectController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
-      const { page = '1', limit = '6', search = '', status = 'all', department = 'all' } = req.query;
+      const {
+        page = '1',
+        limit = '6',
+        search = '',
+        status = 'all',
+        department = 'all',
+      } = req.query;
 
       const options: GetCompanyProjectsOptions = {
         page: parseInt(page as string),
@@ -157,9 +210,12 @@ export class ProjectController implements IProjectController {
         department: department !== 'all' ? (department as string) : undefined,
       };
 
-      const result = await this.projectService.getAllProjects(tenantConnection, options);
+      const result = await this.projectService.getAllProjects(
+        tenantConnection,
+        options
+      );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: result.data,
         totalPages: result.totalPages,

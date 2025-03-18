@@ -1,5 +1,7 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { injectable, inject } from 'tsyringe';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ICompanyDocument } from '../../interfaces/company/company.types';
 import { CompanyService } from '../../services/Implementation/company.service';
 import { PaymentService } from '../../services/Implementation/payment.service';
@@ -15,22 +17,30 @@ export class CompanyController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-         res.status(500).json({ success: false, message: 'Tenant connection not established' });
-         return;
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
+        return;
       }
       const { id } = req.params;
       if (!id) {
-        res.status(400).json({ success: false, message: 'Company ID is required' });
-        return; 
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.MISSING_FIELDS });
+        return;
       }
       const updateData: ICompanyDocument = req.body;
-      const updatedCompany = await this.companyService.updateProfile(id, tenantConnection, updateData);
-       res.status(200).json({
+      const updatedCompany = await this.companyService.updateProfile(
+        id,
+        tenantConnection,
+        updateData
+      );
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Company updated successfully',
-        data: updatedCompany
+        message: Messages.COMPANY_UPDATED,
+        data: updatedCompany,
       });
-      return; 
+      return;
     } catch (error) {
       next(error);
     }
@@ -40,105 +50,139 @@ export class CompanyController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
-      const employees = await this.companyService.getEmployees(tenantConnection);
-     res.status(200).json({ success: true, data: employees });
-     return;
+      const employees =
+        await this.companyService.getEmployees(tenantConnection);
+      res.status(HttpStatus.OK).json({ success: true, data: employees });
+      return;
     } catch (error) {
       next(error);
     }
   };
 
-  addEmployee  = async (req: Request, res: Response, next: NextFunction) => {
+  addEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
       const tenantId = req.tenantId;
       if (!tenantConnection || !tenantId) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const employeeData = req.body;
-      const newEmployee = await this.companyService.addEmployee(employeeData, tenantConnection, tenantId);
-         res.status(201).json({
+      const newEmployee = await this.companyService.addEmployee(
+        employeeData,
+        tenantConnection,
+        tenantId
+      );
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: 'Employee created successfully',
-        data: newEmployee
+        message: Messages.EMPLOYEE_CREATED,
+        data: newEmployee,
       });
       return;
     } catch (error) {
       next(error);
     }
   };
-  
+
   updateEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const { id } = req.params;
       if (!id) {
-         res.status(400).json({ success: false, message: 'Employee ID is required' });
-         return;
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.EMPLOYEE_ID_REQUIRED });
+        return;
       }
       const updateData = req.body;
-      const updatedEmployee = await this.companyService.updateEmployee(id, updateData, tenantConnection);
-        res.status(200).json({
+      const updatedEmployee = await this.companyService.updateEmployee(
+        id,
+        updateData,
+        tenantConnection
+      );
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Employee updated successfully',
-        data: updatedEmployee
+        message: Messages.EMPLOYEE_UPDATE_SUCCESS,
+        data: updatedEmployee,
       });
       return;
     } catch (error) {
       next(error);
     }
   };
-  getCompanyPaymentHistory = async (req: Request, res: Response, next: NextFunction) => {
+
+  getCompanyPaymentHistory = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const companyId = req.userId;
+      const companyId = req.tenantId;
       if (!companyId) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Company ID not found in request',
+          message: Messages.COMPANY_ID_NOT_FOUND,
         });
         return;
       }
-      
-      const payments = await this.paymentService.getCompanyPaymentHistory(companyId);
-      
-      res.status(200).json({
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const { payments, total } =
+        await this.paymentService.getCompanyPaymentHistory(
+          companyId,
+          page,
+          limit
+        );
+      res.status(HttpStatus.OK).json({
         success: true,
-        data: payments,
+        data: {
+          payments,
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalCount: total,
+        },
       });
     } catch (error) {
-      console.error('Payment history error:', error);
       next(error);
     }
   };
 
   getCurrentPlan = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.userId
+      const companyId = req.userId;
       const tenantId = req.tenantId;
-      console.log('companyid',companyId)
-      console.log('tenantd',tenantId)
+
       if (!companyId || !tenantId) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Company ID or Tenant ID not found in request',
+          message: Messages.MISSING_COMPANY_OR_TENANT_ID,
         });
         return;
       }
-      const currentPlan = await this.paymentService.getCompanyCurrentPlan(companyId, tenantId);
-      res.status(200).json({
+      const currentPlan = await this.paymentService.getCompanyCurrentPlan(
+        companyId,
+        tenantId
+      );
+      res.status(HttpStatus.OK).json({
         success: true,
         data: currentPlan,
       });
     } catch (error) {
-      console.error('Current plan error:', error);
       next(error);
     }
   };

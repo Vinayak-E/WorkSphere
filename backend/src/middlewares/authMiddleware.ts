@@ -28,6 +28,7 @@ declare global {
   }
 }
 export const verifyAuth: RequestHandler = async (req, res, next) => {
+  console.log('auth middleware called')
   try {
     const token = req.cookies?.accessToken;
     const refreshToken = req.cookies?.refreshToken;
@@ -86,13 +87,14 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
     const tenantConnection = req.tenantConnection;
     if (tenantConnection) {
       let userData: ICompanyDocument | IEmployee | IUser | null;
+      console.log('decoded',decoded.role)
       switch (decoded!.role) {
         case 'COMPANY':
           userData = await companyService.getCompanyByEmail(
             decoded!.email,
             tenantConnection
             );
-           
+
             if (userData && userData.subscriptionEndDate && new Date() > userData.subscriptionEndDate) {
               console.log('subscription expired')
               console.log('first called')

@@ -1,23 +1,27 @@
+import { inject, injectable } from 'tsyringe';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { DepartmentService } from '../../services/Implementation/department.service';
 import {
   ICreateDepartment,
   IUpdateDepartment,
 } from '../../interfaces/company/IDepartment.types';
-import { inject, injectable } from 'tsyringe';
 
 @injectable()
 export class DepartmentController {
-  constructor(@inject('DepartmentService') private departmentService: DepartmentService) {}
+  constructor(
+    @inject('DepartmentService') private departmentService: DepartmentService
+  ) {}
 
   getDepartments: RequestHandler = async (req, res, next) => {
     try {
       const tenantConnection = req.tenantConnection;
 
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
@@ -25,12 +29,11 @@ export class DepartmentController {
       const departments =
         await this.departmentService.getDepartments(tenantConnection);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: departments,
       });
     } catch (error) {
-      console.error('Error fetching departments:', error);
       next(error);
     }
   };
@@ -40,9 +43,9 @@ export class DepartmentController {
       const tenantConnection = req.tenantConnection;
 
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
@@ -50,9 +53,9 @@ export class DepartmentController {
       const { name, description } = req.body;
 
       if (!name) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Department name is required',
+          message: Messages.DEPARTMENT_NAME_REQUIRED,
         });
       }
 
@@ -65,11 +68,11 @@ export class DepartmentController {
       const newDepartment = await this.departmentService.addNewDepartment(
         departmentData,
         tenantConnection
-      );
+      );    
 
-      res.status(201).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: 'Department created successfully',
+        message: Messages.DEPARTMENT_CREATE_SUCCESS,
         data: newDepartment,
       });
     } catch (error) {
@@ -82,9 +85,9 @@ export class DepartmentController {
       const tenantConnection = req.tenantConnection;
 
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.INTERNAL_SERVER_ERROR,
         });
         return;
       }
@@ -93,9 +96,9 @@ export class DepartmentController {
       const { name, description, status } = req.body;
 
       if (!id) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Department ID is required',
+          message: Messages.DEPARTMENT_ID_REQUIRED,
         });
         return;
       }
@@ -112,9 +115,9 @@ export class DepartmentController {
         tenantConnection
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Department updated successfully',
+        message: Messages.DEPARTMENT_UPDATE_SUCCESS,
         data: updatedDepartment,
       });
     } catch (error) {

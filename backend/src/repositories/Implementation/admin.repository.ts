@@ -6,7 +6,7 @@ import BaseRepository from '../baseRepository';
 import { CompanySchema } from '../../models/companyModel';
 
 @injectable()
-export class AdminRepository   extends BaseRepository<ICompanyDocument> {
+export class AdminRepository extends BaseRepository<ICompanyDocument> {
  
   constructor(@inject('MainConnection') mainConnection: Connection) {
     super('Company', CompanySchema,mainConnection);

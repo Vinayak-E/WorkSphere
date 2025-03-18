@@ -1,4 +1,6 @@
 import { injectable, inject } from 'tsyringe';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { Request, Response, NextFunction } from 'express';
 import { ISubscriptionController } from '../Interface/ISubscriptionController';
 import { ISubscriptionService } from '../../services/Interface/ISubscriptionService';
@@ -6,10 +8,15 @@ import { ISubscriptionService } from '../../services/Interface/ISubscriptionServ
 @injectable()
 export class SubscriptionController implements ISubscriptionController {
   constructor(
-    @inject('SubscriptionService') private subscriptionService: ISubscriptionService
+    @inject('SubscriptionService')
+    private subscriptionService: ISubscriptionService
   ) {}
 
-  getSubscriptions = async (req: Request, res: Response, next: NextFunction) => {
+  getSubscriptions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 10;
@@ -21,20 +28,21 @@ export class SubscriptionController implements ISubscriptionController {
       if (searchQuery) {
         filters.$or = [
           { planName: { $regex: searchQuery, $options: 'i' } },
-          { description: { $regex: searchQuery, $options: 'i' } }
+          { description: { $regex: searchQuery, $options: 'i' } },
         ];
       }
 
       if (planType && planType !== 'all') {
         filters.planType = planType;
       }
-      const { subscriptions, total } = await this.subscriptionService.getSubscriptions(
-        filters,
-        page,
-        pageSize
-      );
+      const { subscriptions, total } =
+        await this.subscriptionService.getSubscriptions(
+          filters,
+          page,
+          pageSize
+        );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: subscriptions,
         total,
@@ -47,66 +55,69 @@ export class SubscriptionController implements ISubscriptionController {
     }
   };
 
-  createSubscription = async (req: Request, res: Response, next: NextFunction) => {
+  createSubscription = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-
-      if ( !req.user || req.user.role !== 'ADMIN') {
-        res.status(401).json({
+      if (!req.user || req.user.role !== 'ADMIN') {
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'Unauthorized access to subscription management',
+          message: Messages.UNAUTHORIZED_ACCESS,
         });
         return;
       }
 
       const subscriptionData = {
         ...req.body,
-        isActive: req.body.isActive === undefined ? true : req.body.isActive
+        isActive: req.body.isActive === undefined ? true : req.body.isActive,
       };
-      console.log("subscription data",subscriptionData)
-      const subscription = await this.subscriptionService.createSubscription(
-        subscriptionData
-      );
-      
-      res.status(201).json({
+      const subscription =
+        await this.subscriptionService.createSubscription(subscriptionData);
+
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        data: subscription
+        data: subscription,
       });
     } catch (error) {
       next(error);
     }
   };
 
-  updateSubscription = async (req: Request, res: Response, next: NextFunction) => {
-    try { 
-      if ( !req.user || req.user.role !== 'ADMIN') {
-        res.status(401).json({
+  updateSubscription = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      if (!req.user || req.user.role !== 'ADMIN') {
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'Unauthorized access to subscription management',
+          message: Messages.UNAUTHORIZED_ACCESS,
         });
         return;
       }
-console.log("at update",req.body)
+
       const subscription = await this.subscriptionService.updateSubscription(
         req.params.id,
         req.body
       );
-      
+
       if (!subscription) {
-          res.status(404).json({ 
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: 'Subscription plan not found' 
+          message: Messages.SUBSCRIPTION_NOT_FOUND,
         });
-        return 
+        return;
       }
-      
-      res.status(200).json({
+
+      res.status(HttpStatus.OK).json({
         success: true,
-        data: subscription
+        data: subscription,
       });
     } catch (error) {
       next(error);
     }
   };
-
-  
 }

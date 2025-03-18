@@ -10,22 +10,38 @@ export class PaymentRepository extends BaseRepository<IPaymentHistory> {
     super('PaymentHistory', PaymentHistory.schema, mainConnection);
   }
 
-  async getPaymentsByCompanyId(companyId: string): Promise<IPaymentHistory[]> {
-    let payments = await this.findAll({ tenantId: companyId });
+  async getPaymentsByCompanyId(companyId: string, page: number = 1, limit: number = 10): Promise<{ payments: IPaymentHistory[], total: number }> {
+    const skip = (page - 1) * limit;
+    let query = { tenantId : companyId};
+    let total = await this.getModel().countDocuments(query);
+       
+    const payments = await this.getModel()
+      .find(query)
+      .sort({ paymentDate: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
 
-    if (payments.length === 0) {
-      payments = await this.findAll({ companyId });
-    }
-    return payments;
-  }
+    return { payments, total };
+}
 
   async getPaymentsByTenantId(tenantId: string): Promise<IPaymentHistory[]> {
     return await this.findAll({ tenantId });
   }
 
-  async getRecentPayments(limit: number = 10, ): Promise<IPaymentHistory[]> {
+  async getRecentPayments(page: number = 1, limit: number = 10): Promise<{ payments: IPaymentHistory[], total: number }> {
+    const skip = (page - 1) * limit;
     const model = this.getModel();
-    return await model.find().sort({ createdAt: -1 }).limit(limit).exec();
+  
+    const total = await model.countDocuments();
+    const payments = await model
+      .find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+  
+    return { payments, total };
   }
 
   async getTotalRevenue(): Promise<number> {

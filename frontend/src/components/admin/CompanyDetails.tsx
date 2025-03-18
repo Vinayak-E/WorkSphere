@@ -57,7 +57,7 @@ interface Company {
     name: string;
     price: number;
   };
-  subscriptionStatus: 'Active' | 'Inactive' | 'Expired';
+  subscriptionStatus: "Active" | "Inactive" | "Expired";
   subscriptionStartDate: string;
   subscriptionEndDate: string;
   createdAt: string;
@@ -65,13 +65,12 @@ interface Company {
 
 interface Payment {
   _id: string;
-  company: string;
+  companyId: string;
+  tenantId: string;
+  planName: string;
   amount: number;
-  status: string;
   paymentMethod: string;
-  subscriptionPlan: {
-    name: string;
-  };
+  status: string;
   createdAt: string;
 }
 
@@ -81,19 +80,25 @@ const CompanyDetailView = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10; // Number of payments per page
 
   useEffect(() => {
     fetchCompanyDetails();
+  }, [id]);
+
+  useEffect(() => {
     if (company?.companyName) {
-      fetchCompanyPayments(company.companyName);
+      fetchCompanyPayments(company.companyName, currentPage);
     }
-  }, [id, company?.companyName]);
+  }, [company?.companyName, currentPage]);
 
   const fetchCompanyDetails = async () => {
     setIsLoading(true);
     try {
       const response = await api.get(`/admin/companies/${id}`);
-      console.log('reposonse of company details',response.data.data)
+      console.log("response of company details", response.data.data);
       setCompany(response.data.data);
     } catch (error) {
       toast.error("Failed to load company details. Please try again.");
@@ -103,12 +108,18 @@ const CompanyDetailView = () => {
     }
   };
 
-  const fetchCompanyPayments = async (tenantId) => {
+  const fetchCompanyPayments = async (tenantId: string, page: number) => {
     setIsLoadingPayments(true);
     try {
-      const response = await api.get(`/admin/company/${tenantId}/payments`);
-      console.log('res',response.data.data)
-      setPayments(response.data.data);
+      const response = await api.get(
+        `/admin/company/${tenantId}/payments?page=${page}&limit=${limit}`
+      );
+      console.log("payment response", response.data.data);
+      const { payments, currentPage: responsePage, totalPages: responseTotalPages } =
+        response.data.data;
+      setPayments(payments);
+      setCurrentPage(responsePage);
+      setTotalPages(responseTotalPages);
     } catch (error) {
       toast.error("Failed to load payment history. Please try again.");
       console.error("Error fetching company payments:", error);
@@ -117,7 +128,6 @@ const CompanyDetailView = () => {
     }
   };
 
-
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -125,6 +135,18 @@ const CompanyDetailView = () => {
       month: "short",
       day: "numeric",
     });
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
   };
 
   if (isLoading) {
@@ -178,7 +200,9 @@ const CompanyDetailView = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="font-medium text-sm text-gray-500 mb-2">Contact Information</h3>
+                    <h3 className="font-medium text-sm text-gray-500 mb-2">
+                      Contact Information
+                    </h3>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-gray-500" />
@@ -192,7 +216,9 @@ const CompanyDetailView = () => {
                   </div>
 
                   <div>
-                    <h3 className="font-medium text-sm text-gray-500 mb-2">Business Information</h3>
+                    <h3 className="font-medium text-sm text-gray-500 mb-2">
+                      Business Information
+                    </h3>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Briefcase className="h-4 w-4 text-gray-500" />
@@ -219,14 +245,13 @@ const CompanyDetailView = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="font-medium text-sm text-gray-500 mb-2">Account Status</h3>
+                    <h3 className="font-medium text-sm text-gray-500 mb-2">
+                      Account Status
+                    </h3>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-gray-500" />
                         <span>Joined: {formatDate(company.createdAt)}</span>
-                      </div>
-                      <div className="mt-4">
-             
                       </div>
                     </div>
                   </div>
@@ -243,7 +268,7 @@ const CompanyDetailView = () => {
                   <div>
                     <h3 className="font-medium text-sm text-gray-500 mb-2">Current Plan</h3>
                     <p className="text-lg font-semibold">
-                      {company.subscriptionPlan?.planName || "No plan"} 
+                      {company.subscriptionPlan?.planName || "No plan"}
                     </p>
                     {company.subscriptionPlan?.price && (
                       <p className="text-sm text-gray-600">
@@ -251,7 +276,7 @@ const CompanyDetailView = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
                     <h3 className="font-medium text-sm text-gray-500 mb-2">Status</h3>
                     <Badge
@@ -272,15 +297,11 @@ const CompanyDetailView = () => {
                     <div className="text-sm">
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-gray-500" />
-                        <span>
-                          Start: {formatDate(company.subscriptionStartDate)}
-                        </span>
+                        <span>Start: {formatDate(company.subscriptionStartDate)}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <Clock className="h-4 w-4 text-gray-500" />
-                        <span>
-                          End: {formatDate(company.subscriptionEndDate)}
-                        </span>
+                        <span>End: {formatDate(company.subscriptionEndDate)}</span>
                       </div>
                     </div>
                   </div>
@@ -307,50 +328,74 @@ const CompanyDetailView = () => {
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                     </div>
                   ) : (
-                    <div className="rounded-md border">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Plan</TableHead>
-                            <TableHead>Payment Method</TableHead>
-                            <TableHead>Status</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {payments.length > 0 ? (
-                            payments.map((payment) => (
-                              <TableRow key={payment._id}>
-                                <TableCell>{formatDate(payment.createdAt)}</TableCell>
-                                <TableCell>${payment.amount.toFixed(2)}</TableCell>
-                                <TableCell>{payment.planName || "N/A"}</TableCell>
-                                <TableCell className="capitalize">{payment.paymentMethod}</TableCell>
-                                <TableCell>
-                                  <Badge
-                                    className={
-                                      payment.status === "successful"
-                                        ? "bg-green-100 text-green-800"
-                                        : payment.status === "failed"
-                                        ? "bg-red-100 text-red-800"
-                                        : "bg-yellow-100 text-yellow-800"
-                                    }
-                                  >
-                                    {payment.status}
-                                  </Badge>
+                    <>
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Amount</TableHead>
+                              <TableHead>Plan</TableHead>
+                              <TableHead>Payment Method</TableHead>
+                              <TableHead>Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {payments.length > 0 ? (
+                              payments.map((payment) => (
+                                <TableRow key={payment._id}>
+                                  <TableCell>{formatDate(payment.createdAt)}</TableCell>
+                                  <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                                  <TableCell>{payment.planName || "N/A"}</TableCell>
+                                  <TableCell className="capitalize">
+                                    {payment.paymentMethod}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge
+                                      className={
+                                        payment.status === "succeeded"
+                                          ? "bg-green-100 text-green-800"
+                                          : payment.status === "failed"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-yellow-100 text-yellow-800"
+                                      }
+                                    >
+                                      {payment.status}
+                                    </Badge>
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell colSpan={5} className="text-center py-8">
+                                  No payment records found
                                 </TableCell>
                               </TableRow>
-                            ))
-                          ) : (
-                            <TableRow>
-                              <TableCell colSpan={5} className="text-center py-8">
-                                No payment records found
-                              </TableCell>
-                            </TableRow>
-                          )}
-                        </TableBody>
-                      </Table>
-                    </div>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </div>
+                      {/* Pagination Controls */}
+                      <div className="mt-4 flex items-center justify-between">
+                        <Button
+                          onClick={handlePreviousPage}
+                          disabled={currentPage === 1}
+                          variant="outline"
+                        >
+                          Previous
+                        </Button>
+                        <span className="text-sm text-gray-700">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                          onClick={handleNextPage}
+                          disabled={currentPage === totalPages}
+                          variant="outline"
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>

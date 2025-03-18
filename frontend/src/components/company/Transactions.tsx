@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Calendar, Clock, CreditCard, Package, DollarSign, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import api from '@/api/axios';
+import { RootState } from '@/redux/store';
 
 const CompanyTransactionsDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -9,26 +10,15 @@ const CompanyTransactionsDashboard = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [activeTab, setActiveTab] = useState('history');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Get user data from Redux
-  const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state :RootState) => state.auth.user);
 
-  // Fetch data on component mount
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCurrentPlan = async () => {
       try {
-        setLoading(true);
-
-        // Fetch payment history
-        const historyData = await api.get('/company/payment-history');
-        console.log("historyData", historyData);
-
-        // Fetch current plan
         const planData = await api.get('/company/current-plan');
-        console.log("planData", planData);
-
-        setPaymentHistory(historyData.data.data || []);
-
         if (planData.data.data) {
           setCurrentPlan({ ...planData.data.data, isFreePlan: false });
         } else {
@@ -46,23 +36,36 @@ const CompanyTransactionsDashboard = () => {
             endDate: user.userData.subscriptionEndDate,
           });
         }
+      } catch (err) {
+        console.error('Error fetching current plan:', err);
+        setError(err.message);
+      }
+    };
+    fetchCurrentPlan();
+  }, [user]);
+  useEffect(() => {
+    const fetchPaymentHistory = async () => {
+      try {
+        setLoading(true);
+        const historyData = await api.get(`/company/payment-history?page=${currentPage}&limit=10`);
+        console.log("history",historyData)
+        setPaymentHistory(historyData.data.data.payments || []);
+        setTotalPages(historyData.data.data.totalPages || 1);
         setError(null);
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('Error fetching payment history:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
+    fetchPaymentHistory();
+  }, [currentPage]);
 
-    fetchData();
-  }, [user]);
-
-  // Format date helper
   const formatDate = (dateString) => {
-    // Check if dateString is missing or invalid
+
     if (!dateString || isNaN(Date.parse(dateString))) {
-      return 'N/A'; // Fallback for invalid or missing dates
+      return 'N/A'; 
     }
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
@@ -72,7 +75,6 @@ const CompanyTransactionsDashboard = () => {
     }).format(date);
   };
 
-  // Format currency helper
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -80,7 +82,6 @@ const CompanyTransactionsDashboard = () => {
     }).format(amount);
   };
 
-  // Status badge component
   const StatusBadge = ({ status }) => {
     const getStatusConfig = (status) => {
       switch (status.toLowerCase()) {
@@ -130,7 +131,7 @@ const CompanyTransactionsDashboard = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      {/* Tabs */}
+
       <div className="sm:hidden">
         <select
           className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -172,7 +173,7 @@ const CompanyTransactionsDashboard = () => {
       <div className="p-4">
         {activeTab === 'history' && (
           <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Payment History</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment History</h2>
             {paymentHistory.length === 0 ? (
               <div className="text-center py-8">
                 <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -180,6 +181,7 @@ const CompanyTransactionsDashboard = () => {
                 <p className="mt-1 text-sm text-gray-500">Your payment transactions will appear here.</p>
               </div>
             ) : (
+              <>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -206,6 +208,12 @@ const CompanyTransactionsDashboard = () => {
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
+                       Payment Method
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Status
                       </th>
                     </tr>
@@ -225,6 +233,9 @@ const CompanyTransactionsDashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatCurrency(payment.amount)}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {payment.paymentMethod}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <StatusBadge status={payment.status} />
                         </td>
@@ -233,17 +244,39 @@ const CompanyTransactionsDashboard = () => {
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
-        )}
+              
+         {/* Pagination Controls */}
+         <div className="mt-4 flex items-center justify-between">
+         <button
+           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+           disabled={currentPage === 1}
+           className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+         >
+           Previous
+         </button>
+         <span className="text-sm text-gray-700">
+           Page {currentPage} of {totalPages}
+         </span>
+         <button
+           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+           disabled={currentPage === totalPages}
+           className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+         >
+           Next
+         </button>
+       </div>
+     </>
+   )}
+ </div>
+)}
 
         {activeTab === 'plan' && (
           <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Current Subscription Plan</h2>
+            <h1 className="text-xl font-semibold text-gray-900 mb-4">Current Subscription Plan</h1>
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6 bg-gray-50">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  {currentPlan.plan.name}
+                <h3 className="text-lg leading-6 font-medium text-gray-900 ">
+                  {currentPlan.plan.planName}
                 </h3>
                 <p className="mt-1 max-w-2xl text-sm text-gray-500">
                   {currentPlan.plan.description}

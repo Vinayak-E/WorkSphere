@@ -22,6 +22,7 @@ export const tenantMiddleware = async (
   next: NextFunction
 ) => {
   try {
+    console.log("tenantMiddleware called")
     let token = req.cookies?.accessToken;
     const refreshToken = req.cookies?.refreshToken;
 

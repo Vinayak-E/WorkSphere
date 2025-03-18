@@ -11,8 +11,8 @@ export class PaymentService {
     @inject('SubscriptionService') private subscriptionService: ISubscriptionService
   ) {}
 
-  async getCompanyPaymentHistory(companyId: string): Promise<IPaymentHistory[]> {
-    return await this.paymentRepository.getPaymentsByCompanyId(companyId);
+  async getCompanyPaymentHistory(companyId: string, page: number = 1, limit: number = 10): Promise<{ payments: IPaymentHistory[], total: number }> {
+    return await this.paymentRepository.getPaymentsByCompanyId(companyId, page, limit);
   }
 
   async getCompanyCurrentPlan(companyId: string, tenantId: string): Promise<any> {
@@ -47,9 +47,8 @@ export class PaymentService {
     };
   }
 
-  async getRevenueStats(): Promise<any> {
+  async getRevenueStats(page: number = 1, limit: number = 10): Promise<any> {
     const totalRevenue = await this.paymentRepository.getTotalRevenue();
-
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
@@ -61,19 +60,18 @@ export class PaymentService {
         month += 12;
         year -= 1;
       }
-      
       const revenue = await this.paymentRepository.getMonthlyRevenue(year, month);
       const monthName = new Date(year, month - 1, 1).toLocaleString('default', { month: 'short' });
-      
       monthlyRevenue.unshift({ month: monthName, revenue });
     }
-    
-    const recentPayments = await this.paymentRepository.getRecentPayments(10);
-    
+  
+    const { payments: recentPayments, total: totalRecentPayments } = await this.paymentRepository.getRecentPayments(page, limit);
+  
     return {
       totalRevenue,
       monthlyRevenue,
       recentPayments,
+      totalRecentPayments,
     };
   }
 }

@@ -14,7 +14,7 @@ export class SubscriptionService implements ISubscriptionService {
     page: number,
     pageSize: number
   ) {
-    console.log("subscription service")
+  
     const [subscriptions, total] = await Promise.all([
       this.subscriptionRepository.getSubscriptions(
         filters,

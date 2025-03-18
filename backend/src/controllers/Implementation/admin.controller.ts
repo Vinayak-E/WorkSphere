@@ -1,12 +1,16 @@
-import { injectable, inject } from 'tsyringe';
 import { RequestHandler } from 'express';
+import { injectable, inject } from 'tsyringe';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { AdminService } from '../../services/Implementation/admin.service';
 import { PaymentService } from '../../services/Implementation/payment.service';
 
 @injectable()
 export class AdminController {
-  constructor(@inject('AdminService') private readonly adminService: AdminService,
-  @inject('PaymentService') private paymentService: PaymentService) {}
+  constructor(
+    @inject('AdminService') private readonly adminService: AdminService,
+    @inject('PaymentService') private paymentService: PaymentService
+  ) {}
 
   adminLogin: RequestHandler = async (req, res, next) => {
     try {
@@ -14,7 +18,7 @@ export class AdminController {
       const response = await this.adminService.verifyAdmin(email, password);
 
       if (!response) {
-        res.status(400).json({ message: 'Invalid email or password!' });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.INVALID_CREDENTIALS });
         return;
       }
 
@@ -35,7 +39,7 @@ export class AdminController {
         });
       }
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         accessToken: response.accessToken,
       });
@@ -47,15 +51,16 @@ export class AdminController {
   companiesList: RequestHandler = async (req, res, next) => {
     try {
       const companies = await this.adminService.getCompanies();
-      res.status(200).json(companies);
+      res.status(HttpStatus.OK).json(companies);
     } catch (error) {
       next(error);
     }
   };
+
   companyRequests: RequestHandler = async (req, res, next) => {
     try {
       const companies = await this.adminService.getCompanyRequests();
-      res.status(200).json(companies);
+      res.status(HttpStatus.OK).json(companies);
     } catch (error) {
       next(error);
     }
@@ -66,9 +71,9 @@ export class AdminController {
       const { companyId } = req.params;
       const { isActive } = req.body;
       if (typeof isActive !== 'boolean') {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Invalid status value. isActive must be a boolean.',
+          message: Messages.INVALID_STATUS,
         });
         return;
       }
@@ -76,16 +81,16 @@ export class AdminController {
       const updatedCompany = await this.adminService.updateCompanyStatus(companyId, isActive);
 
       if (!updatedCompany) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: 'Company not found.',
+          message: Messages.COMPANY_NOT_FOUND,
         });
         return;
       }
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Company status updated successfully.',
+        message: Messages.STATUS_UPDATED,
         data: updatedCompany,
       });
     } catch (error) {
@@ -101,16 +106,16 @@ export class AdminController {
       const updatedCompany = await this.adminService.updateCompanyRequest(companyId, isApproved, reason);
 
       if (!updatedCompany) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: 'Company not found.',
+          message: Messages.COMPANY_NOT_FOUND,
         });
         return;
       }
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Company status updated successfully.',
+        message: Messages.STATUS_UPDATED,
         data: updatedCompany,
       });
     } catch (error) {
@@ -118,14 +123,19 @@ export class AdminController {
     }
   };
 
-  getRevenueStats :RequestHandler = async (req , res, next) => {
+  getRevenueStats: RequestHandler = async (req, res, next) => {
     try {
-      console.log("@ get revenueStats")
-      const revenueStats = await this.paymentService.getRevenueStats();
-       console.log("revenueStats",revenueStats)
-      res.status(200).json({
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const revenueStats = await this.paymentService.getRevenueStats(page, limit);
+
+      res.status(HttpStatus.OK).json({
         success: true,
-        data: revenueStats,
+        data: {
+          ...revenueStats,
+          currentPage: page,
+          totalPages: Math.ceil(revenueStats.totalRecentPayments / limit),
+        },
       });
     } catch (error) {
       console.error('Revenue stats error:', error);
@@ -133,15 +143,24 @@ export class AdminController {
     }
   };
 
-  getCompanyPayments:RequestHandler = async (req, res, next) => {
+  getCompanyPayments: RequestHandler = async (req, res, next) => {
     try {
       const { companyId } = req.params;
-      console.log("companyid",companyId)
-      const payments = await this.paymentService.getCompanyPaymentHistory(companyId);
-      console.log('payments',payments)
-      res.status(200).json({
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { payments, total } = await this.paymentService.getCompanyPaymentHistory(companyId, page, limit);
+
+      console.log('payments', payments);
+      console.log('total', total);
+
+      res.status(HttpStatus.OK).json({
         success: true,
-        data: payments,
+        data: {
+          payments,
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalCount: total,
+        },
       });
     } catch (error) {
       console.error('Company payments error:', error);
@@ -152,25 +171,24 @@ export class AdminController {
   getCompanyById: RequestHandler = async (req, res, next) => {
     try {
       const { id } = req.params;
-      
+
       const companyDetails = await this.adminService.getCompanyDetails(id);
-      
+
       if (!companyDetails) {
-         res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: 'Company not found'
+          message: Messages.COMPANY_NOT_FOUND,
         });
-        return
+        return;
       }
-      
-      res.status(200).json({
+
+      res.status(HttpStatus.OK).json({
         success: true,
-        data: companyDetails
+        data: companyDetails,
       });
     } catch (error) {
       console.error('Get company details error:', error);
       next(error);
     }
   };
-
 }

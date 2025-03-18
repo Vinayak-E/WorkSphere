@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { Connection } from 'mongoose';
 import { injectable, inject } from 'tsyringe';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { Request, Response, NextFunction } from 'express';
 import { IMeetController } from '../Interface/IMeetController';
 import { IMeetService } from '../../services/Interface/IMeetService';
@@ -13,18 +15,18 @@ export class MeetController implements IMeetController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
 
       const userId = req.userId;
       if (!userId) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User ID not found',
+          message: Messages.USER_ID_NOT_FOUND,
         });
         return;
       }
@@ -93,8 +95,7 @@ export class MeetController implements IMeetController {
         page,
         pageSize
       );
-      console.log('meetings', meetings);
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: meetings,
         total,
@@ -107,13 +108,13 @@ export class MeetController implements IMeetController {
     }
   };
 
-   createMeeting  = async (req: Request, res: Response, next: NextFunction) => {
+  createMeeting = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       if (!req.userId || !req.user) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User email not found in token',
+          message: Messages.USER_ID_NOT_FOUND,
         });
         return;
       }
@@ -129,13 +130,13 @@ export class MeetController implements IMeetController {
         tenantConnection,
         meetingData
       );
-      res.status(201).json(meeting);
+      res.status(HttpStatus.CREATED).json(meeting);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
- updateMeeting  = async (req: Request, res: Response, next: NextFunction) => {
+  updateMeeting = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       const meeting = await this.meetService.updateMeeting(
@@ -143,24 +144,28 @@ export class MeetController implements IMeetController {
         req.params.id,
         req.body
       );
-      if (!meeting) res.status(404).json({ message: 'Meeting not found' });
-      res.status(200).json(meeting);
+      if (!meeting)
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ message: Messages.MEETING_NOT_FOUND });
+      res.status(HttpStatus.OK).json(meeting);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  deleteMeeting  = async (req: Request, res: Response, next: NextFunction) => {
+  deleteMeeting = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       const meeting = await this.meetService.deleteMeeting(
         tenantConnection,
         req.params.id
       );
-      if (!meeting) res.status(404).json({ message: 'Meeting not found' });
-      res.status(204).send();
+      if (!meeting)
+        res.status(404).json({ message: Messages.MEETING_NOT_FOUND });
+      res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

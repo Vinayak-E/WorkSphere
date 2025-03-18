@@ -1,9 +1,9 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
-import { LeaveService } from '../../services/Implementation/leave.service';
-import { sendEmail } from '../../utils/email';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { ILeaveController } from '../Interface/ILeaveController';
 import { ILeaveService } from '../../services/Interface/ILeaveService';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 @injectable()
 export class LeaveController implements ILeaveController {
@@ -13,38 +13,50 @@ export class LeaveController implements ILeaveController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-      res.status(500).json({ success: false, message: 'Tenant connection not established' });
-      return;
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
+        return;
       }
       const employeeId = req.userId;
       if (!employeeId) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User ID not found',
+          message: Messages.USER_ID_NOT_FOUND,
         });
         return;
       }
       const { startDate, endDate, reason, leaveType } = req.body;
       const leaveData = { startDate, endDate, reason, leaveType };
-      const leave = await this.leaveService.applyLeave(tenantConnection, employeeId, leaveData);
-      res.status(201).json({ success: true, data: leave });
+      const leave = await this.leaveService.applyLeave(
+        tenantConnection,
+        employeeId,
+        leaveData
+      );
+      res.status(HttpStatus.CREATED).json({ success: true, data: leave });
     } catch (error) {
       next(error);
     }
   };
 
-  getEmployeeLeaves = async (req: Request, res: Response, next: NextFunction) => {
+  getEmployeeLeaves = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
-        return 
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
+        return;
       }
       const employeeId = req.userId;
       if (!employeeId) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User ID not found',
+          message: Messages.USER_ID_NOT_FOUND,
         });
         return;
       }
@@ -52,7 +64,8 @@ export class LeaveController implements ILeaveController {
       const limit = parseInt(req.query.limit as string) || 10;
       const { startDate, endDate } = req.query;
       const filters: any = {};
-      if (startDate) filters.startDate = { $gte: new Date(startDate as string) };
+      if (startDate)
+        filters.startDate = { $gte: new Date(startDate as string) };
       if (endDate) filters.endDate = { $lte: new Date(endDate as string) };
       const { leaves, total } = await this.leaveService.getEmployeeLeaves(
         tenantConnection,
@@ -61,7 +74,7 @@ export class LeaveController implements ILeaveController {
         limit,
         filters
       );
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         leaves,
         total,
@@ -77,14 +90,17 @@ export class LeaveController implements ILeaveController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-         res.status(500).json({ success: false, message: 'Tenant connection not established' });
-         return
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
+        return;
       }
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const { startDate, endDate, status } = req.query;
       const filters: any = {};
-      if (startDate) filters.startDate = { $gte: new Date(startDate as string) };
+      if (startDate)
+        filters.startDate = { $gte: new Date(startDate as string) };
       if (endDate) filters.endDate = { $lte: new Date(endDate as string) };
       if (status) filters.status = status;
       const { leaves, total } = await this.leaveService.getAllLeaves(
@@ -93,7 +109,7 @@ export class LeaveController implements ILeaveController {
         limit,
         filters
       );
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         leaves,
         total,
@@ -105,30 +121,36 @@ export class LeaveController implements ILeaveController {
     }
   };
 
-
-  updateLeaveStatus = async (req: Request, res: Response, next: NextFunction) => {
+  updateLeaveStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
-        return
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
+        return;
       }
       const { id } = req.params;
       const { status } = req.body;
-      const updatedLeave = await this.leaveService.updateLeaveStatus(tenantConnection, id, status);
+      const updatedLeave = await this.leaveService.updateLeaveStatus(
+        tenantConnection,
+        id,
+        status
+      );
       if (!updatedLeave) {
-        res.status(404).json({ success: false, message: 'Leave not found' });
-        return 
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.LEAVE_NOT_FOUND });
+        return;
       }
 
-      // const employee = await this.employeeRepository.findById(updatedLeave.employeeId.toString(), tenantConnection);
-      // if (employee && employee.email) {
-      //   const statusMessage = `Your leave request from ${new Date(updatedLeave.startDate).toLocaleDateString()} to ${new Date(updatedLeave.endDate).toLocaleDateString()} has been ${status.toLowerCase()}.`;
-      //   await sendEmail(employee.email, 'Leave Request Status Update', statusMessage);
-      // }
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Leave status updated successfully',
+        message: Messages.LEAVE_UPDATE_SUCCESS,
         data: updatedLeave,
       });
     } catch (error) {

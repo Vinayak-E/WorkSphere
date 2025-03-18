@@ -1,5 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Messages } from '../constants/messages';
+import { HttpStatus } from '../constants/httpStatus';
 import { IChatService } from '../interfaces/IChat.types';
+import { Request, Response, NextFunction } from 'express';
 
 export class ChatController {
   constructor(private readonly chatService: IChatService) {}
@@ -8,17 +10,17 @@ export class ChatController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
 
       if (!req.user) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User not authenticated',
+          message: Messages.UNAUTHORIZED_ACCESS,
         });
         return;
       }
@@ -27,9 +29,9 @@ export class ChatController {
       const currentUserId = req.userId;
 
       if (!currentUserId) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'UserId is required',
+          message: Messages.USER_ID_NOT_FOUND,
         });
         return;
       }
@@ -41,9 +43,9 @@ export class ChatController {
         req.user.role
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Chat created successfully',
+        message: Messages.CHAT_CREATE_SUCCESS,
         data: chat,
       });
     } catch (error) {
@@ -56,9 +58,9 @@ export class ChatController {
       const tenantConnection = req.tenantConnection;
 
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
@@ -67,9 +69,9 @@ export class ChatController {
       const adminEmail = req.user?.email;
 
       if (!req.user || !users || !name || !adminEmail) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Please provide all required fields',
+          message: Messages.MISSING_FIELDS,
         });
         return;
       }
@@ -82,9 +84,9 @@ export class ChatController {
         req.user.role
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Group chat created successfully',
+        message: Messages.CHAT_CREATE_SUCCESS,
         data: groupChat,
       });
     } catch (error) {
@@ -97,14 +99,14 @@ export class ChatController {
       const tenantConnection = req.tenantConnection;
 
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
       if (!req.user?.email) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           message: 'User not authenticated',
         });
@@ -116,9 +118,9 @@ export class ChatController {
       );
 
       if (!currentUser) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: 'User not found',
+          message: Messages.USER_NOT_FOUND,
         });
         return;
       }
@@ -128,7 +130,7 @@ export class ChatController {
         currentUser._id
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: 'Chats retrieved successfully',
         data: chats,
@@ -142,16 +144,16 @@ export class ChatController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
 
       const chatId = req.params.chatId;
       if (!chatId) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: 'Chat ID is required',
         });
@@ -162,7 +164,7 @@ export class ChatController {
         tenantConnection,
         chatId
       );
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: 'Messages retrieved successfully',
         data: messages,

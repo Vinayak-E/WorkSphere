@@ -1,18 +1,21 @@
-import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
-import { TaskService } from '../../services/Implementation/task.service';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
+import { Request, Response, NextFunction } from 'express';
 import { ITaskController } from '../Interface/ITaskController';
-
+import { TaskService } from '../../services/Implementation/task.service';
 
 @injectable()
-export class TaskController implements ITaskController{
+export class TaskController implements ITaskController {
   constructor(@inject('TaskService') private taskService: TaskService) {}
 
   getTasks = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const { page = 1, limit = 10, projectId, employeeId, status } = req.query;
@@ -21,8 +24,13 @@ export class TaskController implements ITaskController{
       if (employeeId) query.assignee = employeeId;
       if (status) query.status = status;
 
-      const { tasks, total } = await this.taskService.getTasks(tenantConnection, query, parseInt(page as string), parseInt(limit as string));
-      res.status(200).json({
+      const { tasks, total } = await this.taskService.getTasks(
+        tenantConnection,
+        query,
+        parseInt(page as string),
+        parseInt(limit as string)
+      );
+      res.status(HttpStatus.OK).json({
         success: true,
         data: tasks,
         total,
@@ -35,13 +43,25 @@ export class TaskController implements ITaskController{
     }
   };
 
-  getEmployeeTasks = async (req: Request, res: Response, next: NextFunction) => {
+  getEmployeeTasks = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const tenantConnection = req.tenantConnection;
-      const { employeeId, page = '1', limit = '10', search = '', status = '' } = req.query;
+      const {
+        employeeId,
+        page = '1',
+        limit = '10',
+        search = '',
+        status = '',
+      } = req.query;
 
       if (!tenantConnection || !employeeId) {
-        res.status(400).json({ success: false, message: 'Missing required parameters' });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.MISSING_FIELDS });
         return;
       }
 
@@ -53,9 +73,11 @@ export class TaskController implements ITaskController{
         status: status as string,
       };
 
-      const result = await this.taskService.getEmployeeTasks(tenantConnection, options);
-      console.log('tasks',result)
-      res.status(200).json({
+      const result = await this.taskService.getEmployeeTasks(
+        tenantConnection,
+        options
+      );
+      res.status(HttpStatus.OK).json({
         success: true,
         data: result.data,
         totalPages: result.totalPages,
@@ -70,14 +92,19 @@ export class TaskController implements ITaskController{
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const projectId = req.params.id;
       const taskData = { ...req.body, project: projectId };
-      const newTask = await this.taskService.createTask(tenantConnection, taskData);
+      const newTask = await this.taskService.createTask(
+        tenantConnection,
+        taskData
+      );
 
-      res.status(201).json({ success: true, data: newTask });
+      res.status(HttpStatus.CREATED).json({ success: true, data: newTask });
     } catch (error) {
       next(error);
     }
@@ -87,17 +114,21 @@ export class TaskController implements ITaskController{
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const taskId = req.params.id;
       const task = await this.taskService.getTaskById(tenantConnection, taskId);
 
       if (!task) {
-        res.status(404).json({ success: false, message: 'Task not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.TASK_NOT_FOUND });
         return;
       }
-      res.status(200).json({ success: true, data: task });
+      res.status(HttpStatus.OK).json({ success: true, data: task });
     } catch (error) {
       next(error);
     }
@@ -107,39 +138,59 @@ export class TaskController implements ITaskController{
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
-      const taskId = req.params.taskId; 
+      const taskId = req.params.taskId;
       const taskData = req.body;
-      const updatedTask = await this.taskService.updateTask(tenantConnection, taskId, taskData);
+      const updatedTask = await this.taskService.updateTask(
+        tenantConnection,
+        taskId,
+        taskData
+      );
 
       if (!updatedTask) {
-        res.status(404).json({ success: false, message: 'Task not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.TASK_NOT_FOUND });
         return;
       }
-      res.status(200).json({ success: true, data: updatedTask });
+      res.status(HttpStatus.OK).json({ success: true, data: updatedTask });
     } catch (error) {
       next(error);
     }
   };
 
-  updateTaskStatus = async (req: Request, res: Response, next: NextFunction) => {
+  updateTaskStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const taskId = req.params.id;
       const { status } = req.body;
 
-      const updatedTask = await this.taskService.updateTaskStatus(tenantConnection, taskId, status);
+      const updatedTask = await this.taskService.updateTaskStatus(
+        tenantConnection,
+        taskId,
+        status
+      );
       if (!updatedTask) {
-        res.status(404).json({ success: false, message: 'Task not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.TASK_NOT_FOUND });
         return;
       }
-      res.status(200).json({ success: true, data: updatedTask });
+      res.status(HttpStatus.OK).json({ success: true, data: updatedTask });
     } catch (error) {
       next(error);
     }
@@ -149,17 +200,24 @@ export class TaskController implements ITaskController{
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: Messages.TENANT_CONNECTION_ERROR });
         return;
       }
       const taskId = req.params.id;
-      const deleted = await this.taskService.deleteTask(tenantConnection, taskId);
+      const deleted = await this.taskService.deleteTask(
+        tenantConnection,
+        taskId
+      );
 
       if (!deleted) {
-        res.status(404).json({ success: false, message: 'Task not found' });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: Messages.TASK_NOT_FOUND });
         return;
       }
-      res.status(204).send();
+      res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
       next(error);
     }

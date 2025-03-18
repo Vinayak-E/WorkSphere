@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 import slugify from 'slugify';
 import { injectable, inject } from 'tsyringe';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { Request, Response, NextFunction } from 'express';
 import { connectTenantDB } from '../../configs/db.config';
 import { CompanyService } from '../../services/Implementation/company.service';
@@ -41,17 +43,17 @@ export class CheckoutController {
 
       if (!tenantConnection) {
         res
-          .status(500)
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
           .json({
             success: false,
-            message: 'Tenant connection not established',
+            message: Messages.TENANT_CONNECTION_ERROR,
           });
         return;
       }
       if (!planId || !companyEmail) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Missing required parameters',
+          message:  Messages.MISSING_FIELDS,
         });
         return;
       }
@@ -63,9 +65,9 @@ export class CheckoutController {
       );
 
       if (!subscriptions || subscriptions.length === 0) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: 'Subscription plan not found',
+          message: Messages.SUBSCRIPTION_NOT_FOUND,
         });
         return;
       }
@@ -77,9 +79,9 @@ export class CheckoutController {
         tenantConnection
       );
       if (!company) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: 'Company not found',
+          message: Messages.COMPANY_NOT_FOUND,
         });
         return;
       }
@@ -126,12 +128,11 @@ export class CheckoutController {
         },
       });
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         sessionId: session.id,
       });
     } catch (error) {
-      console.error('Checkout error:', error);
       next(error);
     }
   };
@@ -141,8 +142,8 @@ export class CheckoutController {
     const sig = req.headers['stripe-signature'];
     if (!sig) {
       res
-        .status(400)
-        .json({ success: false, message: 'Missing Stripe signature' });
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: Messages.MISSING_FIELDS });
       return;
     }
 
@@ -151,7 +152,7 @@ export class CheckoutController {
       const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
       if (!stripeWebhookSecret) {
         throw new Error(
-          'STRIPE_WEBHOOK_SECRET is not defined in environment variables'
+          Messages.STRIPE_WEBHOOK_SECRET_MISSING
         );
       }
 
@@ -160,13 +161,12 @@ export class CheckoutController {
         sig,
         stripeWebhookSecret
       );
-    } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
+    } catch (error) {
       res
-        .status(400)
+        .status(HttpStatus.BAD_REQUEST)
         .json({
           success: false,
-          message: 'Webhook signature verification failed',
+          message: Messages.WEBHOOK_VERIFICATION_FAILED,
         });
       return;
     }
@@ -176,7 +176,7 @@ export class CheckoutController {
         case 'checkout.session.completed': {
           const session = event.data.object;
           if (!session.metadata) {
-            throw new Error('Metadata is missing in the Stripe session');
+            throw new Error(Messages.METADATA_MISSING);
           }
 
           const {
@@ -212,8 +212,6 @@ export class CheckoutController {
               `Failed to connect to tenant database for tenantId: ${tenantId}`
             );
           }
-
-          console.log('session metadata', session.metadata);
           const { subscriptions } =
             await this.subscriptionService.getSubscriptions(
               { _id: planId },
@@ -221,7 +219,7 @@ export class CheckoutController {
               1
             );
           if (!subscriptions || subscriptions.length === 0) {
-            throw new Error('Subscription plan not found');
+            throw new Error(Messages.SUBSCRIPTION_NOT_FOUND);
           }
 
           const plan = subscriptions[0];
@@ -251,7 +249,7 @@ export class CheckoutController {
           const invoice = event.data.object;
           if (invoice.subscription) {
             if (typeof invoice.subscription !== 'string') {
-              throw new Error('Invalid subscription ID');
+              throw new Error(Messages.INVALID_SUBSCRIPTION_ID);
             }
 
             const subscription = await this.stripe.subscriptions.retrieve(
@@ -322,9 +320,8 @@ export class CheckoutController {
           break;
         }
       }
-      res.status(200).json({ received: true });
+      res.status(HttpStatus.OK).json({ received: true });
     } catch (error) {
-      console.error('Webhook processing error:', error);
       next(error);
     }
   };
@@ -336,9 +333,8 @@ export class CheckoutController {
   ) => {
     try {
       const { session_id } = req.query;
-      console.log('handlePayment success', session_id);
       if (!session_id) {
-        res.status(400).json({ success: false, message: 'Missing session ID' });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: Messages.MISSING_SESSION_ID});
         return;
       }
 
@@ -346,11 +342,11 @@ export class CheckoutController {
         session_id as string
       );
       if (!session) {
-        res.status(404).json({ success: false, message: 'Session not found' });
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: Messages.SESSION_NOT_FOUND });
         return;
       }
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: {
           status: session.payment_status,
@@ -358,7 +354,6 @@ export class CheckoutController {
         },
       });
     } catch (error) {
-      console.error('Payment success error:', error);
       next(error);
     }
   };

@@ -32,10 +32,10 @@ const CompanyRoutes = () => {
         <Route path="/chat" element={<ChatContainer />} />
         <Route path="/meeting" element={<MeetingManagement />} />
         <Route path="/video-call" element={<VideoCall />} />
-        <Route path="/select-plan" element={<SelectPlanPage />} />
         <Route path="/payment/success" element={<PaymentSuccessPage />} />
         <Route path="/transactions" element={<CompanyTransactionsDashboard />} />
       </Route>
+        <Route path="/select-plan" element={<SelectPlanPage />} />
     </Routes>
   );
 };

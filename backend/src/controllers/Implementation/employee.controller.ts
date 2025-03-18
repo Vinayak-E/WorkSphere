@@ -1,7 +1,9 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { injectable, inject } from 'tsyringe';
-import { EmployeeService } from '../../services/Implementation/employee.service';
 import { AuthService } from '../../services/Implementation/auth.service';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { EmployeeService } from '../../services/Implementation/employee.service';
+import { HttpStatus } from '../../constants/httpStatus';
+import { Messages } from '../../constants/messages';
 
 @injectable()
 export class EmployeeController {
@@ -15,19 +17,19 @@ export class EmployeeController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-         res.status(500).json({ success: false, message: 'Tenant connection not established' });
+         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message:Messages.TENANT_CONNECTION_ERROR });
          return;
       }
       if (!req.user?.email) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User email not found in token',
+          message: Messages.USER_EMAIL_NOT_FOUND,
         });
         return;
       }
       const email = req.user.email
       const employee = await this.employeeService.getEmployeeProfile(tenantConnection, email);
-      res.status(200).json({ success: true, data: employee });
+      res.status(HttpStatus.OK).json({ success: true, data: employee });
     } catch (error) {
       next(error);
     }
@@ -37,19 +39,19 @@ export class EmployeeController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({ success: false, message: 'Tenant connection not established' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message:Messages.TENANT_CONNECTION_ERROR});
         return;
       }
       const { id } = req.params; 
       if (!id) {
-        res.status(400).json({ success: false, message: 'Employee ID is required' });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: Messages.EMPLOYEE_ID_REQUIRED });
         return;
       }
       const updateData = req.body;
       const updatedEmployee = await this.employeeService.updateProfile(id, updateData, tenantConnection);
-        res.status(200).json({
+        res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Employee profile updated successfully',
+        message:Messages.EMPLOYEE_UPDATE_SUCCESS,
         data: updatedEmployee
       });
       return;
@@ -63,20 +65,20 @@ export class EmployeeController {
    
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-         res.status(500).json({ success: false, message: 'Tenant connection not established' });
+         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message:Messages.TENANT_CONNECTION_ERROR});
          return;
       }
      
       const email = req.user?.email;
       if (!email) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User not authenticated',
+          message: Messages.USER_EMAIL_NOT_FOUND,
         });
         return;
       }
       const departmentEmployees = await this.employeeService.getDepartmentEmployees(tenantConnection, email);
-       res.status(200).json({ success: true, data: departmentEmployees });
+       res.status(HttpStatus.OK).json({ success: true, data: departmentEmployees });
        return;
     } catch (error) {
       next(error);
@@ -87,9 +89,9 @@ export class EmployeeController {
     const { email, newPassword } = req.body;
     try {
       await this.authService.resetPassword(email, newPassword);
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Password Changed Successfully',
+        message: Messages.PASSWORD_CHANGE_SUCCESS,
       });
     } catch (error) {
       next(error);

@@ -1,5 +1,7 @@
 import { Connection } from 'mongoose';
 import { injectable, inject } from 'tsyringe';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { NextFunction, Request, Response } from 'express';
 import { IAttendanceController } from '../Interface/IAttendanceController';
 import { IAttendanceService } from '../../services/Interface/IAttendanceService';
@@ -18,31 +20,31 @@ export class AttendanceController implements IAttendanceController {
     try {
       const tenantConnection = req.tenantConnection;
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
+
       const employeeId = req.userId;
       if (!employeeId) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: 'User ID not found',
+          message: Messages.USER_ID_NOT_FOUND,
         });
         return;
       }
+
       const attendance = await this.attendanceService.checkIn(
         tenantConnection,
         employeeId
       );
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: 'Checked in successfully',
-          data: attendance,
-        });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: Messages.CHECK_IN_SUCCESS,
+        data: attendance,
+      });
     } catch (error) {
       next(error);
     }
@@ -56,33 +58,31 @@ export class AttendanceController implements IAttendanceController {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       if (!tenantConnection) {
-        res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Tenant connection not established',
-          });
-        return;
-      }
-      const employeeId = req.userId;
-      if (!employeeId) {
-        res.status(401).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'User ID not found',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
+
+      const employeeId = req.userId;
+      if (!employeeId) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: Messages.USER_ID_NOT_FOUND,
+        });
+        return;
+      }
+
       const attendance = await this.attendanceService.checkOut(
         tenantConnection,
         employeeId
       );
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: 'Checked out successfully',
-          data: attendance,
-        });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: Messages.CHECK_OUT_SUCCESS,
+        data: attendance,
+      });
     } catch (error) {
       next(error);
     }
@@ -96,27 +96,30 @@ export class AttendanceController implements IAttendanceController {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       if (!tenantConnection) {
-        res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Tenant connection not established',
-          });
-        return;
-      }
-      const employeeId = req.userId;
-      if (!employeeId) {
-        res.status(401).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'User ID not found',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
+
+      const employeeId = req.userId;
+      if (!employeeId) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: Messages.USER_ID_NOT_FOUND,
+        });
+        return;
+      }
+
       const attendance = await this.attendanceService.getTodayAttendance(
         tenantConnection,
         employeeId
       );
-      res.status(200).json({ success: true, data: attendance });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: attendance,
+      });
     } catch (error) {
       next(error);
     }
@@ -130,14 +133,13 @@ export class AttendanceController implements IAttendanceController {
     try {
       const tenantConnection = req.tenantConnection as Connection;
       if (!tenantConnection) {
-        res
-          .status(500)
-          .json({
-            success: false,
-            message: 'Tenant connection not established',
-          });
-        return; 
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: Messages.TENANT_CONNECTION_ERROR,
+        });
+        return;
       }
+
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const { date } = req.query;
@@ -151,7 +153,8 @@ export class AttendanceController implements IAttendanceController {
           limit,
           filters
         );
-      res.status(200).json({
+
+      res.status(HttpStatus.OK).json({
         success: true,
         attendance,
         total,

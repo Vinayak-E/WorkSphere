@@ -1,19 +1,16 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
-import {
-  ICompanyDocument,
-} from '../../interfaces/company/company.types';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { IPayload } from '../../interfaces/IJwtService.types';
-import {
-  IEmployee,
-} from '../../interfaces/company/IEmployee.types';
-import { IUser } from '../../interfaces/IUser.types';
 import { injectable, inject } from 'tsyringe';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Messages } from '../../constants/messages';
+import { HttpStatus } from '../../constants/httpStatus';
 import { AuthService } from '../../services/Implementation/auth.service';
-import { EmployeeService } from '../../services/Implementation/employee.service';
-
-import { CompanyService } from '../../services/Implementation/company.service';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { AdminService } from '../../services/Implementation/admin.service';
+import { CompanyService } from '../../services/Implementation/company.service';
+import { EmployeeService } from '../../services/Implementation/employee.service';
+import { IPayload } from '../../interfaces/IJwtService.types';
+import { IEmployee } from '../../interfaces/company/IEmployee.types';
+import { ICompanyDocument } from '../../interfaces/company/company.types';
+import { IUser } from '../../interfaces/IUser.types';
 
 @injectable()
 export class AuthController {
@@ -21,20 +18,23 @@ export class AuthController {
     @inject('AuthService') private authService: AuthService,
     @inject('EmployeeService') private employeeService: EmployeeService,
     @inject('CompanyService') private companyService: CompanyService,
-    @inject('AdminService') private adminService: AdminService 
+    @inject('AdminService') private adminService: AdminService
   ) {}
 
   signup: RequestHandler = async (req, res, next) => {
     try {
       const data = req.body;
-      console.log('data at controller',data)
       const registeredMail = await this.authService.signup(data);
+
       if (registeredMail) {
-        res.status(201).json({ success: true, registeredMail });
+        res.status(HttpStatus.CREATED).json({
+          success: true,
+          registeredMail,
+        });
       } else {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'This company is already registered!',
+          message: Messages.COMPANY_ALREADY_REGISTERED,
         });
       }
     } catch (error) {
@@ -46,9 +46,14 @@ export class AuthController {
     try {
       const verified = await this.authService.verifyOtp(req.body);
       if (!verified) {
-        res.status(400).json({ message: 'Wrong OTP!' });
+        res.status(HttpStatus.BAD_REQUEST).json({
+          message: Messages.WRONG_OTP,
+        });
+        return;
       }
-      res.status(200).json({ message: 'OTP verification successful!' });
+      res.status(HttpStatus.OK).json({
+        message: Messages.OTP_VERIFICATION_SUCCESS,
+      });
     } catch (error) {
       next(error);
     }
@@ -57,10 +62,20 @@ export class AuthController {
   resendOtp: RequestHandler = async (req, res, next) => {
     try {
       const { email } = req.body;
-      if (!email) res.status(400).json({ message: 'Email is required' });
+      if (!email) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.EMAIL_REQUIRED });
+        return;
+      }
       const success = await this.authService.resendOtp(email);
-      if (!success) res.status(400).json({ message: 'Failed to resend OTP' });
-      res.json({ success: true, message: 'OTP resent successfully' });
+      if (!success) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.OTP_RESEND_FAILED });
+        return;
+      }
+      res.json({ success: true, message: Messages.OTP_RESEND_SUCCESS });
     } catch (error) {
       next(error);
     }
@@ -76,7 +91,9 @@ export class AuthController {
       );
 
       if (!response) {
-        res.status(400).json({ message: 'Invalid email or password!' });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.INVALID_CREDENTIALS });
         return;
       }
 
@@ -96,8 +113,8 @@ export class AuthController {
           maxAge: 15 * 60 * 1000,
         });
       }
-   
-      res.status(200).json({
+
+      res.status(HttpStatus.OK).json({
         success: true,
         email: response.user.email,
         accessToken: response.accessToken,
@@ -114,35 +131,36 @@ export class AuthController {
     try {
       const { email } = req.body;
       const sendResetLink = await this.authService.sendResetLink(email);
-      if (sendResetLink === false) {
-        res.status(400).json({ message: 'The email is not registered!' });
-      } else if (sendResetLink) {
-        res.status(200).json({ message: 'The otp has sent to your email' });
+      if (!sendResetLink) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.EMAIL_NOT_REGISTERED });
+      } else {
+        res.status(HttpStatus.OK).json({ message: Messages.OTP_SENT_SUCCESS });
       }
     } catch (error) {
       next(error);
     }
   };
 
-  resetPassword: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const { token, newPassword } = req.body;
+  resetPassword: RequestHandler = async (req, res, next) => {
     try {
+      const { token, newPassword } = req.body;
       interface TokenPayload extends JwtPayload {
         email: string;
       }
+
       const decoded = jwt.verify(
         token,
         process.env.RESET_LINK_SECRET as string
       ) as TokenPayload;
-      const { email } = decoded;
-      await this.authService.resetPassword(email, newPassword);
-      res.status(200).json({ message: 'Token is valid', decoded });
+      await this.authService.resetPassword(decoded.email, newPassword);
+
+      res.status(HttpStatus.OK).json({ message: Messages.TOKEN_VALID });
     } catch (error) {
-      res.status(400).json({ message: 'Invalid or expired token' });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: Messages.INVALID_TOKEN });
     }
   };
 
@@ -152,16 +170,17 @@ export class AuthController {
       const refreshToken = req.cookies.refreshToken;
 
       if (!accessToken && !refreshToken) {
-        res.status(401).json({ success: false, message: 'No tokens' });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: Messages.NO_TOKENS });
         return;
       }
 
       const tenantConnection = req.tenantConnection;
-
       if (!tenantConnection) {
-        res.status(500).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'Tenant connection not established',
+          message: Messages.TENANT_CONNECTION_ERROR,
         });
         return;
       }
@@ -172,9 +191,11 @@ export class AuthController {
       if (accessToken) {
         try {
           decodedToken = await this.authService.verifyAccessToken(accessToken);
-        } catch (error) {
+        } catch {
           if (!refreshToken) {
-            res.status(401).json({ success: false, message: 'Invalid token' });
+            res
+              .status(HttpStatus.UNAUTHORIZED)
+              .json({ success: false, message: Messages.INVALID_TOKEN });
             return;
           }
         }
@@ -193,19 +214,24 @@ export class AuthController {
             sameSite: 'strict',
             maxAge: 15 * 60 * 1000,
           });
-        } catch (error) {
-          res.status(401).json({ success: false, message: 'Invalid refresh' });
+        } catch {
+          res
+            .status(HttpStatus.UNAUTHORIZED)
+            .json({ success: false, message: Messages.INVALID_REFRESH });
           return;
         }
       }
 
       if (!decodedToken) {
-        res.status(401).json({ success: false, message: 'Auth failed' });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: Messages.AUTH_FAILED });
         return;
       }
 
       try {
         let userData: ICompanyDocument | IEmployee | IUser | null;
+        
         switch (decodedToken.role) {
           case 'COMPANY':
             userData = await this.companyService.getCompanyByEmail(
@@ -259,9 +285,9 @@ export class AuthController {
       res.clearCookie('accessToken');
       res.clearCookie('refreshToken');
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Logged out successfully',
+        message: Messages.LOGOUT_SUCCESS,
       });
     } catch (error) {
       next(error);
