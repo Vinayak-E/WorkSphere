@@ -1,5 +1,6 @@
 import { Connection } from 'mongoose';
 import { ILeave } from '../../interfaces/company/IAttendance.types';
+
 export interface ILeaveRepository {
   createLeave(
     tenantConnection: Connection,

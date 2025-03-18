@@ -1,23 +1,7 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model} from 'mongoose';
+import { IPaymentHistory } from '../interfaces/IPayment.types';
 
-export interface IPaymentHistory extends Document {
-  companyId: string;
-  tenantId: string;
-  planId: string;
-  planName: string;
-  amount: number;
-  currency: string;
-  paymentMethod: string;
-  stripeSessionId: string;
-  stripeInvoiceId?: string;
-  stripeSubscriptionId?: string;
-  billingInterval: 'monthly' | 'yearly';
-  status: 'succeeded' | 'failed' | 'refunded';
-  createdAt: Date;
-  paymentDate: Date;
-}
-
-const PaymentHistorySchema = new Schema<IPaymentHistory>(
+export const PaymentHistorySchema = new Schema<IPaymentHistory>(
   {
     companyId: { type: String, required: true, index: true },
     tenantId: { type: String, required: true, index: true },

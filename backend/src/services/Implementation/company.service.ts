@@ -2,21 +2,21 @@ import bcrypt from 'bcryptjs';
 import { Connection } from 'mongoose';
 import { sendEmail } from '../../utils/email';
 import { injectable, inject } from 'tsyringe';
-import { IEmployee, ICreateEmployee, IUpdateEmployee } from '../../interfaces/company/IEmployee.types';
+import { IEmployee } from '../../interfaces/company/IEmployee.types';
 import { ICompanyDocument } from '../../interfaces/company/company.types';
 import { generateCompanyBasedPassword, generateEmployeeId } from '../../helpers/helperFunctions';
-import { UserRepository } from '../../repositories/Implementation/user.repository';
-import { EmployeeRepository } from '../../repositories/Implementation/employee.repository';
-import { CompanyRepository } from '../../repositories/Implementation/company.repository';
-import { AdminRepository } from '../../repositories/Implementation/admin.repository';
+import { IAdminRepository } from '../../repositories/Interface/IAdminRepository';
+import { ICompanyRepository } from '../../repositories/Interface/ICompanyRepository';
+import { IEmployeeRepository } from '../../repositories/Interface/IEmployeeRepository';
+import { IUserRepository } from '../../repositories/Interface/IUserRepository';
 
 @injectable()
 export class CompanyService {
   constructor(
-    @inject('EmployeeRepository') private readonly employeeRepository: EmployeeRepository,
-    @inject('UserRepository') private readonly userRepository: UserRepository,
-    @inject('CompanyRepository') private readonly companyRepository: CompanyRepository,
-    @inject('AdminRepository') private readonly adminRepository: AdminRepository
+    @inject('EmployeeRepository') private readonly employeeRepository: IEmployeeRepository,
+    @inject('UserRepository') private readonly userRepository: IUserRepository,
+    @inject('CompanyRepository') private readonly companyRepository: ICompanyRepository,
+    @inject('AdminRepository') private readonly adminRepository: IAdminRepository
   ) {}
 
   async getEmployees(tenantConnection: Connection): Promise<IEmployee[] | null> {
@@ -38,7 +38,7 @@ export class CompanyService {
 
     const randomPassword = generateCompanyBasedPassword(tenantId);
     const hashPassword = await bcrypt.hash(randomPassword, 10);
-       console.log('password',randomPassword)
+    console.log('password',randomPassword)
     const userData = {
       email: employeeData.email,
       companyName: tenantId,
@@ -63,11 +63,11 @@ export class CompanyService {
   }
 
   async updateProfile(
-    id: string,
+    companId: string,
     connection: Connection,
     updateData: ICompanyDocument
   ): Promise<ICompanyDocument> {
-    const updatedCompany = await this.companyRepository.update(id, updateData, connection);
+    const updatedCompany = await this.companyRepository.update(companId, updateData, connection);
     if (!updatedCompany) {
       throw new Error('Company not found');
     }
@@ -75,11 +75,11 @@ export class CompanyService {
   }
 
   async updateEmployee(
-    id: string,
+    employeeId: string,
     updateData: IEmployee,
     connection: Connection
   ): Promise<IEmployee> {
-    const updatedEmployee = await this.employeeRepository.update(id, updateData, connection);
+    const updatedEmployee = await this.employeeRepository.update(employeeId, updateData, connection);
     if (!updatedEmployee) {
       throw new Error('Employee not found');
     }
@@ -90,8 +90,8 @@ export class CompanyService {
     return await this.companyRepository.findByEmail(email, tenantConnection);
   }
 
-  async getCompanyById(id: string, tenantConnection: Connection): Promise<ICompanyDocument | null> {
-    return await this.companyRepository.findById(id, tenantConnection);
+  async getCompanyById(companyId: string, tenantConnection: Connection): Promise<ICompanyDocument | null> {
+    return await this.companyRepository.findById(companyId, tenantConnection);
   }
 
   async updateCompanySubscription(

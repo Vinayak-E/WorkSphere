@@ -2,25 +2,25 @@ import { injectable, inject } from 'tsyringe';
 import bcrypt from 'bcryptjs';
 import { sendEmail } from '../../utils/email';
 import { companyApprovalTemplates } from '../../helpers/emailTemplate';
-import { generateCompanySlug } from '../../helpers/helperFunctions';
-import { IUser } from '../../interfaces/IUser.types';
 import { JwtService } from '../jwt.service';
-import { CompanyRepository } from '../../repositories/Implementation/company.repository';
+import { IUser } from '../../interfaces/IUser.types';
 import { connectTenantDB } from '../../configs/db.config';
-import { AdminRepository } from '../../repositories/Implementation/admin.repository';
-import { UserRepository } from '../../repositories/Implementation/user.repository';
-import { CompanyRequestRepository } from '../../repositories/Implementation/companyRequest.repository';
+import { generateCompanySlug } from '../../helpers/helperFunctions';
+import { IUserRepository } from '../../repositories/Interface/IUserRepository';
+import { IAdminRepository } from '../../repositories/Interface/IAdminRepository';
+import { ICompanyRepository } from '../../repositories/Interface/ICompanyRepository';
+import { ICompanyRequestRepository } from '../../repositories/Interface/ICompanyRequestRepository';
 import { ISubscriptionRepository } from '../../repositories/Interface/ISubscriptionRepository';
 
 @injectable()
 export class AdminService implements AdminService {
   constructor(
     @inject('JwtService') private jwtService: JwtService,
-    @inject('AdminRepository') private adminRepository: AdminRepository,
-    @inject('CompanyRepository') private companyRepository: CompanyRepository,
+    @inject('AdminRepository') private adminRepository: IAdminRepository,
+    @inject('CompanyRepository') private companyRepository: ICompanyRepository,
     @inject('CompanyRequestRepository')
-    private companyRequestRepository: CompanyRequestRepository,
-    @inject('UserRepository') private userRepository: UserRepository,
+    private companyRequestRepository: ICompanyRequestRepository,
+    @inject('UserRepository') private userRepository: IUserRepository,
     @inject('SubscriptionRepository')
     private subscriptionRepository: ISubscriptionRepository
   ) {}

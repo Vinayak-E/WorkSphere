@@ -1,11 +1,12 @@
 import { Connection } from 'mongoose';
 import { inject, injectable } from 'tsyringe';
-import {  ICreateDepartment, IDepartment, IUpdateDepartment } from '../../interfaces/company/IDepartment.types';
 import BaseRepository from '../baseRepository';
 import { DepartmentSchema } from '../../models/departmentModel';
+import { IDepartmentRepository } from '../Interface/IDepartmentRepository';
+import {  ICreateDepartment, IDepartment, IUpdateDepartment } from '../../interfaces/company/IDepartment.types';
 
 @injectable()
-export class DepartmentRepository extends BaseRepository<IDepartment> {
+export class DepartmentRepository extends BaseRepository<IDepartment>  implements IDepartmentRepository{
   constructor(@inject('MainConnection') mainConnection: Connection) {
     super('Department', DepartmentSchema, mainConnection);
   }

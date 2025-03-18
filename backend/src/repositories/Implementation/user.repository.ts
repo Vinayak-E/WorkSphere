@@ -3,8 +3,9 @@ import {  IUser } from '../../interfaces/IUser.types';
 import { UserSchema } from '../../models/userModel';
 import BaseRepository from '../baseRepository';
 import { inject, injectable } from 'tsyringe';
+import { IUserRepository } from '../Interface/IUserRepository';
 @injectable()
-export class UserRepository  extends BaseRepository<IUser>  {
+export class UserRepository  extends BaseRepository<IUser>  implements IUserRepository{
     constructor(@inject('MainConnection') mainDbConnection: Connection) {
         super('User', UserSchema, mainDbConnection);
       }

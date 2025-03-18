@@ -7,7 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 import { connectTenantDB } from '../../configs/db.config';
 import { CompanyService } from '../../services/Implementation/company.service';
 import { ISubscriptionService } from '../../services/Interface/ISubscriptionService';
-import { PaymentRepository } from '../../repositories/Implementation/payment.repository';
+import { IPaymentRepository } from '../../repositories/Interface/IPaymentRepository';
 
 @injectable()
 export class CheckoutController {
@@ -17,7 +17,7 @@ export class CheckoutController {
     @inject('SubscriptionService')
     private subscriptionService: ISubscriptionService,
     @inject('CompanyService') private companyService: CompanyService,
-    @inject('PaymentRepository') private paymentRepository: PaymentRepository
+    @inject('PaymentRepository') private paymentRepository: IPaymentRepository
   ) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {

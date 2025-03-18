@@ -28,7 +28,7 @@ declare global {
   }
 }
 export const verifyAuth: RequestHandler = async (req, res, next) => {
-  console.log('auth middleware called')
+
   try {
     const token = req.cookies?.accessToken;
     const refreshToken = req.cookies?.refreshToken;
@@ -87,7 +87,6 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
     const tenantConnection = req.tenantConnection;
     if (tenantConnection) {
       let userData: ICompanyDocument | IEmployee | IUser | null;
-      console.log('decoded',decoded.role)
       switch (decoded!.role) {
         case 'COMPANY':
           userData = await companyService.getCompanyByEmail(
@@ -134,7 +133,6 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('Error in auth middleware:', error);
     res.status(500).json({ message: 'Internal server error' });
     return;
   }

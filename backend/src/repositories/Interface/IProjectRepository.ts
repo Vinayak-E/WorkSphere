@@ -9,4 +9,5 @@ export interface IProjectRepository {
   updateProject(connection: Connection, projectId: string, projectData: Partial<IProject>): Promise<IProject | null>;
   deleteProject(connection: Connection, projectId: string): Promise<boolean>;
   addEmployeeToProject(connection: Connection, projectId: string, employeeId: string): Promise<void>;
+  getProjectStats(connection: Connection): Promise<any>
 }

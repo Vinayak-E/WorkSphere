@@ -5,19 +5,19 @@ import {
   GetCompanyProjectsOptions,
   GetProjectsOptions,
 } from '../../interfaces/company/IProject.types';
-import { ProjectRepository } from '../../repositories/Implementation/project.repository';
-
 import { TaskRepository } from '../../repositories/Implementation/task.repository';
 import { IProjectService } from '../Interface/IProjectService';
-import { EmployeeRepository } from '../../repositories/Implementation/employee.repository';
+import { IEmployeeRepository } from '../../repositories/Interface/IEmployeeRepository';
+import { IProjectRepository } from '../../repositories/Interface/IProjectRepository';
+import { ITaskRepository } from '../../repositories/Interface/ITaskRepository';
 
 @injectable()
 export class ProjectService implements IProjectService {
   constructor(
-    @inject('ProjectRepository') private projectRepository: ProjectRepository,
+    @inject('ProjectRepository') private projectRepository: IProjectRepository,
     @inject('EmployeeRepository')
-    private employeeRepository: EmployeeRepository,
-    @inject('TaskRepository') private taskRepository: TaskRepository
+    private employeeRepository: IEmployeeRepository,
+    @inject('TaskRepository') private taskRepository: ITaskRepository
   ) {}
 
   async getManagerProjects(

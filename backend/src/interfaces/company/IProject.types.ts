@@ -41,3 +41,16 @@ export interface GetCompanyProjectsOptions {
   status?: string;
   department?: string;
 }
+
+
+export interface IProjectStats {
+  total: number;
+  statusChart: { _id: string; count: number }[];
+}
+
+export interface ITaskStats {
+  total: number;
+  statusChart: { _id: string; count: number }[];
+  overdue: number;
+  dueSoon: number;
+}

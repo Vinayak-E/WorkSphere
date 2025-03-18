@@ -1,5 +1,4 @@
-import mongoose, { Connection, Document } from 'mongoose';
-import { IAttendance, ILeave } from './IAttendance.types';
+import  {  Document, Types } from 'mongoose';
 import { IDepartment } from './IDepartment.types';
 
 export interface IEmployee extends Document {
@@ -35,53 +34,19 @@ export interface IEmployee extends Document {
   updatedAt: Date;
 }
 
-export interface ICreateEmployee {
-  employeeId: string;
-  name: string;
-  email: string;
-  mobile: string;
-  position: string;
-  role: string;
-  status: string;
-  gender: string;
-  department: mongoose.Schema.Types.ObjectId;
-  dob: Date;
-  salary: number;
-  workMode: string;
-  profilePicture: string;
-  address: {
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  qualifications: {
-    degree: string;
-    institution: string;
-    yearOfCompletion: string;
+export interface IEmployeeStats {
+  total: number;
+  byDepartment: {
+    _id: string | Types.ObjectId;
+    name: string;
+    count: number;
+  }[];
+  workload: {
+    name: string;
+    taskCount: number;
   }[];
 }
 
-export interface IUpdateEmployee {
-  name?: string;
-  email: string;
-  mobile?: string;
-  position?: string;
-  gender?: string;
-  role?: string;
-  department?: mongoose.Schema.Types.ObjectId;
-  status?: string;
-}
 
-export interface IEmployeeService {
-  getEmployeeProfile(connection: Connection, email: string): Promise<IEmployee>;
-  updateProfile(
-    id: string,
-    connection: Connection,
-    updateData: IUpdateEmployee
-  ): Promise<IEmployee>;
-  getDepartmentEmployees(
-    connection: Connection,
-    userEmail: string
-  ): Promise<IEmployee[]>;
-}
+
+

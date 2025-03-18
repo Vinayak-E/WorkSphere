@@ -1,13 +1,14 @@
 import { injectable, inject } from 'tsyringe';
 import { Connection } from 'mongoose';
-
 import BaseRepository from '../baseRepository';
-import PaymentHistory, { IPaymentHistory } from '../../models/paymentHistory';
+import { IPaymentHistory } from '../../interfaces/IPayment.types';
+import { PaymentHistorySchema } from '../../models/paymentHistory';
+import { IPaymentRepository } from '../Interface/IPaymentRepository';
 
 @injectable()
-export class PaymentRepository extends BaseRepository<IPaymentHistory> {
+export class PaymentRepository extends BaseRepository<IPaymentHistory> implements IPaymentRepository {
   constructor(@inject('MainConnection') mainConnection: Connection) {
-    super('PaymentHistory', PaymentHistory.schema, mainConnection);
+    super('PaymentHistory', PaymentHistorySchema, mainConnection);
   }
 
   async getPaymentsByCompanyId(companyId: string, page: number = 1, limit: number = 10): Promise<{ payments: IPaymentHistory[], total: number }> {

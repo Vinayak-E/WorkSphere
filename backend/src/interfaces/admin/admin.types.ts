@@ -1,5 +1,4 @@
 import { IUser } from '../IUser.types';
-import { ICompanyRequest } from '../company/company.types';
 
 export interface IAdminLoginData {
   email: string;
@@ -24,11 +23,4 @@ export interface IAdminService {
   getProfile(email: string): Promise<IUser | null>;
 }
 
-export interface IAdminRepository {
-  findByEmail(email: string): Promise<IUser | null>;
-  findCompanies(): Promise<any>;
-  updateStatus(companyId: string, isActive: boolean): Promise<IUser | null>;
-  updateRequest(companyId: string, isApproved: string): Promise<IUser | null>;
-  findTempCompany(companyName: string): Promise<ICompanyRequest | null>;
-  deleteTempCompany(companyId: string): Promise<void>;
-}
+

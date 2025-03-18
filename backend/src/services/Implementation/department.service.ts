@@ -7,10 +7,11 @@ import {
 } from '../../interfaces/company/IDepartment.types';
 import { DepartmentRepository } from '../../repositories/Implementation/department.repository';
 import { Connection } from 'mongoose';
+import { IDepartmentRepository } from '../../repositories/Interface/IDepartmentRepository';
 
 @injectable()
 export class DepartmentService {
-  constructor( @inject('DepartmentRepository') private departmentRepository: DepartmentRepository,) {}
+  constructor( @inject('DepartmentRepository') private departmentRepository: IDepartmentRepository) {}
 
   async getDepartments(tenantConnection: Connection): Promise<IDepartment[]> {
     try {

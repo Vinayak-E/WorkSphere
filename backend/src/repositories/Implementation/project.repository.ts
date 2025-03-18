@@ -1,6 +1,6 @@
 import { Connection, Model } from 'mongoose';
 import { inject, injectable } from 'tsyringe';
-import { IProject } from '../../interfaces/company/IProject.types';
+import { IProject, IProjectStats } from '../../interfaces/company/IProject.types';
 import { ProjectSchema } from '../../models/projectModel';
 import { DepartmentSchema } from '../../models/departmentModel';
 import { EmployeeSchema } from '../../models/employeeModel';
@@ -93,7 +93,7 @@ export class ProjectRepository
       .findByIdAndUpdate(projectId, { $addToSet: { employees: employeeId } })
       .exec();
   }
-  async getProjectStats(connection: Connection): Promise<any> {
+  async getProjectStats(connection: Connection):Promise<IProjectStats> {
     const projectModel = this.getModel(connection);
     const total = await projectModel.countDocuments().exec();
     const statusChart = await projectModel

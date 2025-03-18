@@ -2,6 +2,8 @@
 import { Document } from 'mongoose';
 import { IPayload } from '../IJwtService.types';
 import mongoose from 'mongoose';
+import { IProjectStats, ITaskStats } from './IProject.types';
+import { IEmployeeStats } from './IEmployee.types';
 
 export interface ISignup {
   companyName: string;
@@ -89,7 +91,11 @@ export interface ICompanyRequest extends Document {
 }
 
 
-
+export interface IDashboardData {
+  projects: IProjectStats;
+  tasks: ITaskStats;
+  employees: IEmployeeStats;
+}
 
 
 

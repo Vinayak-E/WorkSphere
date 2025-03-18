@@ -1,10 +1,10 @@
 import { Connection } from 'mongoose';
 import { inject, injectable } from 'tsyringe';
-import { ILeave } from '../../interfaces/company/IAttendance.types';
 import BaseRepository from '../baseRepository';
 import { LeaveSchema } from '../../models/leavesModel';
 import { EmployeeSchema } from '../../models/employeeModel';
 import { ILeaveRepository } from '../Interface/ILeaveRepository';
+import { ILeave } from '../../interfaces/company/IAttendance.types';
 
 @injectable()
 export class LeaveRepository extends BaseRepository<ILeave> implements ILeaveRepository {

@@ -1,18 +1,19 @@
-import { inject, injectable } from "tsyringe";
-import { ProjectRepository } from "../../repositories/Implementation/project.repository";
-import { TaskRepository } from "../../repositories/Implementation/task.repository";
-import { EmployeeRepository } from "../../repositories/Implementation/employee.repository";
 import { Connection } from "mongoose";
+import { inject, injectable } from "tsyringe";
+import { IDashboardData } from "../../interfaces/company/company.types";
+import { ITaskRepository } from "../../repositories/Interface/ITaskRepository";
+import { IProjectRepository } from "../../repositories/Interface/IProjectRepository";
+import { IEmployeeRepository } from "../../repositories/Interface/IEmployeeRepository";
 
 @injectable()
 export class DashboardService {
   constructor(
-    @inject('ProjectRepository') private projectRepository: ProjectRepository,
-    @inject('TaskRepository') private taskRepository: TaskRepository,
-    @inject('EmployeeRepository') private employeeRepository: EmployeeRepository
+    @inject('ProjectRepository') private projectRepository: IProjectRepository,
+    @inject('TaskRepository') private taskRepository: ITaskRepository,
+    @inject('EmployeeRepository') private employeeRepository: IEmployeeRepository
   ) {}
 
-  async getDashboardData(tenantConnection: Connection): Promise<any> {
+  async getDashboardData(tenantConnection: Connection): Promise<IDashboardData> {
     const [projectStats, taskStats, employeeStats] = await Promise.all([
       this.projectRepository.getProjectStats(tenantConnection),
       this.taskRepository.getTaskStats(tenantConnection),

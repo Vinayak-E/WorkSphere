@@ -1,17 +1,17 @@
 import { Connection } from 'mongoose';
 import { injectable, inject } from 'tsyringe';
 import { ITask } from '../../interfaces/company/IProject.types';
-import { ProjectRepository } from '../../repositories/Implementation/project.repository';
-import { TaskRepository } from '../../repositories/Implementation/task.repository';
 import { ITaskService } from '../Interface/ITaskService';
+import { IProjectRepository } from '../../repositories/Interface/IProjectRepository';
+import { ITaskRepository } from '../../repositories/Interface/ITaskRepository';
 
 
 
 @injectable()
 export class TaskService implements ITaskService {
   constructor(
-    @inject('TaskRepository') private taskRepository: TaskRepository,
-    @inject('ProjectRepository') private projectRepository: ProjectRepository
+    @inject('TaskRepository') private taskRepository: ITaskRepository,
+    @inject('ProjectRepository') private projectRepository: IProjectRepository
   ) {}
 
   async getTasks(connection: Connection, query: any, page: number, limit: number) {

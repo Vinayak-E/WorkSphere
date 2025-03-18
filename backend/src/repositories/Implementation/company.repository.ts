@@ -3,9 +3,10 @@ import { Connection } from 'mongoose';
 import { ICompanyDocument } from '../../interfaces/company/company.types';
 import Company from '../../models/companyModel';
 import BaseRepository from '../baseRepository';
+import { ICompanyRepository } from '../Interface/ICompanyRepository';
 
 @injectable()
-export class CompanyRepository extends BaseRepository<ICompanyDocument> {
+export class CompanyRepository extends BaseRepository<ICompanyDocument> implements ICompanyRepository {
   constructor(@inject('MainConnection') mainConnection: Connection) {
     super('Company', Company.schema, mainConnection);
   }
@@ -24,6 +25,5 @@ export class CompanyRepository extends BaseRepository<ICompanyDocument> {
   ): Promise<ICompanyDocument> {
     return await this.create(companyData, connection);
   }
-
 
 }

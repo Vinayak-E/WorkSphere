@@ -15,16 +15,6 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
-export interface IUserRepository {
-  findByEmailOrCompanyName(
-    email: string,
-    companyName: string
-  ): Promise<IUser | null>;
-  createUser(user: Partial<IUser>, options?: any): Promise<IUser>;
-  findByEmail(email: string): Promise<IUser | null>;
-  resetPassword(email: string, password: string): Promise<void>;
-}
-
 export interface IBaseRepository<T extends Document> {
   create(data: Partial<T>): Promise<T>;
   findById(id: string): Promise<T | null>;

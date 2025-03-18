@@ -1,12 +1,12 @@
 import { injectable, inject } from 'tsyringe';
 import { Connection } from 'mongoose';
-import { IEmployee, IUpdateEmployee } from '../../interfaces/company/IEmployee.types';
-import { EmployeeRepository } from '../../repositories/Implementation/employee.repository';
+import { IEmployee } from '../../interfaces/company/IEmployee.types';
+import { IEmployeeRepository } from '../../repositories/Interface/IEmployeeRepository';
 
 @injectable()
 export class EmployeeService {
   constructor(
-    @inject('EmployeeRepository') private readonly employeeRepository: EmployeeRepository
+    @inject('EmployeeRepository') private readonly employeeRepository: IEmployeeRepository
   ) {}
 
   async getEmployeeProfile(connection: Connection, email: string): Promise<IEmployee> {

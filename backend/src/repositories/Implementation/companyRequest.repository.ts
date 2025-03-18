@@ -1,11 +1,12 @@
-import { injectable, inject } from 'tsyringe';
 import { Connection } from 'mongoose';
-import { ICompanyRequest } from '../../interfaces/company/company.types';
-import CompanyRequest from '../../models/companyRequest';
+import { injectable, inject } from 'tsyringe';
 import BaseRepository from '../baseRepository';
+import CompanyRequest from '../../models/companyRequest';
+import { ICompanyRequest } from '../../interfaces/company/company.types';
+import { ICompanyRequestRepository } from '../Interface/ICompanyRequestRepository';
 
 @injectable()
-export class CompanyRequestRepository extends BaseRepository<ICompanyRequest> {
+export class CompanyRequestRepository extends BaseRepository<ICompanyRequest> implements ICompanyRequestRepository{
   constructor(@inject('MainConnection') mainConnection: Connection) {
     super('CompanyRequest', CompanyRequest.schema, mainConnection);
   }

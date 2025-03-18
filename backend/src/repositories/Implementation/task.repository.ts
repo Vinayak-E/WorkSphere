@@ -1,6 +1,6 @@
 import { Connection } from 'mongoose';
 import { inject, injectable } from 'tsyringe';
-import { ITask } from '../../interfaces/company/IProject.types';
+import { ITask, ITaskStats } from '../../interfaces/company/IProject.types';
 import { ProjectSchema } from '../../models/projectModel';
 import BaseRepository from '../baseRepository';
 import { TaskSchema } from '../../models/taskModel';
@@ -64,7 +64,7 @@ export class TaskRepository extends BaseRepository<ITask>  implements ITaskRepos
   }
 
 
-  async getTaskStats(connection: Connection): Promise<any> {
+  async getTaskStats(connection: Connection): Promise<ITaskStats> {
     const taskModel = this.getModel(connection);
     const total = await taskModel.countDocuments().exec();
     const statusChart = await taskModel.aggregate([

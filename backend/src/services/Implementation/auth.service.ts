@@ -16,21 +16,18 @@ import {
   comparePasswords,
   checkCompanyPrefix,
 } from '../../helpers/helperFunctions';
-import { ISignup } from '../../interfaces/company/company.types';
-import { injectable, inject } from 'tsyringe';
 import { JwtService } from '../jwt.service';
-import { UserRepository } from '../../repositories/Implementation/user.repository';
-import { CompanyRepository } from '../../repositories/Implementation/company.repository';
-import { CompanyRequestRepository } from '../../repositories/Implementation/companyRequest.repository';
-import { Connection } from 'mongoose';
+import { injectable, inject } from 'tsyringe';
+import { ISignup } from '../../interfaces/company/company.types';
+import { IUserRepository } from '../../repositories/Interface/IUserRepository';
+import { ICompanyRequestRepository } from '../../repositories/Interface/ICompanyRequestRepository';
 
 
 @injectable()
 export class AuthService {
     constructor(
-        @inject('UserRepository') private userRepository: UserRepository,
-        @inject('CompanyRepository') private companyRepository: CompanyRepository,
-        @inject('CompanyRequestRepository') private companyRequestRepository: CompanyRequestRepository,
+        @inject('UserRepository') private userRepository: IUserRepository,
+        @inject('CompanyRequestRepository') private companyRequestRepository: ICompanyRequestRepository,
         @inject('JwtService') private jwtService: JwtService,
       ) {}
     
