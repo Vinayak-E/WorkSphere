@@ -1,9 +1,8 @@
-import api from "@/api/axios";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { useEffect, useState } from 'react';
 import {
   Plus,
   Loader2,
@@ -12,21 +11,21 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -34,56 +33,47 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
+} from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AxiosError } from 'axios';
+import { CompanyService } from '@/services/company.service';
+import toast from 'react-hot-toast';
+import {
+  ApiErrorResponse,
+  Department,
+  FormData,
+  FormErrors,
+} from '@/types/company/IDepartment';
 
 const ITEMS_PER_PAGE = 10;
-interface Department {
-  _id: string;
-  departmentId: string;
-  name: string;
-  description?: string;
-  status: string;
-  createdAt: string;
-}
-interface ApiErrorResponse {
-  message?: string;
-  errors?: Record<string, string>;
-}
-interface FormErrors {
-  name?: string;
-  description?: string;
-}
 
 const Departments = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
-    [],
+    []
   );
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDepartment, setSelectedDepartment] =
     useState<Department | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    status: "Active",
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    description: '',
+    status: 'Active',
   });
-  const [formErrors, setFormErrors] = useState({});
-  const [modalError, setModalError] = useState("");
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [modalError, setModalError] = useState('');
 
   useEffect(() => {
     fetchDepartments();
@@ -91,9 +81,9 @@ const Departments = () => {
 
   useEffect(() => {
     const filtered = departments.filter(
-      (dept) =>
+      dept =>
         dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dept.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+        dept.description?.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredDepartments(filtered);
     setCurrentPage(1);
@@ -102,17 +92,15 @@ const Departments = () => {
   const fetchDepartments = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/company/departments", {
-        withCredentials: true,
-      });
-      setDepartments(response.data.data || []);
-      setFilteredDepartments(response.data.data || []);
+      const departments = await CompanyService.getDepartments();
+      setDepartments(departments);
+      setFilteredDepartments(departments);
     } catch (error) {
       const err = error as AxiosError<ApiErrorResponse>;
       const errorMessage =
-        err.response?.data?.message || "Failed to fetch departments";
+        err.response?.data?.message || 'Failed to fetch departments';
       toast.error(errorMessage);
-      console.error("Error fetching departments:", error);
+      console.error('Error fetching departments:', error);
     } finally {
       setIsLoading(false);
     }
@@ -121,15 +109,15 @@ const Departments = () => {
   const validateForm = () => {
     const errors: FormErrors = {};
     if (!formData.name.trim()) {
-      errors.name = "Department name is required";
+      errors.name = 'Department name is required';
     } else if (formData.name.trim().length < 2) {
-      errors.name = "Department name must be at least 2 characters";
+      errors.name = 'Department name must be at least 2 characters';
     } else if (formData.name.trim().length > 50) {
-      errors.name = "Department name cannot exceed 50 characters";
+      errors.name = 'Department name cannot exceed 50 characters';
     }
 
     if (formData.description && formData.description.length > 500) {
-      errors.description = "Description cannot exceed 500 characters";
+      errors.description = 'Description cannot exceed 500 characters';
     }
 
     setFormErrors(errors);
@@ -137,34 +125,27 @@ const Departments = () => {
   };
 
   const handleSubmit = async () => {
-    setModalError("");
+    setModalError('');
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     try {
       if (isEditMode && selectedDepartment?._id) {
-        await api.put(
-          `/company/departments/${selectedDepartment._id}`,
-          formData,
-          { withCredentials: true },
-        );
+        await CompanyService.updateDepartment(selectedDepartment._id, formData);
 
         setDepartments(
-          departments.map((dept) =>
+          departments.map(dept =>
             dept._id === selectedDepartment._id
               ? { ...dept, ...formData }
-              : dept,
-          ),
+              : dept
+          )
         );
-        toast.success("Department updated successfully!");
+        toast.success('Department updated successfully!');
         handleCloseModal();
       } else {
-        const response = await api.post("/company/departments", formData, {
-          withCredentials: true,
-        });
-        const newDepartment = response.data.data;
+        const newDepartment = await CompanyService.createDepartment(formData);
         setDepartments([...departments, newDepartment]);
-        toast.success("Department added successfully!");
+        toast.success('Department added successfully!');
         handleCloseModal();
       }
     } catch (error) {
@@ -172,17 +153,17 @@ const Departments = () => {
       const errorMessage =
         err.response?.data?.message ||
         (isEditMode
-          ? "Failed to update department"
-          : "Failed to add department");
+          ? 'Failed to update department'
+          : 'Failed to add department');
 
       if (err.response?.data?.errors) {
         const backendErrors = err.response.data.errors;
         setFormErrors(backendErrors);
-        setModalError("Please correct the errors below");
+        setModalError('Please correct the errors below');
       } else {
         setModalError(errorMessage);
       }
-      console.error("Error saving department:", error);
+      console.error('Error saving department:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -191,12 +172,12 @@ const Departments = () => {
   const handleEdit = (department: Department) => {
     setSelectedDepartment(department);
     setFormData({
-      name: department.name || "",
-      description: department.description || "",
-      status: department.status || "Active",
+      name: department.name || '',
+      description: department.description || '',
+      status: department.status || 'Active',
     });
     setFormErrors({});
-    setModalError("");
+    setModalError('');
     setIsEditMode(true);
     setShowModal(true);
   };
@@ -205,15 +186,15 @@ const Departments = () => {
     setShowModal(false);
     setIsEditMode(false);
     setSelectedDepartment(null);
-    setFormData({ name: "", description: "", status: "Active" });
+    setFormData({ name: '', description: '', status: 'Active' });
     setFormErrors({});
-    setModalError("");
+    setModalError('');
   };
 
   const totalPages = Math.ceil(filteredDepartments.length / ITEMS_PER_PAGE);
   const paginatedDepartments = filteredDepartments.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
   return (
@@ -245,13 +226,13 @@ const Departments = () => {
               <Input
                 placeholder="Search departments..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="pl-10 w-full bg-white border-gray-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <Button
               variant="outline"
-              onClick={() => setSearchQuery("")}
+              onClick={() => setSearchQuery('')}
               className="flex items-center gap-2 w-full md:w-auto"
             >
               <X className="w-4 h-4" /> Clear
@@ -277,27 +258,27 @@ const Departments = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedDepartments.map((dept) => (
+                {paginatedDepartments.map(dept => (
                   <TableRow key={dept._id}>
                     <TableCell className="font-medium">
                       {dept.departmentId}
                     </TableCell>
                     <TableCell className="font-medium">{dept.name}</TableCell>
                     <TableCell className="max-w-md truncate">
-                      {dept.description || "No description"}
+                      {dept.description || 'No description'}
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          dept.status === "Active" ? "success" : "secondary"
+                          dept.status === 'Active' ? 'secondary' : 'destructive'
                         }
                         className={
-                          dept.status === "Active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
+                          dept.status === 'Active'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
                         }
                       >
-                        {dept.status || "Active"}
+                        {dept.status || 'Active'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -319,11 +300,11 @@ const Departments = () => {
 
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                 {Math.min(
                   currentPage * ITEMS_PER_PAGE,
-                  filteredDepartments.length,
-                )}{" "}
+                  filteredDepartments.length
+                )}{' '}
                 of {filteredDepartments.length} departments
               </div>
               <div className="flex items-center space-x-2">
@@ -360,7 +341,7 @@ const Departments = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEditMode ? "Edit Department" : "Add New Department"}
+              {isEditMode ? 'Edit Department' : 'Add New Department'}
             </DialogTitle>
           </DialogHeader>
 
@@ -379,17 +360,17 @@ const Departments = () => {
               <Input
                 type="text"
                 value={formData.name}
-                onChange={(e) => {
+                onChange={e => {
                   setFormData({ ...formData, name: e.target.value });
                   if (formErrors.name) {
                     setFormErrors({ ...formErrors, name: null });
                   }
-                  setModalError("");
+                  setModalError('');
                 }}
                 placeholder="Enter department name"
                 disabled={isSubmitting}
                 className={
-                  formErrors.name ? "border-red-500 focus:ring-red-500" : ""
+                  formErrors.name ? 'border-red-500 focus:ring-red-500' : ''
                 }
               />
               {formErrors.name && (
@@ -401,20 +382,20 @@ const Departments = () => {
               <label className="text-sm font-medium">Description</label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => {
+                onChange={e => {
                   setFormData({ ...formData, description: e.target.value });
                   if (formErrors.description) {
                     setFormErrors({ ...formErrors, description: null });
                   }
-                  setModalError("");
+                  setModalError('');
                 }}
                 placeholder="Enter department description"
                 disabled={isSubmitting}
                 rows={3}
                 className={
                   formErrors.description
-                    ? "border-red-500 focus:ring-red-500"
-                    : ""
+                    ? 'border-red-500 focus:ring-red-500'
+                    : ''
                 }
               />
               {formErrors.description && (
@@ -429,17 +410,17 @@ const Departments = () => {
                 <label className="text-sm font-medium">Status</label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value) => {
+                  onValueChange={value => {
                     setFormData({ ...formData, status: value });
                     if (formErrors.status) {
                       setFormErrors({ ...formErrors, status: null });
                     }
-                    setModalError("");
+                    setModalError('');
                   }}
                   disabled={isSubmitting}
                 >
                   <SelectTrigger
-                    className={formErrors.status ? "border-red-500" : ""}
+                    className={formErrors.status ? 'border-red-500' : ''}
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -473,7 +454,7 @@ const Departments = () => {
               {isSubmitting && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
-              {isEditMode ? "Save Changes" : "Add Department"}
+              {isEditMode ? 'Save Changes' : 'Add Department'}
             </Button>
           </DialogFooter>
         </DialogContent>

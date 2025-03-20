@@ -1,15 +1,11 @@
 import { useState, FormEvent } from 'react';
 import IMAGES from '../assets/images/image';
-import api from '../api/axios';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AxiosError } from 'axios';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import { setUser } from '../redux/slices/authSlice';
 import { Link } from 'react-router-dom';
+import { AuthController } from '../controllers/auth.controller';
 
 interface FieldState {
   value: string;
@@ -25,12 +21,6 @@ interface FormState {
   password: FieldState;
 }
 
-interface IRoleRoutes {
-  ADMIN: string;
-  EMPLOYEE: string;
-  MANAGER: string;
-  COMPANY: string;
-}
 
 const Login = () => {
   const [formState, setFormState] = useState<FormState>({
@@ -109,56 +99,28 @@ const Login = () => {
 
     if (isValid) {
       setIsSubmitting(true);
-
       try {
-        const response = await api.post('/auth/login', {
-          email: formState.email.value,
-          password: formState.password.value,
+        await AuthController.login(
+          formState.email.value,
+          formState.password.value,
           userType,
-        });
-
-        if (response.status === 200 && response.data.success) {
-          const { email, tenantId, role, forcePasswordChange } = response.data;
-
-          dispatch(
-            setUser({
-              email,
-              role,
-              tenantId,
-            })
-          );
-
-          if (forcePasswordChange) {
-            toast.info('Please change your default password before continuing');
-            navigate('/passwordChange');
-            return;
-          }
-
-          const roleRoutes: IRoleRoutes = {
-            ADMIN: '/admin',
-            COMPANY: '/company',
-            MANAGER: '/employee',
-            EMPLOYEE: '/employee',
-          };
-          let url = roleRoutes[role as keyof typeof roleRoutes];
-          navigate(url);
-        } else {
-          setErrorMessage('Login failed. Please try again.');
-        }
+          dispatch,
+          navigate
+        );
       } catch (error: unknown) {
-        console.error('Login Error:', error);
-        if (error instanceof AxiosError) {
-          setErrorMessage(
-            error.response?.data?.message || 'An error occurred.'
-          );
+        if (error instanceof Error) {
+          setErrorMessage(error.message || 'Login failed. Please try again.');
         } else {
           setErrorMessage('An unexpected error occurred.');
         }
       } finally {
         setIsSubmitting(false);
       }
+    } else {
+      setErrorMessage('Please correct the errors in the form.');
     }
   };
+
   const getInputStyle = (field: FieldState) => `
     w-full pb-2 border-b-2 
     ${field.touched && field.error ? 'border-red-500' : 'border-gray-300'}
@@ -215,7 +177,7 @@ const Login = () => {
               {userType === 'EMPLOYEE' ? 'EMPLOYEE LOGIN' : 'COMPANY LOGIN'}
             </h1>
             <div className="flex justify-center mb-6">
-              <div className="inline-flex  mb-6  rounded-lg border border-gray-200 p-1">
+              <div className="inline-flex mb-6 rounded-lg border border-gray-200 p-1">
                 <button
                   onClick={() => setUserType('EMPLOYEE')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
@@ -297,21 +259,21 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-primary rounded-xl text-white py-3 px-6  hover:bg-[#3D7EBD] transition disabled:opacity-50 disabled:cursor-not-allowed "
+                className="w-full bg-primary rounded-xl text-white py-3 px-6 hover:bg-[#3D7EBD] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Loading...' : 'Login'}
               </button>
 
               {userType === 'COMPANY' && (
-                  <p className="text-sm text-gray-500 text-center">
-                    Don't have an account yet?{' '}
-                    <Link
-                      to="/register"
-                      className="text-primary hover:text-blue-700 font-medium"
-                    >
-                      Create New Account
-                    </Link>
-                  </p>
+                <p className="text-sm text-gray-500 text-center">
+                  Don't have an account yet?{' '}
+                  <Link
+                    to="/register"
+                    className="text-primary hover:text-blue-700 font-medium"
+                  >
+                    Create New Account
+                  </Link>
+                </p>
               )}
             </form>
           </div>

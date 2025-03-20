@@ -1,43 +1,38 @@
-import { useState, useEffect } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import api from "@/api/axios";
+} from '@/components/ui/tooltip';
+import { AttendanceRecord } from '@/types/shared/ILeave';
+import { CompanyService } from '@/services/company.service';
 
 const AttendanceList = () => {
-  const [attendance, setAttendance] = useState([]);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
 
   const fetchAttendance = async () => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: "10",
-        date: date,
-      });
-      const response = await api.get(`/company/attendance?${queryParams}`);
-      const data = await response.data;
+      const data = await CompanyService.getAttendance(currentPage, 10, date);
       setAttendance(data.attendance);
       setTotalPages(Math.ceil(data.total / 10));
     } catch (error) {
-      console.error("Error fetching attendance:", error);
+      console.error('Error fetching attendance:', error);
     }
     setLoading(false);
   };
@@ -46,16 +41,16 @@ const AttendanceList = () => {
     fetchAttendance();
   }, [currentPage, date]);
 
-  const formatTime = (dateString) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
+  const formatTime = (dateString: string | Date) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
-  const formatWorkHours = (hours) => {
-    if (!hours) return "0h 0m";
+  const formatWorkHours = (hours: number) => {
+    if (!hours) return '0h 0m';
 
     const wholeHours = Math.floor(hours);
     const minutes = Math.round((hours - wholeHours) * 60);
@@ -63,18 +58,18 @@ const AttendanceList = () => {
     return `${wholeHours}h ${minutes}m`;
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case "Present":
-        return "bg-green-100 text-green-800";
-      case "Absent":
-        return "bg-red-100 text-red-800";
-      case "On Leave":
-        return "bg-yellow-100 text-yellow-800";
-      case "Half Day Leave":
-        return "bg-orange-100 text-orange-800";
+      case 'Present':
+        return 'bg-green-100 text-green-800';
+      case 'Absent':
+        return 'bg-red-100 text-red-800';
+      case 'On Leave':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Half Day Leave':
+        return 'bg-orange-100 text-orange-800';
       default:
-        return "bg-gray-100 text-gray-800";
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -103,14 +98,14 @@ const AttendanceList = () => {
               <Input
                 type="date"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={e => setDate(e.target.value)}
                 className="w-full md:w-auto focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="flex gap-2 w-full md:w-auto">
               <Button
                 variant="outline"
-                onClick={() => setDate(new Date().toISOString().split("T")[0])}
+                onClick={() => setDate(new Date().toISOString().split('T')[0])}
                 className="flex items-center gap-2 w-full md:w-auto"
               >
                 <X className="w-4 h-4" /> Reset to Today
@@ -125,13 +120,13 @@ const AttendanceList = () => {
               <thead className="bg-gray-50">
                 <tr>
                   {[
-                    "Employee ID",
-                    "Employee",
-                    "Check In",
-                    "Check Out",
-                    "Total Hours",
-                    "Status",
-                  ].map((header) => (
+                    'Employee ID',
+                    'Employee',
+                    'Check In',
+                    'Check Out',
+                    'Total Hours',
+                    'Status',
+                  ].map(header => (
                     <th
                       key={header}
                       className="px-4 py-3 text-left text-sm font-semibold text-gray-600 whitespace-nowrap"
@@ -142,7 +137,7 @@ const AttendanceList = () => {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {attendance.map((record) => (
+                {attendance.map(record => (
                   <tr
                     key={record._id}
                     className="hover:bg-gray-50 transition-colors"
@@ -182,8 +177,8 @@ const AttendanceList = () => {
                           <TooltipContent>
                             <p>
                               {record.totalWorkedTime >= 480
-                                ? "Full day completed"
-                                : "Partial day"}
+                                ? 'Full day completed'
+                                : 'Partial day'}
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -216,7 +211,7 @@ const AttendanceList = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="min-w-[100px]"
                 >
@@ -226,7 +221,7 @@ const AttendanceList = () => {
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    setCurrentPage(p => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage === totalPages}
                   className="min-w-[100px]"

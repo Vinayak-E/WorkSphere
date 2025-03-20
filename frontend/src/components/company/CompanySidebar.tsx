@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink } from 'react-router-dom';
 import {
   Calendar,
   Home,
@@ -8,7 +8,7 @@ import {
   FileText,
   BarChart,
   Video,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -18,59 +18,58 @@ import {
   SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
-import IMAGES from "@/assets/images/image";
+import IMAGES from '@/assets/images/image';
 
 const items = [
   {
-    title: "Dashboard",
-    url: "/company",
+    title: 'Dashboard',
+    url: '/company',
     icon: Home,
   },
   {
-    title: "Departments",
-    url: "/company/departments",
+    title: 'Departments',
+    url: '/company/departments',
     icon: Home,
   },
   {
-    title: "My Team",
-    url: "/company/myteam",
+    title: 'My Team',
+    url: '/company/myteam',
     icon: Users,
   },
   {
-    title: "Attendance",
-    url: "/company/attendance",
+    title: 'Attendance',
+    url: '/company/attendance',
     icon: Calendar,
   },
   {
-    title: "Leave Management",
-    url: "/company/leaveRequests",
+    title: 'Leave Management',
+    url: '/company/leaveRequests',
     icon: FileText,
   },
   {
-    title: "Projects",
-    url: "/company/projects",
+    title: 'Projects',
+    url: '/company/projects',
     icon: BarChart,
   },
   {
-    title: "Messages",
-    url: "/company/chat",
+    title: 'Messages',
+    url: '/company/chat',
     icon: Inbox,
     badge: 0,
   },
-  { title: "Meetings", url: "/company/meeting", icon: Video },
+  { title: 'Meetings', url: '/company/meeting', icon: Video },
   {
-    title: "Subscription Plans",
-    url: "/company/transactions",
+    title: 'Subscription Plans',
+    url: '/company/transactions',
     icon: BarChart,
   },
   {
-    title: "Settings",
-    url: "/company/profile",
+    title: 'Settings',
+    url: '/company/profile',
     icon: Settings,
   },
-
 ];
 
 export function AppSidebar() {
@@ -100,7 +99,7 @@ export function AppSidebar() {
         <SidebarGroup className="flex-1 overflow-y-auto">
           <SidebarGroupContent className="">
             <SidebarMenu>
-              {items.map((item) => {
+              {items.map(item => {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -110,9 +109,9 @@ export function AppSidebar() {
                       ${
                         isActive
                           ? // Active styles
-                            "border-l-4 border-blue-600 bg-blue-50 text-blue-700 font-medium"
+                            'border-l-4 border-blue-600 bg-blue-50 text-blue-700 font-medium'
                           : // Default & hover
-                            "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                            'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
                       }
                     `}
                     >
@@ -120,8 +119,8 @@ export function AppSidebar() {
                         className={`h-5 w-5 flex-shrink-0 
                         ${
                           isActive
-                            ? "text-blue-600"
-                            : "text-gray-400 group-hover:text-gray-600"
+                            ? 'text-blue-600'
+                            : 'text-gray-400 group-hover:text-gray-600'
                         }
                       `}
                       />

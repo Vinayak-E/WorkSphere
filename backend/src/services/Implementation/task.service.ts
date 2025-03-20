@@ -44,7 +44,16 @@ export class TaskService implements ITaskService {
   }
 
   async createTask(connection: Connection, taskData: Partial<ITask>): Promise<ITask> {
-    const task = await this.taskRepository.createTask(connection, taskData);
+    const initialStatus = taskData.status || 'To Do';
+    const task = await this.taskRepository.createTask(connection, {
+      ...taskData,
+      status: initialStatus,
+      statusHistory: [{
+        status: initialStatus,
+        timestamp: new Date(),
+        comment: ''
+      }]
+    });
     if (task.assignee && task.project) {
       await this.projectRepository.addEmployeeToProject(connection, task.project.toString(), task.assignee.toString());
     }
@@ -63,8 +72,8 @@ export class TaskService implements ITaskService {
     return updatedTask;
   }
 
-  async updateTaskStatus(connection: Connection, taskId: string, status: string): Promise<ITask | null> {
-    return this.taskRepository.updateTask(connection, taskId, { status: status as  "In Progress" | "Completed" | "To Do" });
+  async updateTaskStatus(connection: Connection, taskId: string, status: string, comment: string): Promise<ITask | null> {
+    return this.taskRepository.updateTaskStatus(connection, taskId, status, comment);
   }
 
   async deleteTask(connection: Connection, taskId: string): Promise<boolean> {

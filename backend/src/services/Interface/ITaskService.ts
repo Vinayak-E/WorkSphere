@@ -7,6 +7,6 @@ export interface ITaskService {
   createTask(connection: Connection, taskData: Partial<ITask>): Promise<ITask>;
   getTaskById(connection: Connection, taskId: string): Promise<ITask | null>;
   updateTask(connection: Connection, taskId: string, taskData: Partial<ITask>): Promise<ITask | null>;
-  updateTaskStatus(connection: Connection, taskId: string, status: string): Promise<ITask | null>;
+  updateTaskStatus(connection: Connection, taskId: string, status: string, comment: string): Promise<ITask | null>
   deleteTask(connection: Connection, taskId: string): Promise<boolean>;
 }

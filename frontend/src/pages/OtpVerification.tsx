@@ -1,20 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-
-import IMAGES from "../assets/images/image";
-
-import { resendOtpService, verifyOtpService } from "../services/authService";
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import IMAGES from '../assets/images/image';
+import { AuthController } from '@/controllers/auth.controller';
 
 const OtpVerification = () => {
   const [searchParams] = useSearchParams();
-  const [otpMessage, setOtpMessage] = useState("");
+  const [otpMessage, setOtpMessage] = useState('');
   const [count, setCount] = useState(30);
   const navigate = useNavigate();
-  const email = searchParams.get("email") || "";
+  const email = searchParams.get('email') || '';
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [otpValues, setOtpValues] = useState(Array(6).fill(""));
+  const [otpValues, setOtpValues] = useState(Array(6).fill(''));
 
   useEffect(() => {
     inputRefs.current = inputRefs.current.slice(0, 6);
@@ -23,25 +20,24 @@ const OtpVerification = () => {
   const resendOtp = async () => {
     if (count !== 0) return;
     try {
-      await resendOtpService(email);
+      await AuthController.handleResendOtp(email);
       setCount(30);
-      setOtpValues(Array(6).fill(""));
-      setOtpMessage("");
-
+      setOtpValues(Array(6).fill(''));
+      setOtpMessage('');
       if (inputRefs.current[0]) {
         inputRefs.current[0].focus();
       }
-      toast.success("A new OTP has been sent to your email!");
+      // Removed toast.success; assume AuthService.resendOtp handles it
     } catch (error: unknown) {
       setOtpMessage(
-        error instanceof Error ? error.message : "Failed to resend OTP",
+        error instanceof Error ? error.message : 'Failed to resend OTP'
       );
     }
   };
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCount((prev) => (prev <= 1 ? 0 : prev - 1));
+      setCount(prev => (prev <= 1 ? 0 : prev - 1));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -58,10 +54,10 @@ const OtpVerification = () => {
 
   const handleKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
+    e: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (
-      e.key === "Backspace" &&
+      e.key === 'Backspace' &&
       !otpValues[index] &&
       index > 0 &&
       inputRefs.current[index - 1]
@@ -72,8 +68,8 @@ const OtpVerification = () => {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 6).split("");
-    if (!/^\d+$/.test(pastedData.join(""))) return;
+    const pastedData = e.clipboardData.getData('text').slice(0, 6).split('');
+    if (!/^\d+$/.test(pastedData.join(''))) return;
     const newOtpValues = [...otpValues];
     pastedData.forEach((value, index) => {
       if (index < 6) newOtpValues[index] = value;
@@ -83,22 +79,19 @@ const OtpVerification = () => {
 
   const handleVerification = async (e: React.FormEvent) => {
     e.preventDefault();
-    setOtpMessage("");
-    const otp = otpValues.join("");
+    setOtpMessage('');
+    const otp = otpValues.join('');
 
     if (otp.length !== 6) {
-      setOtpMessage("Please enter the complete 6-digit OTP");
+      setOtpMessage('Please enter the complete 6-digit OTP');
       return;
     }
     try {
-      await verifyOtpService(email, otp);
-      toast.success(
-        "Your email has been successfully verified. Your account is pending administrative approval. You will receive an email once approved",
-      );
-      navigate("/login");
+      await AuthController.handleVerifyOtp(email, otp, navigate);
+      // Toast and navigate are handled in AuthController.handleVerifyOtp
     } catch (error: unknown) {
       setOtpMessage(
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : 'An unexpected error occurred'
       );
     }
   };
@@ -119,7 +112,7 @@ const OtpVerification = () => {
             Verify <span className="font-light">OTP</span>
           </h2>
           <p className="text-sm text-gray-500 mb-6">
-            An OTP has been sent to your email:{" "}
+            An OTP has been sent to your email:{' '}
             <span className="font-semibold">{email}</span>
           </p>
 
@@ -132,14 +125,14 @@ const OtpVerification = () => {
               {otpValues.map((value, index) => (
                 <input
                   key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
+                  ref={el => (inputRefs.current[index] = el)}
                   type="text"
                   maxLength={1}
                   value={value}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  onChange={e => handleChange(index, e.target.value)}
+                  onKeyDown={e => handleKeyDown(index, e)}
                   onPaste={handlePaste}
-                  className="w-12 h-12 text-center text-xl font-semibold border-2 rounded-lg focus:border-gray-500 focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all duration-200"
+                  className="w-12 h-12 text-center text-xl font-semibold border-2 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200"
                 />
               ))}
             </div>
@@ -149,7 +142,7 @@ const OtpVerification = () => {
                 onClick={resendOtp}
                 type="button"
                 className={`text-gray-700 hover:text-black ${
-                  count !== 0 && "opacity-50 cursor-not-allowed"
+                  count !== 0 && 'opacity-50 cursor-not-allowed'
                 } font-semibold transition-colors duration-200`}
                 disabled={count !== 0}
               >
@@ -162,7 +155,7 @@ const OtpVerification = () => {
 
             <button
               type="submit"
-              className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-200"
+              className="w-full py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
             >
               Verify OTP
             </button>

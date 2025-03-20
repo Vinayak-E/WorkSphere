@@ -33,6 +33,7 @@ export interface IEmployee {
   role: string;
   address: Address;
   qualifications: Qualification[];
+  companyName:string;
 }
 
 export interface AuthState {

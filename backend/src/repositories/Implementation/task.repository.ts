@@ -77,4 +77,26 @@ export class TaskRepository extends BaseRepository<ITask>  implements ITaskRepos
     }).exec();
     return { total, statusChart, overdue, dueSoon };
   }
+
+
+  async updateTaskStatus(connection: Connection, taskId: string, status: string, comment: string): Promise<ITask | null> {
+    const taskModel = this.getModel(connection);
+    if (!connection.models['Project']) {
+      connection.model('Project', ProjectSchema);
+    }
+    return taskModel.findByIdAndUpdate(
+      taskId,
+      {
+        $set: { status },
+        $push: {
+          statusHistory: {
+            status,
+            timestamp: new Date(),
+            comment
+          }
+        }
+      },
+      { new: true }
+    ).populate('assignee project').exec();
+  }
 }

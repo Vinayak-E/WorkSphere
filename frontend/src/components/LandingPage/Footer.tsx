@@ -1,44 +1,44 @@
-import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 
 const Footer = () => {
   const footerLinks = {
-    "New to WorkShpere?": [
-      "Product overview",
-      "All features",
-      "Latest feature release",
-      "Pricing",
-      "Starter plan",
-      "Advanced plan",
-      "Enterprise",
-      "App integrations",
-      "Project management",
-      "Resource management",
+    'New to WorkShpere?': [
+      'Product overview',
+      'All features',
+      'Latest feature release',
+      'Pricing',
+      'Starter plan',
+      'Advanced plan',
+      'Enterprise',
+      'App integrations',
+      'Project management',
+      'Resource management',
     ],
-    "Use cases": [
-      "Task  Management",
-      "Project  Management",
-      "Project Planning",
-      "Video Conference Meetings",
-      "Payrol",
-      "Real-Time Messaging",
-      "All use cases",
+    'Use cases': [
+      'Task  Management',
+      'Project  Management',
+      'Project Planning',
+      'Video Conference Meetings',
+      'Payrol',
+      'Real-Time Messaging',
+      'All use cases',
     ],
 
     Resources: [
-      "Help Center",
-      "Get support",
-      "Customer Success",
-      "Developers and API",
-      "Partners",
-      "Sitemap",
+      'Help Center',
+      'Get support',
+      'Customer Success',
+      'Developers and API',
+      'Partners',
+      'Sitemap',
     ],
     Company: [
-      "About us",
-      "Leadership",
-      "Customers",
-      "Careers",
-      "Trust and security",
-      "Privacy",
+      'About us',
+      'Leadership',
+      'Customers',
+      'Careers',
+      'Trust and security',
+      'Privacy',
     ],
   };
 
@@ -51,7 +51,7 @@ const Footer = () => {
             <div key={title} className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground">{title}</h3>
               <ul className="space-y-3">
-                {links.map((link) => (
+                {links.map(link => (
                   <li key={link}>
                     <a
                       href="#"

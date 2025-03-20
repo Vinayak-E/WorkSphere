@@ -1,6 +1,6 @@
-import { User, LogOut } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+import { User, LogOut } from 'lucide-react';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,15 +8,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { logout } from "@/redux/slices/authSlice";
-import { Link, useNavigate } from "react-router-dom";
-import api from "@/api/axios";
-import { IEmployee } from "@/types/IEmployee";
-import GlobalNotification from "../chat/GlobalNotification";
+} from '@/components/ui/dropdown-menu';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { logout } from '@/redux/slices/authSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '@/api/axios';
+import { IEmployee } from '@/types/IEmployee';
+import GlobalNotification from '../chat/GlobalNotification';
 
 export function CompanyHeader() {
   const [imageError, setImageError] = useState(false);
@@ -26,11 +26,11 @@ export function CompanyHeader() {
 
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post('/auth/logout');
       dispatch(logout());
-      navigate("/login");
+      navigate('/login');
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error('Logout failed:', error);
     }
   };
 
@@ -46,24 +46,26 @@ export function CompanyHeader() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-            <Button
-  variant="ghost"
-  size="icon"
-  className="rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200"
->
-  {imageError || !user?.userData?.profilePicture ? (
-    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold">
-      {user?.userData?.companyName?.charAt(0).toUpperCase() || <User className="h-5 w-5 text-blue-600" />}
-    </div>
-  ) : (
-    <img
-      src={(user.userData as IEmployee).profilePicture}
-      alt="Avatar"
-      className="rounded-full h-8 w-8 object-cover"
-      onError={() => setImageError(true)}
-    />
-  )}
-</Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200"
+              >
+                {imageError || !user?.userData?.profilePicture ? (
+                  <div className="h-8 w-8 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold">
+                    {user?.userData?.companyName?.charAt(0).toUpperCase() || (
+                      <User className="h-5 w-5 text-blue-600" />
+                    )}
+                  </div>
+                ) : (
+                  <img
+                    src={(user.userData as IEmployee).profilePicture}
+                    alt="Avatar"
+                    className="rounded-full h-8 w-8 object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                )}
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>

@@ -9,4 +9,5 @@ export interface ITaskRepository {
   updateTask(connection: Connection, taskId: string, taskData: Partial<ITask>): Promise<ITask | null>;
   deleteTask(connection: Connection, taskId: string): Promise<boolean>;
   getTaskStats(connection: Connection): Promise<ITaskStats>
+  updateTaskStatus(connection: Connection, taskId: string, status: string, comment: string): Promise<ITask | null>
 }

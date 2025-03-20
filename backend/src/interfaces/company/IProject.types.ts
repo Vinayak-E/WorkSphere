@@ -25,6 +25,11 @@ export interface ITask extends Document {
   status: 'To Do' | 'In Progress' | 'Completed';
   deadline?: Date;
   createdAt?: Date;
+  statusHistory: {
+    status: "To Do" | "In Progress" | "Completed";
+    timestamp: Date;
+    comment: string;
+  }[];
 }
 
 export interface GetProjectsOptions {

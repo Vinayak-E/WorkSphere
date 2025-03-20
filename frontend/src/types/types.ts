@@ -16,7 +16,6 @@ export interface SignupData {
   zipcode: string;
   password: string;
 }
-
 export type FieldName =
   | "companyName"
   | "email"
@@ -65,6 +64,7 @@ export interface ValidationRules {
 }
 
 export interface Icompany {
+  _id :string;
   companyName: string;
   email: string;
   password: string;
@@ -75,4 +75,5 @@ export interface Icompany {
   state: string;
   country: string;
   zipcode: string;
+  profilePicture?:string;
 }

@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {  Routes, Route } from "react-router-dom";
 
 import Layout from "@/components/company/CompanyLayout";
 import Departments from "@/components/company/Departments";
-import MyTeamC from "@/components/company/Team";
+
 import LeaveManagement from "@/components/company/LeaveManagement";
 import AttendanceList from "@/components/company/AttendanceList";
 import CompanyProfilePage from "@/components/company/CompanyProfilePage";
@@ -15,6 +15,7 @@ import Dashboard from "@/components/company/Dashboard";
 import SelectPlanPage from "@/components/company/SelectPlan";
 import PaymentSuccessPage from "@/components/company/PaymentSuccessPage";
 import CompanyTransactionsDashboard from "@/components/company/Transactions";
+import MyTeam from "@/components/company/Team";
 
 
 const CompanyRoutes = () => {
@@ -24,7 +25,7 @@ const CompanyRoutes = () => {
         <Route path="/" element={<Dashboard />} />
         <Route path="/departments" element={<Departments />} />
         <Route path="/profile" element={<CompanyProfilePage />} />
-        <Route path="/myteam" element={<MyTeamC />} />
+        <Route path="/myteam" element={<MyTeam />} />
         <Route path="/leaveRequests" element={<LeaveManagement />} />
         <Route path="/attendance" element={<AttendanceList />} />
         <Route path="/projects" element={<ProjectList />} />

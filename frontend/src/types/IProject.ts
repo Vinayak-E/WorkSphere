@@ -1,16 +1,24 @@
-import { IEmployee } from "./IEmployee";
 
 export interface IProject {
-  _id?: string;
+  _id: string;
   name: string;
   description: string;
-  department: string;
-  deadline: Date;
-  manager: string;
+
+  deadline: Date |string;
+  department: string | {  
+    _id: string;
+    name: string;
+  };
+ manager: string | {  // Allow both string and object
+    _id: string;
+    name: string;
+  };
   employees: string[];
   tasks: ITask[];
   status: "Pending" | "In Progress" | "Completed";
   createdAt?: string;
+  totalTasks?: number;      
+  completedTasks?: number; 
 }
 export interface ProjectQueryParams {
   page?: number;
@@ -37,10 +45,4 @@ export interface ITask {
   status?: "Pending" | "In Progress" | "Completed";
 }
 
-export interface ProjectResponse {
-  success: boolean;
-  data: {
-    project: IProject;
-    departmentEmployees: IEmployee[];
-  };
-}
+

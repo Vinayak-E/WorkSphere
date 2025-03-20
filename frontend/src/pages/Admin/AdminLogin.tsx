@@ -1,97 +1,77 @@
-import { useState } from "react";
-import IMAGES from "../../assets/images/image";
-import api from "../../api/axios";
-import { useNavigate } from "react-router-dom";
-import { AxiosError } from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import IMAGES from '../../assets/images/image';
+import { AuthService } from '@/services/auth.service';
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordMessage, setPasswordMessage] = useState("");
-  const [emailMessage, setEmailMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showPassword1, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
-  const togglePassword1Visibility = () => {
-    setShowPassword(!showPassword1);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const validateInputs = () => {
+    const inputPassword = password.trim();
+    const inputEmail = email.trim();
+
+    setPasswordMessage('');
+    setEmailMessage('');
+    setErrorMessage('');
+
+    let isValid = true;
+
+    if (!inputPassword) {
+      setPasswordMessage('Please enter the password');
+      isValid = false;
+    } else if (inputPassword.length < 8) {
+      setPasswordMessage('Minimum 8 characters');
+      isValid = false;
+    }
+
+    if (!inputEmail) {
+      setEmailMessage('Email is required');
+      isValid = false;
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(inputEmail)
+    ) {
+      setEmailMessage('Please enter a valid email address');
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const inputPassword = password.trim();
-    const inputEmail = email.trim();
+    if (!validateInputs()) return;
 
-    setPasswordMessage("");
-    setEmailMessage("");
+    setIsSubmitting(true);
 
-    let isValid = true;
-
-    if (!inputPassword) {
-      setPasswordMessage("Please enter the password");
-      isValid = false;
-    } else if (inputPassword.length < 8) {
-      setPasswordMessage("Minimum 8 characters");
-      isValid = false;
-    }
-
-    if (!inputEmail) {
-      setEmailMessage("Email is required");
-      isValid = false;
-    } else if (
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(inputEmail)
-    ) {
-      setEmailMessage("Passwords do not match!");
-      isValid = false;
-    }
-    if (isValid) {
-      try {
-        const response = await api.post("/admin/login", {
-          inputEmail,
-          inputPassword,
-        });
-        console.log("Response: ", response);
-        if (response.status !== 200) {
-          return setErrorMessage(response.data.message);
-        }
-        if (response.data) {
-          toast.success("Login successfull");
-
-          navigate("/admin/dashboard");
-        }
-      } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-          const errorMessage =
-            error.response?.data?.message || "An error occurred";
-          setErrorMessage(errorMessage);
-        } else {
-          console.error("Login failed:", error);
-          setErrorMessage("An unexpected error occurred");
-        }
-      }
+    try {
+      await AuthService.adminLogin(email.trim(), password.trim());
+      toast.success('Login successful');
+      navigate('/admin/dashboard');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Login failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#E9E9E9] p-3 md:p-6 lg:p-8  relative">
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-
-      <div className="top-8 left-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center">
+      <div className="absolute top-8 left-8">
         <img
           src={IMAGES.navBarLogoDark}
           alt="WorkSphere Logo"
@@ -99,68 +79,100 @@ const AdminLogin: React.FC = () => {
         />
       </div>
 
-      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl max-w-lg mx-auto w-full">
-        <h1 className="text-xl font-bold mb-6">Admin Login</h1>
+      <div className="bg-white rounded-xl p-8 shadow-lg max-w-md w-full transition-all duration-300 hover:shadow-xl">
+        <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
         <form onSubmit={handleLogin} className="space-y-6">
-          <div className="relative">
+          <div className="space-y-1">
             <label
-              htmlFor="Email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
             >
               Email
             </label>
             <input
               type="email"
               id="email"
-              placeholder="Enter your Email"
+              placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`w-full pb-2 border-b-2 ${
-                emailMessage ? "border-red-500" : "border-gray-300"
-              } focus:border-black outline-none`}
+              onChange={e => setEmail(e.target.value)}
+              className={`w-full p-3 rounded-lg border ${
+                emailMessage ? 'border-red-500' : 'border-gray-300'
+              } focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all`}
             />
             {emailMessage && (
-              <p className="text-sm text-red-500">{emailMessage}</p>
+              <p className="text-sm text-red-500 mt-1">{emailMessage}</p>
             )}
           </div>
 
-          <div className="relative">
+          <div className="space-y-1">
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700"
             >
               Password
             </label>
-            <input
-              type={showPassword1 ? "text" : "password"}
-              id="password"
-              placeholder="Create a strong password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`w-full pb-2 border-b-2 ${
-                passwordMessage ? "border-red-500" : "border-gray-300"
-              } focus:border-black outline-none`}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className={`w-full p-3 rounded-lg border ${
+                  passwordMessage ? 'border-red-500' : 'border-gray-300'
+                } focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all`}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+            </div>
             {passwordMessage && (
-              <p className="text-sm text-red-500">{passwordMessage}</p>
+              <p className="text-sm text-red-500 mt-1">{passwordMessage}</p>
             )}
-            <button
-              type="button"
-              onClick={togglePassword1Visibility}
-              className="absolute right-3 top-8 text-xl text-gray-600"
-            >
-              {showPassword1 ? <FaEyeSlash /> : <FaEye />}
-            </button>
           </div>
+
           {errorMessage && (
-            <p className="text-sm text-red-500">{errorMessage}</p>
+            <div className="py-2 px-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{errorMessage}</p>
+            </div>
           )}
+
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition"
+            className="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-primary/85 transition-colors flex items-center justify-center"
           >
-            {isSubmitting ? "Please wait..." : "Submit"}
+            {isSubmitting ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
           </button>
         </form>
       </div>

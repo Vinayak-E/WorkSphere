@@ -11,12 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { RootState } from "@/redux/store";
 
 const GlobalNotification = () => {
   const [notifications, setNotifications] = useState([]);
   const [showToast, setShowToast] = useState(false);
   const [latestNotification, setLatestNotification] = useState(null);
-  const currentUser = useSelector((state) => state.auth.user);
+  const currentUser = useSelector((state :RootState) => state.auth.user);
   const navigate = useNavigate();
   const socket = useSocket();
 
