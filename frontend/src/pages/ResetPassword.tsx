@@ -1,26 +1,17 @@
-import { useState, useEffect } from "react";
-import IMAGES from "../assets/images/image";
-import api from "../api/axios";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { AxiosError } from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-
-interface resetResponse {
-  accessToken: string;
-  refreshToken: string;
-  email: string;
-  message: string;
-  isAdmin: boolean;
-}
+import { useState, useEffect } from 'react';
+import IMAGES from '../assets/images/image';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { AuthService } from '@/services/auth.service';
 
 const ResetPassword: React.FC = () => {
-  const [token, setToken] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmpassword] = useState("");
-  const [passwordMessage, setPasswordMessage] = useState("");
-  const [confirmPasswordMessage, setConfirmPasswordMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [token, setToken] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmpassword] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [confirmPasswordMessage, setConfirmPasswordMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,11 +28,11 @@ const ResetPassword: React.FC = () => {
   };
 
   useEffect(() => {
-    const urlToken = searchParams.get("token");
+    const urlToken = searchParams.get('token');
     if (urlToken) {
       setToken(urlToken);
     } else {
-      setErrorMessage("Invalid or missing reset token");
+      setErrorMessage('Invalid or missing reset token');
     }
   }, [searchParams]);
 
@@ -51,55 +42,43 @@ const ResetPassword: React.FC = () => {
     const inputPassword = password.trim();
     const inputConfirmPassword = confirmPassword.trim();
 
-    setPasswordMessage("");
-    setConfirmPasswordMessage("");
+    setPasswordMessage('');
+    setConfirmPasswordMessage('');
+    setErrorMessage('');
 
     let isValid = true;
 
     if (!inputPassword) {
-      setPasswordMessage("Please enter the password");
+      setPasswordMessage('Please enter the password');
       isValid = false;
     } else if (inputPassword.length < 8) {
-      setPasswordMessage("Minimum 8 characters");
+      setPasswordMessage('Minimum 8 characters');
       isValid = false;
     }
 
     if (!inputConfirmPassword) {
-      setConfirmPasswordMessage("Please confirm the password");
+      setConfirmPasswordMessage('Please confirm the password');
       isValid = false;
     } else if (inputConfirmPassword !== inputPassword) {
-      setErrorMessage("Passwords do not match!");
+      setErrorMessage('Passwords do not match!');
       isValid = false;
     }
 
     if (isValid) {
+      setIsSubmitting(true);
       try {
-        const response = await api.post<resetResponse>("/auth/resetPassword", {
-          token,
-          newPassword: inputPassword,
-        });
-
-        console.log("Response: ", response);
-
-        if (response.status !== 200) {
-          return setErrorMessage(response.data.message);
-        }
-
-        if (response.data) {
-          toast.success("Password reset successfully!");
-          setTimeout(() => {
-            navigate("/login");
-          }, 2000);
-        }
-      } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-          const errorMessage =
-            error.response?.data?.message || "An error occurred";
-          setErrorMessage(errorMessage);
+        await AuthService.resetPassword(token, inputPassword);
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } catch (error) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
         } else {
-          console.error("Login failed:", error);
-          setErrorMessage("An unexpected error occurred");
+          setErrorMessage('An unexpected error occurred');
         }
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -137,13 +116,13 @@ const ResetPassword: React.FC = () => {
               Password
             </label>
             <input
-              type={showPassword1 ? "text" : "password"}
+              type={showPassword1 ? 'text' : 'password'}
               id="password"
               placeholder="Create a strong password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               className={`w-full pb-2 border-b-2 ${
-                passwordMessage ? "border-red-500" : "border-gray-300"
+                passwordMessage ? 'border-red-500' : 'border-gray-300'
               } focus:border-black outline-none`}
             />
             {passwordMessage && (
@@ -166,13 +145,13 @@ const ResetPassword: React.FC = () => {
               Confirm Password
             </label>
             <input
-              type={showPassword2 ? "text" : "password"}
+              type={showPassword2 ? 'text' : 'password'}
               id="confirmPassword"
               placeholder="Confirm your password"
               value={confirmPassword}
-              onChange={(e) => setConfirmpassword(e.target.value)}
+              onChange={e => setConfirmpassword(e.target.value)}
               className={`w-full pb-2 border-b-2 ${
-                confirmPasswordMessage ? "border-red-500" : "border-gray-300"
+                confirmPasswordMessage ? 'border-red-500' : 'border-gray-300'
               } focus:border-black outline-none`}
             />
             {confirmPasswordMessage && (
@@ -192,9 +171,9 @@ const ResetPassword: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition"
+            className="w-full bg-primary text-white py-3 px-6 rounded-xl hover:bg-primary/85 transition"
           >
-            {isSubmitting ? "Please wait..." : "Submit"}
+            {isSubmitting ? 'Please wait...' : 'Submit'}
           </button>
         </form>
       </div>

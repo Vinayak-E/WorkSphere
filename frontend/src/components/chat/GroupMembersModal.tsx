@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserPlus, UserMinus, Users, X } from "lucide-react";
 import { DialogContent } from "@radix-ui/react-dialog";
+import { GroupMembersModalProps, IChatUser, IUser, MessageState} from "@/types/shared/IChat";
 
-const GroupMembersModal = ({
+
+
+
+const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
   isOpen,
   onClose,
   groupChat,
@@ -16,20 +20,21 @@ const GroupMembersModal = ({
   onAddMember,
   onRemoveMember,
 }) => {
-  const [activeTab, setActiveTab] = useState("members");
-  const [message, setMessage] = useState(null);
+  const [activeTab, setActiveTab] = useState<string>("members");
+  const [message, setMessage] = useState<MessageState | null>(null);
 
   const isGroupAdmin = groupChat.groupAdmin?.adminId._id === currentUser._id;
 
   const nonMembers = allUsers.filter(
-    (user) =>
-      !groupChat.users.some(
-        (member) =>
-          (member.userId?._id || member._id).toString() === user._id.toString(),
-      ),
-  );
+    (user :IChatUser | IUser) =>
+      !groupChat.users.some((member) => {
+        const memberId = "userId" in member ? member.userId._id : member?._id;
+        return memberId.toString() === user._id.toString();
+      })
+  ); 
 
-  const handleAddMember = async (userId) => {
+
+  const handleAddMember = async (userId:string) => {
     try {
       await onAddMember(userId);
       setMessage({ type: "success", text: "Member added successfully!" });
@@ -40,7 +45,7 @@ const GroupMembersModal = ({
     }
   };
 
-  const handleRemoveMember = async (userId) => {
+  const handleRemoveMember = async (userId :string) => {
     try {
       await onRemoveMember(userId);
       setMessage({ type: "success", text: "Member removed successfully!" });
@@ -51,8 +56,8 @@ const GroupMembersModal = ({
     }
   };
 
-  const renderUserItem = (user, isGroupMember) => {
-    const userData = user.userId || user;
+  const renderUserItem = (user: IUser | { userId: IUser }, isGroupMember: boolean) => {
+     const userData: IUser = "userId" in user ? user.userId : user;
     const isOnline = onlineUsers.includes(userData._id.toString());
     const isAdmin =
       userData._id.toString() === groupChat.groupAdmin?.adminId._id.toString();
@@ -139,7 +144,7 @@ const GroupMembersModal = ({
             </Button>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl font-medium">
-                {groupChat.name[0]}
+                {groupChat?.name[0]}
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">

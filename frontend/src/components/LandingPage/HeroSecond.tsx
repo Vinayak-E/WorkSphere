@@ -1,6 +1,5 @@
-import { Clock, Calendar, Smartphone } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import IMAGES from "@/assets/images/image";
+import { Card } from '@/components/ui/card';
+import IMAGES from '@/assets/images/image';
 
 const HeroSecond = () => {
   return (
@@ -8,7 +7,7 @@ const HeroSecond = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            Simplify{" "}
+            Simplify{' '}
             <span className="text-blue-400"> Time and Attendance </span>Tracking
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">

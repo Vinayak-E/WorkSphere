@@ -44,7 +44,7 @@ import { Meeting, Member } from "@/types/IMeeting";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationDialog from "../DeleteConfirmation";
 import { ProfileService } from "@/services/employee/employee.service";
-import { chatService } from "@/services/employee/chat.service";
+import { chatService } from "@/services/chat.service";
 interface FormErrors {
   meetTitle?: string;
   meetDate?: string;

@@ -13,6 +13,11 @@ export const TaskSchema = new Schema<ITask>({
   },
   deadline: Date,
   createdAt: { type: Date, default: Date.now },
+  statusHistory: [{
+    status: { type: String, enum: ['To Do', 'In Progress', 'Completed'] },
+    timestamp: { type: Date, default: Date.now },
+    comment: { type: String }
+  }]
 });
 
 const Task = mongoose.model<ITask>('Task', TaskSchema);

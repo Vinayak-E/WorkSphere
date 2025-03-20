@@ -23,8 +23,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
-import api from '@/api/axios';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -34,6 +32,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { ScaleLoader } from 'react-spinners';
+import { CompanyService } from '@/services/company.service';
+import {
+  ChartCardProps,
+  PerformanceBadgeProps,
+  StatCardProps,
+} from '@/types/company/IDashboard';
 
 const COLORS = [
   '#3498db',
@@ -48,7 +52,14 @@ const COLORS = [
 const TASK_THRESHOLD_HIGH = 15;
 const TASK_THRESHOLD_MEDIUM = 10;
 
-const StatCard = ({ title, value, icon, color, trend, trendValue }) => (
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  icon,
+  color,
+  trend,
+  trendValue,
+}) => (
   <Card
     sx={{
       height: '100%',
@@ -99,7 +110,11 @@ const StatCard = ({ title, value, icon, color, trend, trendValue }) => (
   </Card>
 );
 
-const PerformanceBadge = ({ name, avatar, metric, rank }) => (
+const PerformanceBadge: React.FC<PerformanceBadgeProps> = ({
+  name,
+  metric,
+  rank,
+}) => (
   <Box
     sx={{
       display: 'flex',
@@ -138,7 +153,11 @@ const PerformanceBadge = ({ name, avatar, metric, rank }) => (
   </Box>
 );
 
-const ChartCard = ({ title, children, height = 300 }) => (
+const ChartCard: React.FC<ChartCardProps> = ({
+  title,
+  children,
+  height = 300,
+}) => (
   <Card
     sx={{
       height: '100%',
@@ -165,40 +184,60 @@ const ChartCard = ({ title, children, height = 300 }) => (
   </Card>
 );
 
+interface DashboardData {
+  projects?: {
+    total?: number;
+    statusChart?: Array<{ _id: string; count: number }>;
+  };
+  tasks?: {
+    total?: number;
+    statusChart?: Array<{ _id: string; count: number }>;
+    overdue?: number;
+    dueSoon?: number;
+  };
+  employees?: {
+    total?: number;
+    byDepartment?: Array<{ name: string; count: number }>;
+    workload?: Array<{ name?: string; taskCount?: number }>;
+    bestPerformers?: Array<{ name?: string; taskCount?: number }>;
+  };
+}
+
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/company/dashboard', {
-        withCredentials: true,
-      });
+      const data = (await CompanyService.getDashboardData()) as DashboardData;
 
-      const data = response.data.data;
-      console.log('Dashboard data received:', data);
-
-      if (!data.employees.bestPerformers) {
+      if (!data.employees?.bestPerformers) {
+        data.employees = data.employees || {};
         data.employees.bestPerformers =
           data.employees.workload
-            ?.sort((a, b) => b.taskCount - a.taskCount)
+            ?.sort((a, b) => (b.taskCount || 0) - (a.taskCount || 0))
             ?.slice(0, 5) || [];
       }
 
-      if (!data.projects) data.projects = { total: 0, statusChart: [] };
-      if (!data.tasks)
-        data.tasks = { total: 0, statusChart: [], overdue: 0, dueSoon: 0 };
-      if (!data.employees)
-        data.employees = {
-          total: 0,
-          byDepartment: [],
-          workload: [],
-          bestPerformers: [],
-        };
+      data.projects = data.projects ?? { total: 0, statusChart: [] };
+      data.tasks = data.tasks ?? {
+        total: 0,
+        statusChart: [],
+        overdue: 0,
+        dueSoon: 0,
+      };
+      data.employees = data.employees ?? {
+        total: 0,
+        byDepartment: [],
+        workload: [],
+        bestPerformers: [],
+      };
 
       setDashboardData(data);
     } catch (error) {
@@ -280,7 +319,16 @@ const Dashboard = () => {
     );
   }
 
-  const { projects = {}, tasks = {}, employees = {} } = dashboardData || {};
+  const {
+    projects = { total: 0, statusChart: [] },
+    tasks = { total: 0, statusChart: [], overdue: 0, dueSoon: 0 },
+    employees = {
+      total: 0,
+      byDepartment: [],
+      workload: [],
+      bestPerformers: [],
+    },
+  } = dashboardData || {};
 
   return (
     <Box sx={{ p: 3, backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
@@ -344,7 +392,7 @@ const Dashboard = () => {
             value={completionRate}
             icon={<TrendingUpIcon />}
             color="#e74c3c"
-            trend={tasks.total > 0 ? 'up' : 'down'}
+            trend={(tasks.total || 0) > 0 ? 'up' : 'down'}
             trendValue={5.3}
           />
         </Grid>
@@ -385,7 +433,7 @@ const Dashboard = () => {
                   <PerformanceBadge
                     key={index}
                     name={employee.name}
-                    avatar={employee.profilePicture || null}
+                    avatar={employee.name?.charAt(0)}
                     metric={employee.taskCount}
                     rank={index + 1}
                   />

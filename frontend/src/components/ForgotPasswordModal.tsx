@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import api from "../api/axios";
-import { AxiosError } from "axios";
+import { AuthService } from "@/services/auth.service";
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -26,15 +25,13 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     setIsLoading(true);
 
     try {
-      await api.post("/auth/forgotPassword", { email });
-      toast.success("Reset link has been sent to your email!");
+      await AuthService.forgotPassword(email);
       setIsSuccess(true);
     } catch (err: unknown) {
-      console.log(err);
-
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.message || "An error occurred.");
-        toast.error(err.response?.data?.message || "An error occurred.");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
       }
     } finally {
       setIsLoading(false);
@@ -51,7 +48,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
         />
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+          className="absolute  right-4 top-4 text-gray-400 hover:text-gray-600"
         >
           <svg
             className="h-5 w-5"
@@ -66,7 +63,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
           </svg>
         </button>
 
-        <h2 className="mb-4 text-xl font-bold text-gray-900">Reset Password</h2>
+        <h2 className="mb-4 text-xl font-bold  text-gray-900">Reset Password</h2>
 
         {!isSuccess ? (
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,7 +102,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 "
+                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 "
               >
                 {isLoading ? "Sending..." : "Send Reset Link"}
               </button>

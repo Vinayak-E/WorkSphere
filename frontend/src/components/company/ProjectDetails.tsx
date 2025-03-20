@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ScaleLoader } from "react-spinners";
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ScaleLoader } from 'react-spinners';
 import {
   Users,
   Clock,
@@ -12,21 +12,24 @@ import {
   BadgeInfo,
   PencilIcon,
   UserIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { IProject, ITask } from "@/types/IProject";
-import { ProjectService } from "@/services/employee/project.service";
-import { cn } from "@/lib/utils";
-import EditProjectModal from "./EditProjectModal";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { IProject, ITask } from '@/types/IProject';
+import { ProjectService } from '@/services/project.service';
+import { cn } from '@/lib/utils';
+import EditProjectModal from './EditProjectModal';
+import { IEmployee } from '@/types/IEmployee';
 
 const CompanyProjectDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<IProject | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [departmentEmployees, setDepartmentEmployees] = useState([]);
+  const [departmentEmployees, setDepartmentEmployees] = useState<IEmployee[]>(
+    []
+  );
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -34,11 +37,12 @@ const CompanyProjectDetails = () => {
     const loadProject = async () => {
       try {
         const response = await ProjectService.getProjectById(id!);
+        console.log('res', response.data);
         setProject(response.data);
         setTasks(response.data.tasks);
         setDepartmentEmployees(response.data.departmentEmployees);
       } catch (error) {
-        navigate("/company/projects");
+        navigate('/company/projects');
       } finally {
         setIsLoading(false);
       }
@@ -51,47 +55,42 @@ const CompanyProjectDetails = () => {
       [key: string]: { color: string; bgColor: string; icon: JSX.Element };
     } = {
       Completed: {
-        color: "text-green-700",
-        bgColor: "bg-green-50",
+        color: 'text-green-700',
+        bgColor: 'bg-green-50',
         icon: <CheckCircle className="w-5 h-5" />,
       },
-      "In Progress": {
-        color: "text-blue-700",
-        bgColor: "bg-blue-50",
+      'In Progress': {
+        color: 'text-blue-700',
+        bgColor: 'bg-blue-50',
         icon: <BadgeInfo className="w-5 h-5" />,
       },
       Pending: {
-        color: "text-yellow-700",
-        bgColor: "bg-yellow-50",
+        color: 'text-yellow-700',
+        bgColor: 'bg-yellow-50',
         icon: <AlertCircle className="w-5 h-5" />,
       },
     };
     return (
       statusMap[status] || {
-        color: "text-gray-700",
-        bgColor: "bg-gray-50",
+        color: 'text-gray-700',
+        bgColor: 'bg-gray-50',
         icon: <AlertCircle className="w-5 h-5" />,
       }
     );
   };
 
   const calculateProgress = (project: IProject) => {
-    // First check if project is explicitly marked as completed
-    if (project.status === "Completed") return 100;
-
-    // Task-based progress calculation
+    if (project.status === 'Completed') return 100;
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter(
-      (task) => task.status === "Completed",
+      task => task.status === 'Completed'
     ).length;
 
     if (totalTasks > 0) {
       return Math.round((completedTasks / totalTasks) * 100);
     }
 
-    // Fallback to timeline-based calculation
     if (!project.deadline || !project.createdAt) return 0;
-
     const start = new Date(project.createdAt).getTime();
     const end = new Date(project.deadline).getTime();
     const now = Date.now();
@@ -129,17 +128,14 @@ const CompanyProjectDetails = () => {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <Button
-          variant="outline"
-          onClick={() => navigate(-1)}
-        >
+        <Button variant="outline" onClick={() => navigate(-1)}>
           ← Back to Projects
         </Button>
         <span
           className={cn(
-            "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium",
+            'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium',
             statusDetails.color,
-            statusDetails.bgColor,
+            statusDetails.bgColor
           )}
         >
           {statusDetails.icon}
@@ -158,8 +154,8 @@ const CompanyProjectDetails = () => {
               <div className="flex items-center gap-2 mt-2">
                 <UserIcon className="w-5 h-5 text-gray-500" />
                 <span className="text-md font-medium text-gray-700">
-                  {project.manager.name}
-                </span>
+  {typeof project.manager === 'object' ? project.manager.name : project.manager}
+</span>
               </div>
             </div>
             <button
@@ -205,7 +201,7 @@ const CompanyProjectDetails = () => {
                       <span>Tasks</span>
                     </div>
                     <p className="text-md font-medium">
-                      {tasks.filter((t) => t.status === "Completed").length} /{" "}
+                      {tasks.filter(t => t.status === 'Completed').length} /{' '}
                       {tasks.length} Completed
                     </p>
                   </div>
@@ -227,15 +223,19 @@ const CompanyProjectDetails = () => {
                 </h3>
                 <Progress
                   value={progress}
-                  className="h-3 bg-gray-200"
-                  indicatorClassName={cn(
-                    "transition-all rounded-full",
-                    progress === 100 ? "bg-green-500" : "bg-indigo-500",
+                  className={cn(
+                    'h-2 bg-gray-100 [&>div]:transition-all',
+                    progress === 100
+                      ? '[&>div]:bg-green-500'
+                      : '[&>div]:bg-indigo-500'
                   )}
                 />
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>
-                    Start: {new Date(project.createdAt).toLocaleDateString()}
+                    Start:{' '}
+                    {project.createdAt
+                      ? new Date(project.createdAt).toLocaleDateString()
+                      : 'N/A'}
                   </span>
                   <span>
                     End: {new Date(project.deadline).toLocaleDateString()}
@@ -253,7 +253,7 @@ const CompanyProjectDetails = () => {
                   </span>
                 </h3>
                 <div className="space-y-4">
-                  {tasks?.map((task) => (
+                  {tasks?.map(task => (
                     <Card key={task._id} className="border border-gray-200">
                       <CardContent className="p-4">
                         <div className="space-y-2">
@@ -266,11 +266,11 @@ const CompanyProjectDetails = () => {
                           <div className="flex justify-between items-center text-sm text-gray-500 pt-2">
                             <span className="flex items-center gap-2">
                               <Users className="w-4 h-4" />
-                              {typeof task.assignee === "object"
-                                ? task.assignee.name
+                              {typeof task.assignee === 'object'
+                                ? (task.assignee as IEmployee).name
                                 : departmentEmployees.find(
-                                    (emp) => emp._id === task.assignee,
-                                  )?.name || task.assignee}
+                                    emp => emp._id === task.assignee
+                                  )?.name || 'Unassigned'}
                             </span>
                             <span className="flex items-center gap-2">
                               <Clock className="w-4 h-4" />

@@ -1,56 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   CalendarPlus2,
   ChevronLeft,
   ChevronRight,
-  Plus,
   Filter,
   X,
   Check,
   X as Cross,
-} from "lucide-react";
-import { toast } from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import api from "@/api/axios";
+} from '@/components/ui/tooltip';
+import { CompanyService } from '@/services/company.service';
+import { Leave } from '@/types/shared/ILeave';
 
 const LeaveManagement = () => {
-  const [leaves, setLeaves] = useState([]);
+  const [leaves, setLeaves] = useState<Leave[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(false);
 
   const fetchLeaves = async () => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: "10",
-        startDate: startDate,
-        endDate: endDate,
-      });
-      const response = await api.get(`/company/leaves?${queryParams}`);
-      console.log("response.data", response.data);
-      const data = await response.data;
+      const data = await CompanyService.getLeaves(
+        currentPage,
+        10,
+        startDate,
+        endDate
+      );
       setLeaves(data.leaves);
       setTotalPages(data.totalPages);
     } catch (error) {
-      console.error("Error fetching leaves:", error);
+      console.error('Error fetching leaves:', error);
     }
     setLoading(false);
   };
@@ -59,31 +56,34 @@ const LeaveManagement = () => {
     fetchLeaves();
   }, [currentPage, startDate, endDate]);
 
-  const handleStatusUpdate = async (leaveId, status) => {
+  const handleStatusUpdate = async (leaveId: string, status: string) => {
     try {
-      await api.patch(`/company/leaves/${leaveId}`, { status });
+      await CompanyService.updateLeaveStatus(leaveId, status);
       toast.success(`Leave ${status} successfully!`);
       fetchLeaves();
     } catch (error) {
-      console.error("Error updating leave status:", error);
+      console.error('Error updating leave status:', error);
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case "Approved":
-        return "bg-green-100 text-green-800";
-      case "Rejected":
-        return "bg-red-100 text-red-800";
+      case 'Approved':
+        return 'bg-green-100 text-green-800';
+      case 'Rejected':
+        return 'bg-red-100 text-red-800';
       default:
-        return "bg-yellow-100 text-yellow-800";
+        return 'bg-yellow-100 text-yellow-800';
     }
   };
 
-  const calculateDuration = (startDate, endDate) => {
+  const calculateDuration = (
+    startDate: string | Date,
+    endDate: string | Date
+  ) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const diffTime = Math.abs(end - start);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
     return diffDays;
   };
@@ -113,14 +113,14 @@ const LeaveManagement = () => {
               <Input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={e => setStartDate(e.target.value)}
                 className="w-full md:w-auto focus:ring-2 focus:ring-blue-500"
               />
               <span className="text-gray-400 hidden md:inline">–</span>
               <Input
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={e => setEndDate(e.target.value)}
                 className="w-full md:w-auto focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -128,8 +128,8 @@ const LeaveManagement = () => {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
+                  setStartDate('');
+                  setEndDate('');
                 }}
                 className="flex items-center gap-2 w-full md:w-auto"
               >
@@ -145,17 +145,17 @@ const LeaveManagement = () => {
               <thead className="bg-gray-50">
                 <tr>
                   {[
-                    "Employee ID",
-                    "Employee",
-                    "Start Date",
-                    "End Date",
-                    "Duration",
-                    "Leave Type",
-                    "Reason",
-                    "Status",
-                    "Applied On",
-                    "Actions",
-                  ].map((header) => (
+                    'Employee ID',
+                    'Employee',
+                    'Start Date',
+                    'End Date',
+                    'Duration',
+                    'Leave Type',
+                    'Reason',
+                    'Status',
+                    'Applied On',
+                    'Actions',
+                  ].map(header => (
                     <th
                       key={header}
                       className="px-4 py-3 text-left text-sm font-semibold text-gray-600 whitespace-nowrap"
@@ -166,7 +166,7 @@ const LeaveManagement = () => {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {leaves.map((leave) => (
+                {leaves.map(leave => (
                   <tr
                     key={leave._id}
                     className="hover:bg-gray-50 transition-colors"
@@ -185,10 +185,10 @@ const LeaveManagement = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.startDate).toLocaleDateString("en-GB")}
+                      {new Date(leave.startDate).toLocaleDateString('en-GB')}
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.endDate).toLocaleDateString("en-GB")}
+                      {new Date(leave.endDate).toLocaleDateString('en-GB')}
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
                       {calculateDuration(leave.startDate, leave.endDate)} days
@@ -207,10 +207,10 @@ const LeaveManagement = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      {new Date(leave.appliedAt).toLocaleDateString("en-GB")}
+                      {new Date(leave.appliedAt).toLocaleDateString('en-GB')}
                     </td>
                     <td className="px-4 py-3">
-                      {leave.status === "Pending" && (
+                      {leave.status === 'Pending' && (
                         <div className="flex gap-2">
                           <TooltipProvider>
                             <Tooltip>
@@ -220,7 +220,7 @@ const LeaveManagement = () => {
                                   variant="outline"
                                   className="bg-green-50 hover:bg-green-100 text-green-600 border-green-200"
                                   onClick={() =>
-                                    handleStatusUpdate(leave._id, "Approved")
+                                    handleStatusUpdate(leave._id, 'Approved')
                                   }
                                 >
                                   <Check className="w-4 h-4" />
@@ -240,7 +240,7 @@ const LeaveManagement = () => {
                                   variant="outline"
                                   className="bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
                                   onClick={() =>
-                                    handleStatusUpdate(leave._id, "Rejected")
+                                    handleStatusUpdate(leave._id, 'Rejected')
                                   }
                                 >
                                   <Cross className="w-4 h-4" />
@@ -281,7 +281,7 @@ const LeaveManagement = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="min-w-[100px]"
                 >
@@ -291,7 +291,7 @@ const LeaveManagement = () => {
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    setCurrentPage(p => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage === totalPages}
                   className="min-w-[100px]"

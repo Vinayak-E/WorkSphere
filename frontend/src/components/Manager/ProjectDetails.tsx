@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectService } from "@/services/employee/project.service";
+import { ProjectService } from "@/services/project.service";
 import { IProject, ITask } from "@/types/IProject";
 import {
   Dialog,
@@ -59,8 +59,8 @@ const ProjectDetails = () => {
     const loadProject = async () => {
       try {
         const response = await ProjectService.getProjectById(id!);
+        console.log("response", response);
         setProject(response.data);
-        console.log('response',response)
         setDepartmentEmployees(response.data.departmentEmployees);
         setTasks(response.data.tasks);
       } catch (error) {
@@ -71,25 +71,15 @@ const ProjectDetails = () => {
       }
     };
     loadProject();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleCreateTask = async () => {
     try {
       const createdTask = (await ProjectController.createTask(
         id!,
-        newTask,
+        newTask
       )) as ITask;
-      const formattedTask = {
-        _id: createdTask._id,
-        title: createdTask.title,
-        description: createdTask.description,
-        assignee: createdTask.assignee,
-        deadline: createdTask.deadline,
-        status: createdTask.status,
-      };
-
-      setTasks((prevTasks) => [...prevTasks, formattedTask]);
-
+      setTasks((prevTasks) => [...prevTasks, createdTask]);
       setIsCreateDialogOpen(false);
       setNewTask({
         title: "",
@@ -97,11 +87,10 @@ const ProjectDetails = () => {
         assignee: "",
         deadline: "",
       });
+      setFormErrors({});
     } catch (error: any) {
-      // Attempt to parse validation errors
       try {
         const validationErrors = JSON.parse(error.message);
-        // Create an object with field names as keys and error messages as values.
         const newErrors: Record<string, string> = {};
         validationErrors.forEach((err: { path: string; message: string }) => {
           newErrors[err.path] = err.message;
@@ -130,33 +119,29 @@ const ProjectDetails = () => {
     if (!selectedTask) return;
 
     try {
-      const updatedTask = await ProjectController.updateTask(
+      const updatedTask = (await ProjectController.updateTask(
         id!,
         selectedTask._id,
-        editTask,
-      );
-
-      // Update the tasks state directly
+        editTask
+      )) as ITask;
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
-          task._id === selectedTask._id ? { ...task, ...updatedTask } : task,
-        ),
+          task._id === selectedTask._id ? updatedTask : task
+        )
       );
-
       setIsEditDialogOpen(false);
       setSelectedTask(null);
+      setFormErrors({});
     } catch (error: any) {
-      // Attempt to parse validation errors
       try {
         const validationErrors = JSON.parse(error.message);
-        // Create an object with field names as keys and error messages as values.
         const newErrors: Record<string, string> = {};
         validationErrors.forEach((err: { path: string; message: string }) => {
           newErrors[err.path] = err.message;
         });
         setFormErrors(newErrors);
       } catch {
-        console.error("Error saving project:", error);
+        console.error("Error updating task:", error);
       }
     }
   };
@@ -176,7 +161,7 @@ const ProjectDetails = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <Button variant="outline" onClick={() => navigate(-1)} className="mb-6">
-        &larr; Back to Projects
+        ← Back to Projects
       </Button>
 
       <Card className="mb-6">
@@ -263,7 +248,7 @@ const ProjectDetails = () => {
                   {typeof task.assignee === "object"
                     ? task.assignee.name
                     : departmentEmployees.find(
-                        (emp) => emp._id === task.assignee,
+                        (emp: any) => emp._id === task.assignee
                       )?.name || task.assignee}
                 </span>
                 <span>
@@ -283,6 +268,22 @@ const ProjectDetails = () => {
                   {task.status}
                 </span>
               </div>
+              {task.statusHistory && task.statusHistory.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Status History
+                  </h4>
+                  <ul className="mt-2 space-y-2">
+                    {task.statusHistory.map((history, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        <span className="font-medium">{history.status}</span> -{" "}
+                        {new Date(history.timestamp).toLocaleString()}
+                        {history.comment && ` - ${history.comment}`}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -340,8 +341,8 @@ const ProjectDetails = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {departmentEmployees
-                    .filter((employee) => employee.role === "EMPLOYEE")
-                    .map((employee) => (
+                    .filter((employee: any) => employee.role === "EMPLOYEE")
+                    .map((employee: any) => (
                       <SelectItem key={employee._id} value={employee._id}>
                         {employee.name}
                       </SelectItem>
@@ -429,8 +430,8 @@ const ProjectDetails = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {departmentEmployees
-                    .filter((employee) => employee.role === "EMPLOYEE")
-                    .map((employee) => (
+                    .filter((employee: any) => employee.role === "EMPLOYEE")
+                    .map((employee: any) => (
                       <SelectItem key={employee._id} value={employee._id}>
                         {employee.name}
                       </SelectItem>

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { Menu, X } from "lucide-react";
-import IMAGES from "@/assets/images/image";
-import { Link } from "react-router-dom";
-import { ModeToggle } from "./LandingPage/modeToggle";
+import React, { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { Menu, X } from 'lucide-react';
+import IMAGES from '@/assets/images/image';
+import { Link } from 'react-router-dom';
+import { ModeToggle } from './modeToggle';
 
 const Navbar = () => {
   const navRef = useRef(null);
@@ -19,15 +19,15 @@ const Navbar = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   useEffect(() => {
-    const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
     timeline.fromTo(
       navRef.current,
@@ -39,13 +39,13 @@ const Navbar = () => {
         y: 0,
         opacity: 1,
         duration: 1.3,
-      },
+      }
     );
   }, []);
 
   useEffect(() => {
     if (isMenuOpen) {
-      const mobileMenuItems = document.querySelectorAll(".mobile-menu-item");
+      const mobileMenuItems = document.querySelectorAll('.mobile-menu-item');
       gsap.fromTo(
         mobileMenuItems,
         {
@@ -57,15 +57,15 @@ const Navbar = () => {
           opacity: 1,
           duration: 0.5,
           stagger: 0.1,
-          ease: "power2.out",
-        },
+          ease: 'power2.out',
+        }
       );
     }
   }, [isMenuOpen]);
 
   return (
     <nav
-      className={`fixed w-screen z-50 transition-all duration-300  ${isScrolled ? "bg-card " : "bg-transparent "}`}
+      className={`fixed w-screen z-50 transition-all duration-300  ${isScrolled ? 'bg-card ' : 'bg-transparent '}`}
     >
       <div ref={navRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="flex justify-between h-18 mt-2 mb-2 items-center">
@@ -77,7 +77,7 @@ const Navbar = () => {
             />
           </div>
           <div className="hidden md:flex space-x-8">
-            {["Home", "Pricing", "Contact", "About"].map((item) => (
+            {['Home', 'Pricing', 'Contact', 'About'].map(item => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -121,11 +121,11 @@ const Navbar = () => {
 
       <div
         className={`md:hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         } overflow-hidden`}
       >
         <div className="px-4 pt-2 pb-3 space-y-3 bg-card">
-          {["Home", "Pricing", "Contact", "About"].map((item) => (
+          {['Home', 'Pricing', 'Contact', 'About'].map(item => (
             <a
               key={item}
               href={`#${item.toLowerCase()}`}

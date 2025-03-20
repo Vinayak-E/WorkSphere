@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Building2,
   Mail,
@@ -7,21 +7,20 @@ import {
   BookUser,
   MapPin,
   BadgeDollarSign,
-  CalendarCheck,
   Pencil,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import EditProfileModal from "./EditProfileModal";
-import { CompanyController } from "@/controllers/company/company.controller";
-import { Icompany } from "@/types/types";
-import { RootState } from "@/redux/store";
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import EditProfileModal from './EditProfileModal';
+import { CompanyController } from '@/controllers/company/company.controller';
+import { Icompany } from '@/types/types';
+import { RootState } from '@/redux/store';
 
 const CompanyProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [company, setCompany] = useState<Icompany | null>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
 
@@ -42,7 +41,7 @@ const CompanyProfilePage = () => {
         setCompany(profileData);
         setLoading(false);
       } catch (err) {
-        setError("Failed to load company data");
+        setError('Failed to load company data');
         setLoading(false);
       }
     };
@@ -65,7 +64,7 @@ const CompanyProfilePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map(i => (
               <Card key={i}>
                 <CardHeader>
                   <Skeleton className="h-6 w-32" />
@@ -110,7 +109,6 @@ const CompanyProfilePage = () => {
     return null;
   }
 
-
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -142,7 +140,6 @@ const CompanyProfilePage = () => {
                   {company.businessRegNo}
                 </span>
               </div>
-            
             </div>
           </div>
         </div>
@@ -169,22 +166,20 @@ const CompanyProfilePage = () => {
               </div>
               <div className="flex items-center">
                 <Phone className="w-5 h-5 text-gray-500 mr-3" />
-                <span>{company.phone || "Not provided"}</span>
+                <span>{company.phone || 'Not provided'}</span>
               </div>
               <div className="flex items-center">
                 <BookUser className="w-5 h-5 text-gray-500 mr-3" />
-                <span>Industry: {company.industry || "Not specified"}</span>
+                <span>Industry: {company.industry || 'Not specified'}</span>
               </div>
               <div className="flex items-center">
                 <BadgeDollarSign className="w-5 h-5 text-gray-500 mr-3" />
                 <span>
-                  Registration: {company.businessRegNo || "Not provided"}
+                  Registration: {company.businessRegNo || 'Not provided'}
                 </span>
               </div>
             </CardContent>
           </Card>
-
-       
 
           <Card>
             <CardHeader>

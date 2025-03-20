@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Upload, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { uploadToCloudinary } from "@/utils/cloudinary";
+import { MediaUploadProps } from "@/types/shared/IChat";
 
-const MediaUpload = ({ onMediaSelect, onClose }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
+const MediaUpload: React.FC<MediaUploadProps> = ({ onMediaSelect, onClose }) => {
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0];
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     setSelectedFile(file);

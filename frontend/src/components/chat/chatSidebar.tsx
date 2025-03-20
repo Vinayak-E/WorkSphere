@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useEffect, FC } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Search, Plus, Users, MessageSquare, Check } from "lucide-react";
-import { chatService } from "@/services/employee/chat.service";
-const ChatSidebar = ({
+} from '@/components/ui/dialog';
+import { Search, Plus, Users, MessageSquare, Check } from 'lucide-react';
+import { chatService } from '@/services/chat.service';
+import { ChatSidebarProps, IUser } from '@/types/shared/IChat';
+const ChatSidebar: FC<ChatSidebarProps> = ({
   chats,
   selectedChat,
   setSelectedChat,
@@ -24,46 +25,47 @@ const ChatSidebar = ({
   onlineUsers,
 }) => {
   const [isNewChatOpen, setIsNewChatOpen] = useState(false);
-  const [employeeSearchTerm, setEmployeeSearchTerm] = useState("");
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
-  const [activeTab, setActiveTab] = useState("chats");
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [groupName, setGroupName] = useState("");
+  const [employeeSearchTerm, setEmployeeSearchTerm] = useState('');
+  const [filteredEmployees, setFilteredEmployees] = useState<IUser[]>([]);
+
+  const [activeTab, setActiveTab] = useState('chats');
+  const [selectedUsers, setSelectedUsers] = useState<IUser[]>([]);
+  const [groupName, setGroupName] = useState('');
 
   const handleCreateGroup = async () => {
     if (!groupName || selectedUsers.length < 2) {
       return;
     }
     const groupMemberIds = [
-      ...selectedUsers.map((user) => user._id),
+      ...selectedUsers.map(user => user._id),
       currentUser.userData._id,
     ];
 
     try {
       const response = await chatService.createGroupChat(
         groupName,
-        groupMemberIds,
+        groupMemberIds
       );
       await loadChats();
       setSelectedChat(response.data);
       setIsNewChatOpen(false);
       resetGroupForm();
     } catch (error) {
-      console.error("Error creating group:", error);
+      console.error('Error creating group:', error);
     }
   };
 
   const resetGroupForm = () => {
     setSelectedUsers([]);
-    setGroupName("");
-    setEmployeeSearchTerm("");
+    setGroupName('');
+    setEmployeeSearchTerm('');
   };
 
-  const toggleUserSelection = (employee) => {
-    setSelectedUsers((prev) => {
-      const isSelected = prev.find((u) => u._id === employee._id);
+  const toggleUserSelection = (employee: IUser) => {
+    setSelectedUsers(prev => {
+      const isSelected = prev.find(u => u._id === employee._id);
       if (isSelected) {
-        return prev.filter((u) => u._id !== employee._id);
+        return prev.filter(u => u._id !== employee._id);
       }
       return [...prev, employee];
     });
@@ -78,32 +80,32 @@ const ChatSidebar = ({
     if (employees && employees.length > 0) {
       setFilteredEmployees(
         employees.filter(
-          (emp) =>
+          emp =>
             emp._id !== currentUser.userData._id &&
             (emp.name
               .toLowerCase()
               .includes(employeeSearchTerm.toLowerCase()) ||
               emp.email
                 .toLowerCase()
-                .includes(employeeSearchTerm.toLowerCase())),
-        ),
+                .includes(employeeSearchTerm.toLowerCase()))
+        )
       );
     }
   }, [employeeSearchTerm, employees, currentUser]);
 
-  const filteredItems = chats.filter((chat) => {
+  const filteredItems = chats.filter(chat => {
     const otherUser = chat.users.find(
-      (u) => String(u._id) !== String(currentUser.userData._id),
+      u => String(u._id) !== String(currentUser.userData._id)
     );
     const displayName = chat.isGroupChat
-      ? chat.name || chat.chatName || "Unnamed Group"
-      : otherUser?.name || "Unknown";
+      ? chat.name || chat.chatName || 'Unnamed Group'
+      : otherUser?.name || 'Unknown';
 
     const matchesSearch = displayName
       .toLowerCase()
       .includes(chatSearchTerm.toLowerCase());
     const matchesType =
-      activeTab === "groups" ? chat.isGroupChat : !chat.isGroupChat;
+      activeTab === 'groups' ? chat.isGroupChat : !chat.isGroupChat;
 
     return matchesSearch && matchesType;
   });
@@ -114,9 +116,9 @@ const ChatSidebar = ({
       <div className="p-4 bg-gray-50 border-b">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Messages</h2>
-          {(activeTab === "chats" ||
-            (activeTab === "groups" &&
-              currentUser.userData.role === "MANAGER")) && (
+          {(activeTab === 'chats' ||
+            (activeTab === 'groups' &&
+              currentUser.userData.role === 'MANAGER')) && (
             <Button
               variant="ghost"
               size="icon"
@@ -128,33 +130,37 @@ const ChatSidebar = ({
           )}
         </div>
 
-        <Input
-          placeholder="Search messages..."
-          value={chatSearchTerm}
-          onChange={(e) => setChatSearchTerm(e.target.value)}
-          className="w-full bg-gray-100 mb-4"
-          prefix={<Search className="h-4 w-4 text-gray-400" />}
-        />
+        <div className="relative">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
+          <Input
+            placeholder="Search messages..."
+            value={chatSearchTerm}
+            onChange={e => setChatSearchTerm(e.target.value)}
+            className="w-full bg-gray-100 mb-4 pl-10"
+          />
+        </div>
 
         {/* Tabs */}
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
           <button
-            onClick={() => setActiveTab("chats")}
+            onClick={() => setActiveTab('chats')}
             className={`flex-1 flex items-center justify-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "chats"
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-600 hover:text-blue-600"
+              activeTab === 'chats'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-blue-600'
             }`}
           >
             <MessageSquare className="h-4 w-4" />
             <span>Chats</span>
           </button>
           <button
-            onClick={() => setActiveTab("groups")}
+            onClick={() => setActiveTab('groups')}
             className={`flex-1 flex items-center justify-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "groups"
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-600 hover:text-blue-600"
+              activeTab === 'groups'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-blue-600'
             }`}
           >
             <Users className="h-4 w-4" />
@@ -171,14 +177,13 @@ const ChatSidebar = ({
           </div>
         ) : (
           <div className="divide-y">
-            {filteredItems.map((chat) => {
+            {filteredItems.map(chat => {
               const otherUser = chat.users.find(
-                (u) =>
-                  String(u.userId._id) !== String(currentUser.userData._id),
+                u => String(u.userId._id) !== String(currentUser.userData._id)
               );
               const displayName = chat.isGroupChat
-                ? chat.name || chat.chatName || "Unnamed Group"
-                : otherUser?.userId?.name || "Unknown";
+                ? chat.name || chat.chatName || 'Unnamed Group'
+                : otherUser?.userId?.name || 'Unknown';
               const isOnline =
                 !chat.isGroupChat &&
                 otherUser &&
@@ -189,8 +194,8 @@ const ChatSidebar = ({
                   key={chat._id}
                   className={`p-4 cursor-pointer transition-colors ${
                     selectedChat?._id === chat._id
-                      ? "bg-blue-50"
-                      : "hover:bg-gray-50"
+                      ? 'bg-blue-50'
+                      : 'hover:bg-gray-50'
                   }`}
                   onClick={() => setSelectedChat(chat)}
                 >
@@ -199,9 +204,9 @@ const ChatSidebar = ({
                       <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-500">
                         {chat.isGroupChat ? (
                           <span className="text-white text-lg">
-                            {displayName && typeof displayName === "string"
+                            {displayName && typeof displayName === 'string'
                               ? displayName[0]
-                              : "?"}
+                              : '?'}
                           </span>
                         ) : (
                           (() => {
@@ -209,7 +214,7 @@ const ChatSidebar = ({
                               return (
                                 <img
                                   src={otherUser.userId.profilePicture}
-                                  alt={otherUser.userId.name || "Unknown"}
+                                  alt={otherUser.userId.name || 'Unknown'}
                                   className="w-full h-full object-cover rounded-full"
                                 />
                               );
@@ -217,9 +222,9 @@ const ChatSidebar = ({
                               return (
                                 <span className="text-white text-lg">
                                   {otherUser?.userId?.name &&
-                                  typeof otherUser.userId.name === "string"
+                                  typeof otherUser.userId.name === 'string'
                                     ? otherUser.userId.name[0]
-                                    : "?"}
+                                    : '?'}
                                 </span>
                               );
                             }
@@ -233,16 +238,16 @@ const ChatSidebar = ({
                     <div className="ml-3 flex-1">
                       <div className="font-medium">{displayName}</div>
                       <div className="text-sm text-gray-500 truncate">
-                        {chat.latestMessage?.content || "No messages yet"}
+                        {chat.latestMessage?.content || 'No messages yet'}
                       </div>
                     </div>
                     {chat.latestMessage && (
                       <div className="text-xs text-gray-400">
                         {new Date(
-                          chat.latestMessage.createdAt,
+                          chat.latestMessage.createdAt
                         ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
+                          hour: '2-digit',
+                          minute: '2-digit',
                         })}
                       </div>
                     )}
@@ -259,34 +264,35 @@ const ChatSidebar = ({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              New {activeTab === "groups" ? "Group" : "Chat"}
+              New {activeTab === 'groups' ? 'Group' : 'Chat'}
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            {activeTab === "groups" && (
+            {activeTab === 'groups' && (
               <Input
                 placeholder="Group Name"
                 value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
+                onChange={e => setGroupName(e.target.value)}
                 className="mb-4"
               />
             )}
 
-            <Input
-              placeholder="Search employees..."
-              value={employeeSearchTerm}
-              onChange={(e) => setEmployeeSearchTerm(e.target.value)}
-              className="mb-4"
-              prefix={<Search className="h-4 w-4 text-gray-400" />}
-            />
-
-            {activeTab === "groups" && (
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2"></div>
+              <Input
+                placeholder="Search employees..."
+                value={employeeSearchTerm}
+                onChange={e => setEmployeeSearchTerm(e.target.value)}
+                className="mb-4"
+              />
+            </div>
+            {activeTab === 'groups' && (
               <div className="mb-4">
                 <div className="text-sm text-gray-500 mb-2">
                   Selected Users ({selectedUsers.length}):
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {selectedUsers.map((user) => (
+                  {selectedUsers.map(user => (
                     <div
                       key={user._id}
                       className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm flex items-center"
@@ -311,19 +317,19 @@ const ChatSidebar = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-2">
-                  {filteredEmployees.map((employee) => (
+                  {filteredEmployees.map(employee => (
                     <div
                       key={employee._id}
                       className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors
                         ${
-                          activeTab === "groups"
-                            ? selectedUsers.find((u) => u._id === employee._id)
-                              ? "bg-blue-50"
-                              : "hover:bg-gray-50"
-                            : "hover:bg-gray-50"
+                          activeTab === 'groups'
+                            ? selectedUsers.find(u => u._id === employee._id)
+                              ? 'bg-blue-50'
+                              : 'hover:bg-gray-50'
+                            : 'hover:bg-gray-50'
                         }`}
                       onClick={() => {
-                        if (activeTab === "groups") {
+                        if (activeTab === 'groups') {
                           toggleUserSelection(employee);
                         } else {
                           startNewChat(employee._id);
@@ -354,8 +360,8 @@ const ChatSidebar = ({
                           {employee.email}
                         </div>
                       </div>
-                      {activeTab === "groups" &&
-                        selectedUsers.find((u) => u._id === employee._id) && (
+                      {activeTab === 'groups' &&
+                        selectedUsers.find(u => u._id === employee._id) && (
                           <Check className="h-5 w-5 text-blue-600" />
                         )}
                     </div>
@@ -364,7 +370,7 @@ const ChatSidebar = ({
               )}
             </ScrollArea>
 
-            {activeTab === "groups" && (
+            {activeTab === 'groups' && (
               <div className="mt-4 flex justify-end">
                 <Button
                   onClick={handleCreateGroup}

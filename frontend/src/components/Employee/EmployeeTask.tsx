@@ -38,6 +38,11 @@ interface ITask {
   };
   status: "To Do" | "In Progress" | "Completed";
   deadline: Date;
+  statusHistory: {
+    status: "To Do" | "In Progress" | "Completed";
+    timestamp: Date;
+    comment: string;
+  }[];
 }
 
 function isEmployee(userData: unknown): userData is IEmployee {
@@ -51,6 +56,10 @@ const EmployeeTaskList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
   const tasksPerPage = 6;
 
   const { user } = useSelector((state: RootState) => state.auth);
@@ -84,20 +93,26 @@ const EmployeeTaskList = () => {
     loadTasks();
   }, [currentPage, debouncedSearch, statusFilter, employeeId]);
 
-  const handleStatusChange = async (taskId: string, newStatus: string) => {
-    try {
-      const updatedTask = await ProfileService.updateTaskStatus(
-        taskId,
-        newStatus,
-      );
-      console.log("updated Task", updatedTask);
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task._id === taskId ? { ...task, status: updatedTask.status } : task,
-        ),
-      );
-    } catch (error) {
-      console.error("Error updating task status:", error);
+  const handleStatusChange = (taskId: string, newStatus: string) => {
+    setSelectedTaskId(taskId);
+    setSelectedStatus(newStatus);
+    setComment("");
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    if (selectedTaskId && selectedStatus) {
+      try {
+        const updatedTask = await ProfileService.updateTaskStatus(selectedTaskId, selectedStatus, comment);
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task._id === selectedTaskId ? updatedTask : task
+          )
+        );
+        setModalOpen(false);
+      } catch (error) {
+        console.error("Error updating task status:", error);
+      }
     }
   };
 
@@ -117,6 +132,12 @@ const EmployeeTaskList = () => {
     const now = new Date();
     const timeDiff = deadlineDate.getTime() - now.getTime();
     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  };
+
+  const allowedTransitions = {
+    "To Do": ["In Progress"],
+    "In Progress": ["Completed"],
+    "Completed": [],
   };
 
   if (isLoading) {
@@ -185,7 +206,7 @@ const EmployeeTaskList = () => {
               key={task._id}
               className="group hover:shadow-lg transition-all duration-300 border-gray-100 hover:border-blue-100 relative overflow-hidden"
             >
-              <div className={`absolute top-0 left-0 w-1 h-full `} />
+              <div className="absolute top-0 left-0 w-1 h-full" />
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4 gap-4">
                   <div className="flex-1">
@@ -201,29 +222,19 @@ const EmployeeTaskList = () => {
                   </div>
                   <Select
                     value={task.status}
-                    onValueChange={(value) =>
-                      handleStatusChange(task._id, value)
-                    }
+                    onValueChange={(value) => handleStatusChange(task._id, value)}
                     disabled={task.status === "Completed"}
                   >
                     <SelectTrigger className="w-[140px] bg-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {task.status === "To Do" && (
-                        <>
-                          <SelectItem value="In Progress">
-                            In Progress
-                          </SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                        </>
-                      )}
-                      {task.status === "In Progress" && (
-                        <SelectItem value="Completed">Completed</SelectItem>
-                      )}
-                      <SelectItem value={task.status} disabled>
-                        {task.status}
-                      </SelectItem>
+                      <SelectItem value={task.status}>{task.status}</SelectItem>
+                      {allowedTransitions[task.status].map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -265,6 +276,19 @@ const EmployeeTaskList = () => {
                     </div>
                   )}
                 </div>
+
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-700">Status History</h4>
+                  <ul className="mt-2 space-y-2">
+                    {task.statusHistory?.map((history, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        <span className="font-medium">{history.status}</span> -{" "}
+                        {new Date(history.timestamp).toLocaleString()}{" "}
+                        {history.comment && `- ${history.comment}`}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -297,14 +321,36 @@ const EmployeeTaskList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="min-w-[100px] bg-white hover:bg-gray-100"
               >
                 Next <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
+            </div>
+          </div>
+        )}
+
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h3 className="text-lg font-semibold mb-4">Update Task Status</h3>
+              <p className="mb-4">New Status: <span className="font-medium">{selectedStatus}</span></p>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add a comment (optional)..."
+                className="w-full p-2 border rounded-md mb-4"
+                rows={4}
+              />
+              <div className="flex justify-end gap-2">
+                <Button onClick={handleSubmit} className="bg-blue-600 text-white hover:bg-blue-700">
+                  Update
+                </Button>
+                <Button onClick={() => setModalOpen(false)} variant="outline">
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         )}

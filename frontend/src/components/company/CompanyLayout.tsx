@@ -1,8 +1,8 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/company/CompanySidebar";
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/company/CompanySidebar';
 
-import { Outlet } from "react-router-dom";
-import { CompanyHeader } from "./CompanyHeader";
+import { Outlet } from 'react-router-dom';
+import { CompanyHeader } from './CompanyHeader';
 
 const Layout = () => {
   return (

@@ -1,24 +1,23 @@
-import api from "@/api/axios";
+import api from '@/api/axios';
 import {
   ICreateProject,
   IProject,
   ITask,
   ProjectQueryParams,
-  ProjectResponse,
-} from "@/types/IProject";
-import { AxiosResponse } from "axios";
-import toast from "react-hot-toast";
+} from '@/types/IProject';
+
+import toast from 'react-hot-toast';
 
 export class ProjectService {
   static async createProject(projectData: ICreateProject) {
-    const response = await api.post("/employee/projects", projectData, {
+    const response = await api.post('/employee/projects', projectData, {
       withCredentials: true,
     });
     return response.data.data;
   } //ok
 
   static async getProjects(params?: ProjectQueryParams) {
-    const response = await api.get("/employee/projects", {
+    const response = await api.get('/employee/projects', {
       params,
       withCredentials: true,
     });
@@ -27,7 +26,7 @@ export class ProjectService {
   } //ok
 
   static async getAllProjects(params?: ProjectQueryParams) {
-    const response = await api.get("/company/projects", {
+    const response = await api.get('/company/projects', {
       params,
       withCredentials: true,
     });
@@ -38,7 +37,7 @@ export class ProjectService {
   static async updateProject(projectId: string, updateData: Partial<IProject>) {
     const response = await api.patch(
       `/employee/projects/${projectId}`,
-      updateData,
+      updateData
     );
     return response.data.data;
   } //ok
@@ -46,30 +45,28 @@ export class ProjectService {
   static async updateProjectTask(
     projectId: string,
     taskId: string,
-    taskData: any,
+    taskData: any
   ) {
     const response = await api.put(
       `/employee/projects/${projectId}/tasks/${taskId}`,
-      taskData,
+      taskData
     );
-    toast.success("Task updated successfully");
+    toast.success('Task updated successfully');
     return response.data.data;
   } //ok
 
-  static async getProjectById(id: string): Promise<ProjectResponse> {
-    const response: AxiosResponse<ProjectResponse> = await api.get(
-      `/employee/projects/${id}`,
-    );
+  static async getProjectById(id: string) {
+    const response = await api.get(`/employee/projects/${id}`);
     return response.data;
   } //ok
 
   static async createProjectTask(
     projectId: string,
-    task: ITask,
+    task: ITask
   ): Promise<ITask> {
     const response = await api.post(
       `/employee/projects/${projectId}/tasks`,
-      task,
+      task
     );
     return response.data.data;
   } //ok
@@ -78,12 +75,12 @@ export class ProjectService {
     try {
       const response = await api.patch(
         `/employee/projects/${projectId}/status`,
-        { status },
+        { status }
       );
-      toast.success("Project status updated successfully");
+      toast.success('Project status updated successfully');
       return response.data.data;
     } catch (error) {
-      throw new Error("Failed to update project status");
+      throw new Error('Failed to update project status');
     }
   }
 }

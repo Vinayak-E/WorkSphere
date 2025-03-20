@@ -37,50 +37,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "react-toastify";
-import api from "@/api/axios";
 
 import EmployeeForm from "./EmployeeModal";
 import { ScaleLoader } from "react-spinners";
+import { CompanyService } from "@/services/company.service";
+import toast from "react-hot-toast";
+import { Department, Employee } from "@/types/company/ITeam";
 
 const ITEMS_PER_PAGE = 10;
-
-interface Employee {
-  _id: string;
-  name: string;
-  email: string;
-  mobile: string;
-  dob: string;
-  workMode: string;
-  department: {
-    _id: string;
-    name: string;
-  };
-  position: string;
-  gender: string;
-  status: string;
-  role: string;
-  salary?: string;
-  employmentStartDate?: string;
-  profilePicture?: string;
-  address?: {
-    city?: string;
-    state?: string;
-    zipCode?: string;
-    country?: string;
-  };
-  qualifications?: Array<{
-    degree?: string;
-    institution?: string;
-    yearOfCompletion?: number;
-  }>;
-}
-
-interface Department {
-  _id: string;
-  name: string;
-  status: string;
-}
 
 const MyTeam = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -96,7 +60,31 @@ const MyTeam = () => {
   const [showStatusAlert, setShowStatusAlert] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] =useState<{
+    name: string;
+    email: string;
+    mobile: string;
+    department: string;
+    position: string;
+    gender: string;
+    status: string;
+    role: string;
+    dob: string;
+    workMode: string;
+    salary: string;
+    profilePicture: string | null;
+    qualifications: {
+      degree: string;
+      institution: string;
+      yearOfCompletion: string;
+    }[];
+    address: {
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  }>({
     name: "",
     email: "",
     mobile: "",
@@ -108,7 +96,7 @@ const MyTeam = () => {
     dob: "",
     workMode: "On-Site",
     salary: "",
-    profilePicture: null,
+    profilePicture: null, 
     qualifications: [
       {
         degree: "",
@@ -133,9 +121,8 @@ const MyTeam = () => {
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/company/employees");
-      console.log("employees data at user", response.data.data);
-      setEmployees(response.data.data);
+      const data = await CompanyService.getEmployees();
+      setEmployees(data);
     } catch (error) {
       toast.error("Failed to load employees. Please try again.");
       console.error("Error fetching employees:", error);
@@ -146,8 +133,8 @@ const MyTeam = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await api.get("/company/departments");
-      const activeDepartments = response.data.data.filter(
+      const response:Department[]  = await CompanyService.getDepartments();
+      const activeDepartments = response.filter(
         (dept) => dept.status === "Active",
       );
       setDepartments(activeDepartments);
@@ -182,14 +169,7 @@ const MyTeam = () => {
     });
   };
 
-  const handleStatusChange = (value: string) => {
-    if (value === "Inactive" && formData.status === "Active") {
-      setPendingStatus(value);
-      setShowStatusAlert(true);
-    } else {
-      handleChange(value, "status");
-    }
-  };
+
 
   const handleStatusConfirm = () => {
     if (pendingStatus) {
@@ -208,10 +188,10 @@ const MyTeam = () => {
     setIsLoading(true);
     try {
       if (isEditMode && selectedEmployee) {
-        await api.put(`/company/employees/${selectedEmployee._id}`, formData);
+        await CompanyService.updateEmployee(selectedEmployee._id, formData);
         toast.success("Employee updated successfully!");
       } else {
-        await api.post("/company/employees", formData);
+        await CompanyService.createEmployee(formData);
         toast.success("Employee added successfully!");
       }
 
@@ -227,7 +207,7 @@ const MyTeam = () => {
       setIsLoading(false);
     }
   };
-  const handleEdit = (employee) => {
+  const handleEdit = (employee :Employee) => {
     setSelectedEmployee(employee);
     setFormData({
       name: employee.name,
@@ -239,22 +219,22 @@ const MyTeam = () => {
       position: employee.position,
       status: employee.status,
       role: employee.role,
-      address: employee.address || {
-        city: "",
-        state: "",
-        zipCode: "",
-        country: "",
+      address: {
+        city: employee.address?.city || "",
+        state: employee.address?.state || "",
+        zipCode: employee.address?.zipCode?.toString() || "",
+        country: employee.address?.country || "",
       },
       workMode: employee.workMode || "",
       salary: employee.salary || "",
-      profilePicture: employee.profilePicture || "",
-      qualifications: employee.qualifications || [
-        {
-          degree: "",
-          institution: "",
-          yearOfCompletion: "",
-        },
-      ],
+      profilePicture: employee.profilePicture ?? "",
+      qualifications: employee.qualifications?.length
+        ? employee.qualifications.map(q => ({
+            degree: q.degree || "",
+            institution: q.institution || "",
+            yearOfCompletion: q.yearOfCompletion?.toString() || "" 
+          }))
+        : [{ degree: "", institution: "", yearOfCompletion: "" }]
     });
     setErrors({});
     setIsEditMode(true);
@@ -389,8 +369,6 @@ const MyTeam = () => {
             </Button>
           </div>
         </div>
-
-        {/* Loading State and Table */}
         {isLoading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -438,7 +416,7 @@ const MyTeam = () => {
                       <TableCell>
                         <Badge
                           variant={
-                            emp.status === "Active" ? "success" : "destructive"
+                            emp.status === "Active" ? "secondary" : "destructive"
                           }
                           className={
                             emp.status === "Active"

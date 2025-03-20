@@ -1,7 +1,7 @@
-import  { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import IMAGES from "@/assets/images/image";
-import { Link } from "react-router-dom";
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import IMAGES from '@/assets/images/image';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const titleRef = useRef(null);
@@ -21,7 +21,7 @@ const Hero = () => {
         opacity: 1,
         y: 0,
         duration: 1,
-        ease: "power2.out",
+        ease: 'power2.out',
       }
     );
   }, []);
@@ -43,8 +43,7 @@ const Hero = () => {
                 ref={subtitleRef}
                 className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl"
               >
-                Manage and build a high performing tech team with an HCM
-                platform
+                Transform Workforce Data into Actionable Results
               </p>
               <div>
                 <Link

@@ -55,9 +55,9 @@ export class ProfileService {
     return response.data;
   }
 
-  static async updateTaskStatus(taskId: string, status: string) {
+  static async updateTaskStatus(taskId: string, status: string,comment: string) {
     const response = await api.patch(`/employee/tasks/${taskId}/status`, {
-      status,
+      status,comment
     });
     toast.success("status updated successfully");
     return response.data.data;

@@ -14,7 +14,8 @@ export class AdminController {
 
   adminLogin: RequestHandler = async (req, res, next) => {
     try {
-      const { inputEmail: email, inputPassword: password } = req.body;
+      console.log('req.body',req.body)
+      const {  email,  password } = req.body;
       const response = await this.adminService.verifyAdmin(email, password);
 
       if (!response) {

@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { chatService } from "@/services/employee/chat.service";
+import { chatService } from "@/services/chat.service";
 
 const ChatComponent = () => {
   const [socket, setSocket] = useState(null);

@@ -1,4 +1,4 @@
-import { CompanyService } from "../../services/company/company.service";
+import { CompanyService } from "../../services/company.service";
 import {
   companyProfileSchema,
   CompanyProfileFormData,

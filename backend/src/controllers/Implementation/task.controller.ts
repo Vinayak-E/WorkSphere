@@ -177,12 +177,13 @@ export class TaskController implements ITaskController {
         return;
       }
       const taskId = req.params.id;
-      const { status } = req.body;
-
+      const { status, comment } = req.body;
+  
       const updatedTask = await this.taskService.updateTaskStatus(
         tenantConnection,
         taskId,
-        status
+        status,
+        comment || '' 
       );
       if (!updatedTask) {
         res

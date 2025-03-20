@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Loader2, Upload, ChevronRight, ChevronLeft } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { toast } from "react-toastify";
-import { uploadToCloudinary } from "@/utils/cloudinary";
+} from '@/components/ui/dialog';
+import { Loader2, Upload, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { toast } from 'react-toastify';
+import { uploadToCloudinary } from '@/utils/cloudinary';
 
 interface EmployeeFormProps {
   isEditMode: boolean;
@@ -44,7 +44,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    formData.profilePicture || null,
+    formData.profilePicture || null
   );
   const [isUploading, setIsUploading] = useState(false);
   const totalSteps = 4;
@@ -56,35 +56,35 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
     if (step === 1) {
       if (!formData.profilePicture) {
-        newErrors.profilePicture = "Profile picture is required";
+        newErrors.profilePicture = 'Profile picture is required';
       }
 
       if (!formData.name.trim()) {
-        newErrors.name = "Name is required";
+        newErrors.name = 'Name is required';
       } else if (formData.name.length < 2) {
-        newErrors.name = "Name must be at least 2 characters long";
+        newErrors.name = 'Name must be at least 2 characters long';
       }
 
       if (!isEditMode && !formData.email.trim()) {
-        newErrors.email = "Email is required";
+        newErrors.email = 'Email is required';
       } else if (!isEditMode && !emailRegex.test(formData.email)) {
-        newErrors.email = "Please enter a valid email address";
+        newErrors.email = 'Please enter a valid email address';
       }
 
       if (!formData.mobile.trim()) {
-        newErrors.mobile = "Mobile number is required";
+        newErrors.mobile = 'Mobile number is required';
       } else if (!mobileRegex.test(formData.mobile)) {
-        newErrors.mobile = "Please enter a valid 10-digit mobile number";
+        newErrors.mobile = 'Please enter a valid 10-digit mobile number';
       }
 
       if (!formData.dob) {
-        newErrors.dob = "Date of birth is required";
+        newErrors.dob = 'Date of birth is required';
       } else {
         const selectedDate = new Date(formData.dob);
         const today = new Date();
 
         if (isNaN(selectedDate.getTime())) {
-          newErrors.dob = "Invalid date format";
+          newErrors.dob = 'Invalid date format';
         }
 
         const age = today.getFullYear() - selectedDate.getFullYear();
@@ -95,75 +95,75 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           age < 18 ||
           (age === 18 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))
         ) {
-          newErrors.dob = "Employee must be at least 18 years old";
+          newErrors.dob = 'Employee must be at least 18 years old';
         }
       }
 
       if (!formData.role) {
-        newErrors.role = "Role is required";
+        newErrors.role = 'Role is required';
       }
     }
 
     if (step === 2) {
       if (!formData.department) {
-        newErrors.department = "Department is required";
+        newErrors.department = 'Department is required';
       }
 
       if (!formData.position.trim()) {
-        newErrors.position = "Position is required";
+        newErrors.position = 'Position is required';
       }
 
       if (!formData.salary.toString().trim()) {
-        newErrors.salary = "Salary is required";
+        newErrors.salary = 'Salary is required';
       } else if (isNaN(Number(formData.salary))) {
-        newErrors.salary = "Salary must be a valid number";
+        newErrors.salary = 'Salary must be a valid number';
       }
 
       if (!formData.workMode.trim()) {
-        newErrors.workMode = "Work Mode is required";
+        newErrors.workMode = 'Work Mode is required';
       }
 
       const qualification = formData.qualifications?.[0];
 
       if (!qualification?.degree.trim()) {
-        newErrors["qualifications.0.degree"] = "Degree is required";
+        newErrors['qualifications.0.degree'] = 'Degree is required';
       }
 
       if (!qualification?.institution.trim()) {
-        newErrors["qualifications.0.institution"] = "Institution is required";
+        newErrors['qualifications.0.institution'] = 'Institution is required';
       }
 
       if (!qualification?.yearOfCompletion) {
-        newErrors["qualifications.0.yearOfCompletion"] =
-          "Year of Completion is required";
+        newErrors['qualifications.0.yearOfCompletion'] =
+          'Year of Completion is required';
       } else if (!/^\d{4}$/.test(qualification.yearOfCompletion)) {
-        newErrors["qualifications.0.yearOfCompletion"] =
-          "Enter a valid year (e.g., 2024)";
+        newErrors['qualifications.0.yearOfCompletion'] =
+          'Enter a valid year (e.g., 2024)';
       }
     }
 
     if (step === 3) {
       if (isEditMode && !formData.status) {
-        newErrors.status = "Status is required";
+        newErrors.status = 'Status is required';
       }
 
       if (!formData.address?.city?.trim()) {
-        newErrors["address.city"] = "City is required";
+        newErrors['address.city'] = 'City is required';
       }
 
       if (!formData.address?.state?.trim()) {
-        newErrors["address.state"] = "State is required";
+        newErrors['address.state'] = 'State is required';
       }
 
       if (!formData.address?.country?.trim()) {
-        newErrors["address.country"] = "Country is required";
+        newErrors['address.country'] = 'Country is required';
       }
 
       if (
         formData.address?.zipCode &&
         !/^\d{5,6}(-\d{5,6})?$/.test(formData.address.zipCode)
       ) {
-        newErrors["address.zipCode"] = "Invalid ZIP code format";
+        newErrors['address.zipCode'] = 'Invalid ZIP code format';
       }
     }
 
@@ -176,21 +176,21 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   const handleNext = () => {
     const validation = validateStep(currentStep);
     if (validation.isValid) {
-      setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
+      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
 
-      const stepErrors = Object.keys(validation.errors).filter((key) =>
-        key.startsWith(`step${currentStep}`),
+      const stepErrors = Object.keys(validation.errors).filter(key =>
+        key.startsWith(`step${currentStep}`)
       );
       const newErrors = { ...errors };
-      stepErrors.forEach((key) => delete newErrors[key]);
+      stepErrors.forEach(key => delete newErrors[key]);
       setErrors(newErrors);
     } else {
       setErrors({ ...errors, ...validation.errors });
-      toast.error("Please fix the errors before proceeding");
+      toast.error('Please fix the errors before proceeding');
     }
   };
 
-  const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
+  const handlePrev = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -203,16 +203,16 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       try {
         const imageUrl = await uploadToCloudinary(file);
 
-        handleChange(imageUrl, "profilePicture");
+        handleChange(imageUrl, 'profilePicture');
         setImagePreview(imageUrl);
       } catch (error) {
-        let errorMessage = "Image upload failed";
+        let errorMessage = 'Image upload failed';
         if (error instanceof Error) {
           errorMessage = error.message;
         }
         toast.error(errorMessage);
         setImagePreview(previousImage || null);
-        if (!previousImage) handleChange("", "profilePicture");
+        if (!previousImage) handleChange('', 'profilePicture');
       } finally {
         setIsUploading(false);
 
@@ -243,7 +243,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       handleSubmit(true);
     } else {
       setErrors(allErrors);
-      toast.error("Please fix all errors before submitting");
+      toast.error('Please fix all errors before submitting');
       handleSubmit(false);
     }
   };
@@ -255,8 +255,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <div
             className={`w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-2 ${
               errors.profilePicture
-                ? "border-red-500"
-                : "border-dashed border-gray-300"
+                ? 'border-red-500'
+                : 'border-dashed border-gray-300'
             }`}
           >
             {isUploading ? (
@@ -267,7 +267,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 alt="Preview"
                 className="w-full h-full object-cover"
                 onLoad={() => {
-                  if (imagePreview.startsWith("blob:")) {
+                  if (imagePreview.startsWith('blob:')) {
                     URL.revokeObjectURL(imagePreview);
                   }
                 }}
@@ -298,8 +298,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             placeholder="Name"
             name="name"
             value={formData.name}
-            onChange={(e) => handleChange(e.target.value, "name")}
-            className={errors.name ? "border-red-500" : ""}
+            onChange={e => handleChange(e.target.value, 'name')}
+            className={errors.name ? 'border-red-500' : ''}
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -312,8 +312,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             type="email"
             value={formData.email}
             readOnly={isEditMode}
-            onChange={(e) => handleChange(e.target.value, "email")}
-            className={`${errors.email ? "border-red-500" : ""} ${isEditMode ? "bg-gray-100" : ""}`}
+            onChange={e => handleChange(e.target.value, 'email')}
+            className={`${errors.email ? 'border-red-500' : ''} ${isEditMode ? 'bg-gray-100' : ''}`}
           />
           {isEditMode && (
             <p className="text-gray-500 text-sm mt-1">
@@ -332,8 +332,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             placeholder="Mobile"
             name="mobile"
             value={formData.mobile}
-            onChange={(e) => handleChange(e.target.value, "mobile")}
-            className={errors.mobile ? "border-red-500" : ""}
+            onChange={e => handleChange(e.target.value, 'mobile')}
+            className={errors.mobile ? 'border-red-500' : ''}
           />
           {errors.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
@@ -342,7 +342,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
         <div>
           <Select
             value={formData.gender}
-            onValueChange={(value) => handleChange(value, "gender")}
+            onValueChange={value => handleChange(value, 'gender')}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Gender" />
@@ -368,10 +368,10 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <Input
             type="date"
             name="dob"
-            value={formData.dob || ""}
-            onChange={(e) => handleChange(e.target.value, "dob")}
-            max={new Date().toISOString().split("T")[0]}
-            className={errors.dob ? "border-red-500" : ""}
+            value={formData.dob || ''}
+            onChange={e => handleChange(e.target.value, 'dob')}
+            max={new Date().toISOString().split('T')[0]}
+            className={errors.dob ? 'border-red-500' : ''}
           />
           {errors.dob && (
             <p className="text-red-500 text-sm mt-1">{errors.dob}</p>
@@ -381,9 +381,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <div className="text-sm text-gray-500 mb-2">Select Role</div>
           <Select
             value={formData.role}
-            onValueChange={(value) => handleChange(value, "role")}
+            onValueChange={value => handleChange(value, 'role')}
           >
-            <SelectTrigger className={errors.role ? "border-red-500" : ""}>
+            <SelectTrigger className={errors.role ? 'border-red-500' : ''}>
               <SelectValue placeholder="Select Role" />
             </SelectTrigger>
             <SelectContent>
@@ -409,15 +409,15 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
         <div>
           <Select
             value={formData.department}
-            onValueChange={(value) => handleChange(value, "department")}
+            onValueChange={value => handleChange(value, 'department')}
           >
             <SelectTrigger
-              className={errors.department ? "border-red-500" : ""}
+              className={errors.department ? 'border-red-500' : ''}
             >
               <SelectValue placeholder="Select Department" />
             </SelectTrigger>
             <SelectContent>
-              {departments.map((dept) => (
+              {departments.map(dept => (
                 <SelectItem key={dept._id} value={dept._id}>
                   {dept.name}
                 </SelectItem>
@@ -434,8 +434,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             placeholder="Position"
             name="position"
             value={formData.position}
-            onChange={(e) => handleChange(e.target.value, "position")}
-            className={errors.position ? "border-red-500" : ""}
+            onChange={e => handleChange(e.target.value, 'position')}
+            className={errors.position ? 'border-red-500' : ''}
           />
           {errors.position && (
             <p className="text-red-500 text-sm mt-1">{errors.position}</p>
@@ -450,9 +450,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             placeholder="Salary"
             name="salary"
             min={0}
-            value={formData.salary || ""}
-            onChange={(e) => handleChange(e.target.value, "salary")}
-            className={errors.salary ? "border-red-500" : ""}
+            value={formData.salary || ''}
+            onChange={e => handleChange(e.target.value, 'salary')}
+            className={errors.salary ? 'border-red-500' : ''}
           />
           {errors.salary && (
             <p className="text-red-500 text-sm mt-1">{errors.salary}</p>
@@ -461,7 +461,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
         <div>
           <Select
             value={formData.workMode}
-            onValueChange={(value) => handleChange(value, "workMode")}
+            onValueChange={value => handleChange(value, 'workMode')}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Work Mode" />
@@ -491,18 +491,18 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             <Input
               placeholder="Degree"
               name="qualifications.0.degree"
-              value={formData.qualifications?.[0]?.degree || ""}
-              onChange={(e) =>
-                handleChange(e.target.value, "qualifications.0.degree")
+              value={formData.qualifications?.[0]?.degree || ''}
+              onChange={e =>
+                handleChange(e.target.value, 'qualifications.0.degree')
               }
               className={
-                errors["qualifications.0.degree"] ? "border-red-500" : ""
+                errors['qualifications.0.degree'] ? 'border-red-500' : ''
               }
             />
-            {errors["qualifications.0.degree"] && (
+            {errors['qualifications.0.degree'] && (
               <p className="text-red-500 text-sm mt-1">
-                {" "}
-                {errors["qualifications.0.degree"]}{" "}
+                {' '}
+                {errors['qualifications.0.degree']}{' '}
               </p>
             )}
           </div>
@@ -510,18 +510,18 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             <Input
               placeholder="Institution"
               name="qualifications.0.institution"
-              value={formData.qualifications?.[0]?.institution || ""}
-              onChange={(e) =>
-                handleChange(e.target.value, "qualifications.0.institution")
+              value={formData.qualifications?.[0]?.institution || ''}
+              onChange={e =>
+                handleChange(e.target.value, 'qualifications.0.institution')
               }
               className={
-                errors["qualifications.0.institution"] ? "border-red-500" : ""
+                errors['qualifications.0.institution'] ? 'border-red-500' : ''
               }
             />
-            {errors["qualifications.0.institution"] && (
+            {errors['qualifications.0.institution'] && (
               <p className="text-red-500 text-sm mt-1">
-                {" "}
-                {errors["qualifications.0.institution"]}{" "}
+                {' '}
+                {errors['qualifications.0.institution']}{' '}
               </p>
             )}
           </div>
@@ -530,23 +530,23 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
               type="number"
               placeholder="Year of Completion"
               name="qualifications.0.yearOfCompletion"
-              value={formData.qualifications?.[0]?.yearOfCompletion || ""}
-              onChange={(e) =>
+              value={formData.qualifications?.[0]?.yearOfCompletion || ''}
+              onChange={e =>
                 handleChange(
                   e.target.value,
-                  "qualifications.0.yearOfCompletion",
+                  'qualifications.0.yearOfCompletion'
                 )
               }
               className={
-                errors["qualifications.0.yearOfCompletion"]
-                  ? "border-red-500"
-                  : ""
+                errors['qualifications.0.yearOfCompletion']
+                  ? 'border-red-500'
+                  : ''
               }
             />
-            {errors["qualifications.0.yearOfCompletion"] && (
+            {errors['qualifications.0.yearOfCompletion'] && (
               <p className="text-red-500 text-sm mt-1">
-                {" "}
-                {errors["qualifications.0.yearOfCompletion"]}{" "}
+                {' '}
+                {errors['qualifications.0.yearOfCompletion']}{' '}
               </p>
             )}
           </div>
@@ -564,13 +564,13 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             <Input
               placeholder="City"
               name="address.city"
-              value={formData.address?.city || ""}
-              onChange={(e) => handleChange(e.target.value, "address.city")}
-              className={errors["address.city"] ? "border-red-500" : ""}
+              value={formData.address?.city || ''}
+              onChange={e => handleChange(e.target.value, 'address.city')}
+              className={errors['address.city'] ? 'border-red-500' : ''}
             />
-            {errors["address.city"] && (
+            {errors['address.city'] && (
               <p className="text-red-500 text-sm mt-1">
-                {errors["address.city"]}
+                {errors['address.city']}
               </p>
             )}
           </div>
@@ -578,24 +578,24 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             <Input
               placeholder="State"
               name="address.state"
-              value={formData.address?.state || ""}
-              onChange={(e) => handleChange(e.target.value, "address.state")}
-              className={errors["address.state"] ? "border-red-500" : ""}
+              value={formData.address?.state || ''}
+              onChange={e => handleChange(e.target.value, 'address.state')}
+              className={errors['address.state'] ? 'border-red-500' : ''}
             />
-            {errors["address.state"] && (
+            {errors['address.state'] && (
               <p className="text-red-500 text-sm mt-1">
-                {errors["address.state"]}
+                {errors['address.state']}
               </p>
             )}
           </div>
 
           <div>
             <Select
-              value={formData.address?.country || ""}
-              onValueChange={(value) => handleChange(value, "address.country")}
+              value={formData.address?.country || ''}
+              onValueChange={value => handleChange(value, 'address.country')}
             >
               <SelectTrigger
-                className={errors["address.country"] ? "border-red-500" : ""}
+                className={errors['address.country'] ? 'border-red-500' : ''}
               >
                 <SelectValue placeholder="Select your Country" />
               </SelectTrigger>
@@ -623,9 +623,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 </SelectItem>
               </SelectContent>
             </Select>
-            {errors["address.country"] && (
+            {errors['address.country'] && (
               <p className="text-red-500 text-sm mt-1">
-                {errors["address.country"]}
+                {errors['address.country']}
               </p>
             )}
           </div>
@@ -633,13 +633,13 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
             <Input
               placeholder="ZIP Code"
               name="address.zipCode"
-              value={formData.address?.zipCode || ""}
-              onChange={(e) => handleChange(e.target.value, "address.zipCode")}
-              className={errors["address.zipCode"] ? "border-red-500" : ""}
+              value={formData.address?.zipCode || ''}
+              onChange={e => handleChange(e.target.value, 'address.zipCode')}
+              className={errors['address.zipCode'] ? 'border-red-500' : ''}
             />
-            {errors["address.zipCode"] && (
+            {errors['address.zipCode'] && (
               <p className="text-red-500 text-sm mt-1">
-                {errors["address.zipCode"]}
+                {errors['address.zipCode']}
               </p>
             )}
           </div>
@@ -649,7 +649,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       {isEditMode && (
         <Select
           value={formData.status}
-          onValueChange={(value) => handleChange(value, "status")}
+          onValueChange={value => handleChange(value, 'status')}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select Status" />
@@ -668,7 +668,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditMode ? "Edit Employee" : "Add New Employee"}
+            {isEditMode ? 'Edit Employee' : 'Add New Employee'}
           </DialogTitle>
         </DialogHeader>
 
@@ -677,11 +677,11 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <div className="absolute top-0 w-full">
             <div className="flex justify-center mb-4">
               <div className="flex items-center space-x-2">
-                {[1, 2, 3].map((step) => (
+                {[1, 2, 3].map(step => (
                   <React.Fragment key={step}>
                     <div
                       className={`w-3 h-3 rounded-full ${
-                        step <= currentStep ? "bg-primary" : "bg-gray-200"
+                        step <= currentStep ? 'bg-primary' : 'bg-gray-200'
                       }`}
                     />
                     {step < 3 && <div className="w-8 h-0.5 bg-gray-200" />}
@@ -694,8 +694,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <form
             onSubmit={handleFormSubmit}
             className="mt-8"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
                 if (currentStep !== totalSteps) {
                   e.preventDefault();
                   handleNext();
@@ -714,7 +714,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 onClick={currentStep === 1 ? handleCloseModal : handlePrev}
               >
                 {currentStep === 1 ? (
-                  "Cancel"
+                  'Cancel'
                 ) : (
                   <>
                     <ChevronLeft className="w-4 h-4 mr-2" />
@@ -733,12 +733,12 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {isEditMode ? "Updating..." : "Saving..."}
+                      {isEditMode ? 'Updating...' : 'Saving...'}
                     </>
                   ) : isEditMode ? (
-                    "Update Employee"
+                    'Update Employee'
                   ) : (
-                    "Save Employee"
+                    'Save Employee'
                   )}
                 </Button>
               )}

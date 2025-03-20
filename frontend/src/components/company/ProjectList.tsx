@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Calendar,
   ChevronLeft,
@@ -6,45 +6,44 @@ import {
   Search,
   Clock,
   Users,
-  ListTodo,
   AlertCircle,
   BadgeInfo,
   CheckCircle,
   BarChart2,
   ArrowRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+} from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ProjectController } from "@/controllers/employee/project.controller";
-import { IProject } from "@/types/IProject";
-import { useDebounce } from "@/hooks/useDebounce";
-import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+} from '@/components/ui/select';
+import { ProjectController } from '@/controllers/employee/project.controller';
+import { IProject } from '@/types/IProject';
+import { useDebounce } from '@/hooks/useDebounce';
+import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 const ProjectList = () => {
   const navigate = useNavigate();
 
   const [projects, setProjects] = useState<IProject[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
   const projectsPerPage = 6;
 
   const debouncedSearch = useDebounce(searchQuery, 500);
@@ -57,15 +56,15 @@ const ProjectList = () => {
           page: currentPage,
           limit: projectsPerPage,
           search: debouncedSearch,
-          status: selectedStatus !== "all" ? selectedStatus : undefined,
+          status: selectedStatus !== 'all' ? selectedStatus : undefined,
           department:
-            selectedDepartment !== "all" ? selectedDepartment : undefined,
+            selectedDepartment !== 'all' ? selectedDepartment : undefined,
         });
-        console.log('data',data)
+        console.log('data', data);
         setProjects(data);
         setTotalPages(totalPages);
       } catch (error) {
-        console.error("Error loading projects:", error);
+        console.error('Error loading projects:', error);
       } finally {
         setIsLoading(false);
       }
@@ -78,39 +77,38 @@ const ProjectList = () => {
       [key: string]: { color: string; bgColor: string; icon: JSX.Element };
     } = {
       Completed: {
-        color: "text-green-700",
-        bgColor: "bg-green-50",
+        color: 'text-green-700',
+        bgColor: 'bg-green-50',
         icon: <CheckCircle className="w-4 h-4" />,
       },
-      "In Progress": {
-        color: "text-blue-700",
-        bgColor: "bg-blue-50",
+      'In Progress': {
+        color: 'text-blue-700',
+        bgColor: 'bg-blue-50',
         icon: <BadgeInfo className="w-4 h-4" />,
       },
       Pending: {
-        color: "text-yellow-700",
-        bgColor: "bg-yellow-50",
+        color: 'text-yellow-700',
+        bgColor: 'bg-yellow-50',
         icon: <AlertCircle className="w-4 h-4" />,
       },
     };
     return (
       statusMap[status] || {
-        color: "text-gray-700",
-        bgColor: "bg-gray-50",
+        color: 'text-gray-700',
+        bgColor: 'bg-gray-50',
         icon: <AlertCircle className="w-4 h-4" />,
       }
     );
   };
 
   const calculateProgress = (project: IProject) => {
-    if (project.status === "Completed") return 100;
+    if (project.status === 'Completed') return 100;
     if (project.totalTasks && project.totalTasks > 0) {
       return ((project.completedTasks || 0) / project.totalTasks) * 100;
     }
 
-  
     if (!project.deadline || !project.createdAt) return 0;
-    if (project.status === "Completed") return 100;
+    if (project.status as 'Completed') return 100;
 
     const start = new Date(project.createdAt).getTime();
     const end = new Date(project.deadline).getTime();
@@ -149,7 +147,7 @@ const ProjectList = () => {
               <Input
                 placeholder="Search projects..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="pl-10 h-12 text-lg border-gray-200 focus:border-indigo-500 rounded-lg"
               />
             </div>
@@ -170,7 +168,7 @@ const ProjectList = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {projects.map((project) => {
+          {projects.map(project => {
             const statusDetails = getStatusDetails(project.status);
             const progress = calculateProgress(project);
             const isOverdue =
@@ -191,9 +189,9 @@ const ProjectList = () => {
                       </h3>
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
+                          'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium',
                           statusDetails.color,
-                          statusDetails.bgColor,
+                          statusDetails.bgColor
                         )}
                       >
                         {statusDetails.icon}
@@ -202,15 +200,19 @@ const ProjectList = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      {project.department?.name && (
-                        <span className="text-sm font-medium px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">
-                          {project.department.name}
-                        </span>
+                    {project.department && (
+  <span className="text-sm font-medium px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">
+    {typeof project.department === 'object' 
+      ? project.department.name 
+      : project.department}
+  </span>
                       )}
-                      {project.manager && (
-                        <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-50 text-blue-700">
-                          👤 {project.manager.name}
-                        </span>
+                     {project.manager && (
+  <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-50 text-blue-700">
+    👤 {typeof project.manager === 'object' 
+      ? project.manager.name 
+      : project.manager}
+  </span>
                       )}
                     </div>
 
@@ -230,10 +232,11 @@ const ProjectList = () => {
                         </div>
                         <Progress
                           value={progress}
-                          className="h-2 bg-gray-100"
-                          indicatorClassName={cn(
-                            "transition-all",
-                            progress === 100 ? "bg-green-500" : "bg-indigo-500",
+                          className={cn(
+                            'h-2 bg-gray-100 [&>div]:transition-all',
+                            progress === 100
+                              ? '[&>div]:bg-green-500'
+                              : '[&>div]:bg-indigo-500'
                           )}
                         />
                       </div>
@@ -245,16 +248,14 @@ const ProjectList = () => {
                             {project.employees?.length || 0}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                   
-                        </div>
+                        <div className="flex items-center gap-2 text-gray-600"></div>
                         {project.deadline && (
                           <div className="flex items-center gap-2 justify-end">
                             <Clock className="w-4 h-4" />
                             <span
                               className={cn(
-                                "text-sm font-medium",
-                                isOverdue ? "text-red-600" : "text-gray-600",
+                                'text-sm font-medium',
+                                isOverdue ? 'text-red-600' : 'text-gray-600'
                               )}
                             >
                               {new Date(project.deadline).toLocaleDateString()}
@@ -309,7 +310,7 @@ const ProjectList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="min-w-[100px] gap-2"
               >
@@ -318,9 +319,7 @@ const ProjectList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="min-w-[100px] gap-2"
               >

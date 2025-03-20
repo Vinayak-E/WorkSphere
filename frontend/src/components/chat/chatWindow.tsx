@@ -1,12 +1,18 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Send, MessageSquare, PlusCircle, CheckCheck } from "lucide-react";
-import MediaUpload from "./MediaUpload";
-import GroupMembersModal from "./GroupMembersModal";
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Send, MessageSquare, PlusCircle, CheckCheck } from 'lucide-react';
+import MediaUpload from './MediaUpload';
+import GroupMembersModal from './GroupMembersModal';
+import {
+  ChatWindowProps,
+  IChat,
+  IMessage,
+  MediaContent,
+} from '@/types/shared/IChat';
 
-const ChatWindow = ({
+const ChatWindow: React.FC<ChatWindowProps> = ({
   socket,
   selectedChat,
   setSelectedChat,
@@ -15,33 +21,31 @@ const ChatWindow = ({
   isTyping,
   messageAreaRef,
   currentUser,
-  chatService,
   onlineUsers,
   employees,
   setChats,
 }) => {
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState<string>('');
   const [showMediaUpload, setShowMediaUpload] = useState(false);
-  const typingTimeoutRef = useRef(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showGroupModal, setShowGroupModal] = useState(false);
 
   const handleTyping = () => {
     if (!socket || !selectedChat) return;
-    socket.emit("typing", selectedChat._id);
+    socket.emit('typing', selectedChat._id);
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("stop typing", selectedChat._id);
+      socket.emit('stop typing', selectedChat._id);
     }, 3000);
   };
   useEffect(() => {
-
     if (messageAreaRef.current) {
       const scrollContainer = messageAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]",
+        '[data-radix-scroll-area-viewport]'
       );
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
@@ -49,24 +53,24 @@ const ChatWindow = ({
     }
   }, [messages]);
 
-  const sendMessage = async (mediaContent = null) => {
+  const sendMessage = async (mediaContent: MediaContent | null = null) => {
     if ((!newMessage.trim() && !mediaContent) || !socket || !selectedChat)
       return;
 
     try {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      socket.emit("stop typing", selectedChat._id);
+      socket.emit('stop typing', selectedChat._id);
 
       const messageContent = mediaContent
         ? {
-          type: mediaContent.type,
-          content: mediaContent.type === "text" ? newMessage.trim() : "",
-          mediaUrl: mediaContent.url,
-        }
+            type: mediaContent.type,
+            content: mediaContent.type === 'text' ? newMessage.trim() : '',
+            mediaUrl: mediaContent.url,
+          }
         : {
-          type: "text",
-          content: newMessage,
-        };
+            type: 'text',
+            content: newMessage,
+          };
 
       const tempId = Date.now().toString();
       const payload = {
@@ -77,54 +81,56 @@ const ChatWindow = ({
         tempId,
       };
 
-      const messageToAdd = {
+      const messageToAdd: IMessage = {
         ...messageContent,
         sender: {
           _id: currentUser.userData._id,
           name: currentUser.userData.name,
         },
-        chat: selectedChat._id,
+        chat: selectedChat,
         createdAt: new Date().toISOString(),
         isRead: false,
         _id: tempId,
       };
 
-      setMessages((prev) => [...prev, messageToAdd]);
+      setMessages(prev => [...prev, messageToAdd]);
 
-      socket.emit("new message", payload, (savedMessage) => {
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) =>
+      socket.emit('new message', payload, (savedMessage: IMessage) => {
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
             msg._id === tempId
               ? { ...savedMessage, sender: currentUser.userData }
-              : msg,
-          ),
+              : msg
+          )
         );
       });
 
-      setNewMessage("");
+      setNewMessage('');
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error('Error sending message:', error);
     }
   };
 
-  const handleMediaSelect = async (mediaContent) => {
+  const handleMediaSelect = async (mediaContent: MediaContent) => {
     await sendMessage(mediaContent);
     setShowMediaUpload(false);
   };
-  const getSenderId = (msg) => msg.sender?.senderId?._id || msg.sender?._id;
-  const getSenderName = (msg) => msg.sender?.senderId?.name || msg.sender?.name;
+  const getSenderId = (msg: IMessage) =>
+    msg.sender?.senderId?._id || msg.sender?._id;
+  const getSenderName = (msg: IMessage) =>
+    msg.sender?.senderId?.name || msg.sender?.name;
 
   const markMessagesAsRead = useCallback(() => {
     if (!selectedChat || !currentUser || !socket) return;
     if (!selectedChat.isGroupChat) {
       const unreadMessages = messages.filter(
-        (msg) => getSenderId(msg) !== currentUser.userData._id && !msg.isRead,
+        msg => getSenderId(msg) !== currentUser.userData._id && !msg.isRead
       );
       if (unreadMessages.length > 0) {
-        unreadMessages.forEach((msg) => {
+        unreadMessages.forEach(msg => {
           if (!msg._beingMarkedAsRead) {
             msg._beingMarkedAsRead = true;
-            socket.emit("message read", {
+            socket.emit('message read', {
               messageId: msg._id,
               chatId: selectedChat._id,
               tenantId: currentUser.tenantId,
@@ -138,17 +144,25 @@ const ChatWindow = ({
   useEffect(() => {
     if (!socket) return;
 
-    const handleMessageReadUpdate = ({ messageId, isRead, chatId }) => {
+    const handleMessageReadUpdate = ({
+      messageId,
+      isRead,
+      chatId,
+    }: {
+      messageId: string;
+      isRead: boolean;
+      chatId: string;
+    }) => {
       if (selectedChat && selectedChat._id === chatId) {
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg._id === messageId ? { ...msg, isRead } : msg,
-          ),
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
+            msg._id === messageId ? { ...msg, isRead } : msg
+          )
         );
       }
 
-      setChats((prevChats) =>
-        prevChats.map((chat) => {
+      setChats(prevChats =>
+        prevChats.map(chat => {
           if (
             chat._id === chatId &&
             chat.latestMessage &&
@@ -163,15 +177,14 @@ const ChatWindow = ({
             };
           }
           return chat;
-        }),
+        })
       );
-      console.log("chat latest", chat.latestMessage);
     };
 
-    socket.on("message read update", handleMessageReadUpdate);
+    socket.on('message read update', handleMessageReadUpdate);
 
     return () => {
-      socket.off("message read update", handleMessageReadUpdate);
+      socket.off('message read update', handleMessageReadUpdate);
     };
   }, [socket, selectedChat, setChats, setMessages]);
   useEffect(() => {
@@ -186,7 +199,6 @@ const ChatWindow = ({
     }
   }, [selectedChat, messages, markMessagesAsRead]);
 
-
   useEffect(() => {
     if (selectedChat && !selectedChat.isGroupChat) {
       const timer = setTimeout(() => {
@@ -196,22 +208,22 @@ const ChatWindow = ({
       return () => clearTimeout(timer);
     }
   }, [messages.length, selectedChat, markMessagesAsRead]);
-  const fixedSize = "w-80 h-60";
+  const fixedSize = 'w-80 h-60';
 
-  const renderMessage = (msg) => {
-    if (msg.type === "image") {
+  const renderMessage = (msg: IMessage) => {
+    if (msg.type === 'image') {
       return (
         <img
-          src={msg.mediaUrl}
+          src={msg.mediaUrl ?? undefined}
           alt="Shared image"
           className={`${fixedSize} object-cover rounded-lg border-2 border-blue-500 cursor-pointer`}
-          onClick={() => window.open(msg.mediaUrl, "_blank")}
+          onClick={() => window.open(msg.mediaUrl ?? '', '_blank')}
         />
       );
-    } else if (msg.type === "video") {
+    } else if (msg.type === 'video') {
       return (
         <video
-          src={msg.mediaUrl}
+          src={msg.mediaUrl ?? undefined}
           className={`${fixedSize} object-cover rounded-lg border-2 border-blue-500`}
           controls
         />
@@ -223,78 +235,76 @@ const ChatWindow = ({
   const otherUser =
     selectedChat && !selectedChat.isGroupChat
       ? selectedChat.users.find(
-        (user) =>
-          String(user.userId._id || user._id) !==
-          String(currentUser.userData._id),
-      )
+          user =>
+            String(user.userId._id || user._id) !==
+            String(currentUser.userData._id)
+        )
       : null;
 
   const isOnline =
     otherUser && onlineUsers
       ? onlineUsers.includes(otherUser.userId._id)
       : false;
-  ////////////////////////////////////////////////////////////////////////////
-  const handleAddMember = async (userId) => {
+
+  const handleAddMember = async (userId: string) => {
     try {
       if (!socket || !selectedChat) return;
 
-      socket.emit("add group member", {
+      socket.emit('add group member', {
         chatId: selectedChat._id,
         userId: userId,
         tenantId: currentUser.tenantId,
       });
     } catch (error) {
-      console.error("Error adding member:", error);
+      console.error('Error adding member:', error);
     }
   };
 
-  const handleRemoveMember = async (userId) => {
+  const handleRemoveMember = async (userId: string) => {
     try {
       if (!socket || !selectedChat) return;
 
-      socket.emit("remove group member", {
+      socket.emit('remove group member', {
         chatId: selectedChat._id,
         userId: userId,
         tenantId: currentUser.tenantId,
       });
     } catch (error) {
-      console.error("Error removing member:", error);
+      console.error('Error removing member:', error);
     }
   };
-
 
   useEffect(() => {
     if (!socket) return;
 
-    const handleGroupUpdate = ({ chat, userId }) => {
-
+    const handleGroupUpdate = ({
+      chat
+    }: {
+      chat: IChat;
+      userId: string;
+    }) => {
       if (selectedChat?._id === chat._id) {
         setSelectedChat(chat);
       }
 
-      // Update the chats list
-      setChats((prevChats) =>
-        prevChats.map((prevChat) =>
-          prevChat._id === chat._id ? chat : prevChat,
-        ),
+      setChats(prevChats =>
+        prevChats.map(prevChat => (prevChat._id === chat._id ? chat : prevChat))
       );
     };
 
-    socket.on("group member added", handleGroupUpdate);
-    socket.on("group member removed", handleGroupUpdate);
+    socket.on('group member added', handleGroupUpdate);
+    socket.on('group member removed', handleGroupUpdate);
 
     return () => {
-      socket.off("group member added", handleGroupUpdate);
-      socket.off("group member removed", handleGroupUpdate);
+      socket.off('group member added', handleGroupUpdate);
+      socket.off('group member removed', handleGroupUpdate);
     };
   }, [socket, selectedChat, setChats]);
 
-  ////////////////////////////////////////////////////////////////////////////
   return (
     <div className="flex-1 flex flex-col bg-gray-50">
       {selectedChat ? (
         <>
-          {/* Chat Header */}
           <div className="p-4 bg-white border-b shadow-sm">
             <div className="flex items-center">
               <div className="relative">
@@ -308,22 +318,24 @@ const ChatWindow = ({
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
-                    otherUser?.userId.name?.[0] || "?"
+                    otherUser?.userId.name?.[0] || '?'
                   )}
                 </div>
                 {!selectedChat.isGroupChat && (
                   <span
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"
-                      }`}
+                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                      isOnline ? 'bg-green-500' : 'bg-gray-400'
+                    }`}
                   ></span>
                 )}
               </div>
               <div className="ml-3">
                 <div
-                  className={`font-semibold text-gray-900 ${selectedChat.isGroupChat
-                    ? "cursor-pointer hover:text-blue-500"
-                    : ""
-                    }`}
+                  className={`font-semibold text-gray-900 ${
+                    selectedChat.isGroupChat
+                      ? 'cursor-pointer hover:text-blue-500'
+                      : ''
+                  }`}
                   onClick={() => {
                     if (selectedChat.isGroupChat) {
                       setShowGroupModal(true);
@@ -344,7 +356,7 @@ const ChatWindow = ({
               </div>
             </div>
           </div>
-          {/* Messages Area */}
+
           <ScrollArea
             className="flex-1 p-4"
             ref={messageAreaRef}
@@ -361,41 +373,43 @@ const ChatWindow = ({
                 return (
                   <div
                     key={msg._id || index}
-                    className={`flex items-end gap-2 ${isSender ? "justify-end" : "justify-start"}`}
+                    className={`flex items-end gap-2 ${isSender ? 'justify-end' : 'justify-start'}`}
                   >
                     {!isSender && showAvatar && (
                       <div className="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-sm font-medium text-gray-600">
-                        {senderName?.[0] || "?"}
+                        {senderName?.[0] || '?'}
                       </div>
                     )}
                     <div
-                      className={`max-w-[70%] group relative ${!showAvatar && !isSender ? "ml-10" : ""}`}
+                      className={`max-w-[70%] group relative ${!showAvatar && !isSender ? 'ml-10' : ''}`}
                     >
                       <div
-                        className={`p-3 rounded-2xl ${isSender
-                          ? "bg-blue-500 text-white rounded-br-none"
-                          : "bg-white text-gray-900 rounded-bl-none shadow-sm"
-                          }`}
+                        className={`p-3 rounded-2xl ${
+                          isSender
+                            ? 'bg-blue-500 text-white rounded-br-none'
+                            : 'bg-white text-gray-900 rounded-bl-none shadow-sm'
+                        }`}
                       >
                         {renderMessage(msg)}
                       </div>
                       <div
-                        className={`text-xs mt-1 flex items-center gap-1 ${isSender ? "justify-end" : "justify-start"}`}
+                        className={`text-xs mt-1 flex items-center gap-1 ${isSender ? 'justify-end' : 'justify-start'}`}
                       >
                         <span className="text-gray-500">
                           {new Date(msg.createdAt).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
+                            hour: '2-digit',
+                            minute: '2-digit',
                           })}
                         </span>
                         {isSender && (
                           <CheckCheck
-                            className={`h-3 w-3 ${selectedChat.isGroupChat
-                              ? "text-gray-400"
-                              : msg.isRead
-                                ? "text-blue-400"
-                                : "text-gray-400"
-                              }`}
+                            className={`h-3 w-3 ${
+                              selectedChat.isGroupChat
+                                ? 'text-gray-400'
+                                : msg.isRead
+                                  ? 'text-blue-400'
+                                  : 'text-gray-400'
+                            }`}
                           />
                         )}
                       </div>
@@ -419,10 +433,10 @@ const ChatWindow = ({
               </Button>
               <Input
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => {
+                onChange={e => setNewMessage(e.target.value)}
+                onKeyDown={e => {
                   handleTyping();
-                  if (e.key === "Enter" && !e.shiftKey) {
+                  if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
                   }

@@ -1,4 +1,4 @@
-import { ProjectService } from "@/services/employee/project.service";
+import { ProjectService } from "@/services/project.service";
 import { toast } from "react-hot-toast";
 import { TaskFormData, projectSchema, taskSchema } from "@/utils/validations";
 import { ICreateProject, IProject, ProjectQueryParams } from "@/types/IProject";
@@ -124,5 +124,8 @@ export class ProjectController {
       this.handleError(error, "update task");
       throw error;
     }
+  }
+  static async updateProjectStatus(projectId, status) {
+    return ProjectService.updateProjectStatus(projectId, status);
   }
 }
