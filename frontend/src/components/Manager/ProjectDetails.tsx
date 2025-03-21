@@ -1,25 +1,25 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ScaleLoader } from "react-spinners";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectService } from "@/services/project.service";
-import { IProject, ITask } from "@/types/IProject";
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ScaleLoader } from 'react-spinners';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProjectService } from '@/services/project.service';
+import { IProject, ITask } from '@/types/IProject';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Users,
   Clock,
@@ -27,14 +27,17 @@ import {
   ListChecks,
   PlusCircle,
   Pencil,
-} from "lucide-react";
-import { ProjectController } from "@/controllers/employee/project.controller";
+} from 'lucide-react';
+import { ProjectController } from '@/controllers/employee/project.controller';
+import { IEmployee } from '@/types/IEmployee';
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<IProject | null>(null);
-  const [departmentEmployees, setDepartmentEmployees] = useState([]);
+  const [departmentEmployees, setDepartmentEmployees] = useState<IEmployee[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -43,29 +46,29 @@ const ProjectDetails = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-    assignee: "",
-    deadline: "",
+    title: '',
+    description: '',
+    assignee: '',
+    deadline: '',
   });
   const [editTask, setEditTask] = useState({
-    title: "",
-    description: "",
-    assignee: "",
-    deadline: "",
+    title: '',
+    description: '',
+    assignee: '',
+    deadline: '',
   });
 
   useEffect(() => {
     const loadProject = async () => {
       try {
         const response = await ProjectService.getProjectById(id!);
-        console.log("response", response);
+        console.log('response', response);
         setProject(response.data);
         setDepartmentEmployees(response.data.departmentEmployees);
         setTasks(response.data.tasks);
       } catch (error) {
-        console.error("Error loading project:", error);
-        navigate("/employee/projects");
+        console.error('Error loading project:', error);
+        navigate('/employee/projects');
       } finally {
         setIsLoading(false);
       }
@@ -79,13 +82,13 @@ const ProjectDetails = () => {
         id!,
         newTask
       )) as ITask;
-      setTasks((prevTasks) => [...prevTasks, createdTask]);
+      setTasks(prevTasks => [...prevTasks, createdTask]);
       setIsCreateDialogOpen(false);
       setNewTask({
-        title: "",
-        description: "",
-        assignee: "",
-        deadline: "",
+        title: '',
+        description: '',
+        assignee: '',
+        deadline: '',
       });
       setFormErrors({});
     } catch (error: any) {
@@ -97,7 +100,7 @@ const ProjectDetails = () => {
         });
         setFormErrors(newErrors);
       } catch {
-        console.error("Error saving project:", error);
+        console.error('Error saving project:', error);
       }
     }
   };
@@ -108,24 +111,23 @@ const ProjectDetails = () => {
       title: task.title,
       description: task.description,
       assignee:
-        typeof task.assignee === "object" ? task.assignee._id : task.assignee,
-      deadline: new Date(task.deadline).toISOString().split("T")[0],
+        typeof task.assignee === 'object' ? task.assignee._id : task.assignee,
+      deadline: new Date(task.deadline).toISOString().split('T')[0],
     });
     setFormErrors({});
     setIsEditDialogOpen(true);
   };
 
   const handleUpdateTask = async () => {
-    if (!selectedTask) return;
-
+    if (!selectedTask || !selectedTask._id) return;
     try {
       const updatedTask = (await ProjectController.updateTask(
         id!,
         selectedTask._id,
         editTask
       )) as ITask;
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
           task._id === selectedTask._id ? updatedTask : task
         )
       );
@@ -141,7 +143,7 @@ const ProjectDetails = () => {
         });
         setFormErrors(newErrors);
       } catch {
-        console.error("Error updating task:", error);
+        console.error('Error updating task:', error);
       }
     }
   };
@@ -190,8 +192,8 @@ const ProjectDetails = () => {
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-gray-600" />
               <span className="font-medium">
-                Deadline:{" "}
-                {new Date(project.deadline).toLocaleDateString("en-GB")}
+                Deadline:{' '}
+                {new Date(project.deadline).toLocaleDateString('en-GB')}
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -212,11 +214,11 @@ const ProjectDetails = () => {
             <div className="flex items-center gap-3">
               <span
                 className={`px-3 py-1 rounded-full text-sm ${
-                  project.status === "Completed"
-                    ? "bg-green-100 text-green-800"
-                    : project.status === "In Progress"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-800"
+                  project.status === 'Completed'
+                    ? 'bg-green-100 text-green-800'
+                    : project.status === 'In Progress'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-gray-100 text-gray-800'
                 }`}
               >
                 Status: {project.status}
@@ -227,7 +229,7 @@ const ProjectDetails = () => {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {tasks?.map((task) => (
+        {tasks?.map(task => (
           <Card key={task._id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-2">
@@ -244,25 +246,25 @@ const ProjectDetails = () => {
               <p className="text-gray-600 text-sm mb-4">{task.description}</p>
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>
-                  Assigned to:{" "}
-                  {typeof task.assignee === "object"
+                  Assigned to:{' '}
+                  {typeof task.assignee === 'object'
                     ? task.assignee.name
                     : departmentEmployees.find(
-                        (emp: any) => emp._id === task.assignee
+                        (emp: IEmployee) => emp._id === task.assignee
                       )?.name || task.assignee}
                 </span>
                 <span>
-                  Due: {new Date(task.deadline).toLocaleDateString("en-GB")}
+                  Due: {new Date(task.deadline).toLocaleDateString('en-GB')}
                 </span>
               </div>
               <div className="mt-2">
                 <span
                   className={`px-2 py-1 rounded-full text-xs ${
-                    task.status === "Completed"
-                      ? "bg-green-100 text-green-800"
-                      : task.status === "In Progress"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-gray-100 text-gray-800"
+                    task.status === 'Completed'
+                      ? 'bg-green-100 text-green-800'
+                      : task.status === 'In Progress'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
                   }`}
                 >
                   {task.status}
@@ -276,7 +278,7 @@ const ProjectDetails = () => {
                   <ul className="mt-2 space-y-2">
                     {task.statusHistory.map((history, index) => (
                       <li key={index} className="text-sm text-gray-600">
-                        <span className="font-medium">{history.status}</span> -{" "}
+                        <span className="font-medium">{history.status}</span> -{' '}
                         {new Date(history.timestamp).toLocaleString()}
                         {history.comment && ` - ${history.comment}`}
                       </li>
@@ -292,7 +294,7 @@ const ProjectDetails = () => {
       {/* Create Task Dialog */}
       <Dialog
         open={isCreateDialogOpen}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           setIsCreateDialogOpen(open);
           if (!open) setFormErrors({});
         }}
@@ -306,7 +308,7 @@ const ProjectDetails = () => {
               <Label>Task Title</Label>
               <Input
                 value={newTask.title}
-                onChange={(e) =>
+                onChange={e =>
                   setNewTask({ ...newTask, title: e.target.value })
                 }
               />
@@ -318,7 +320,7 @@ const ProjectDetails = () => {
               <Label>Description</Label>
               <Input
                 value={newTask.description}
-                onChange={(e) =>
+                onChange={e =>
                   setNewTask({ ...newTask, description: e.target.value })
                 }
               />
@@ -332,7 +334,7 @@ const ProjectDetails = () => {
               <Label>Assign To</Label>
               <Select
                 value={newTask.assignee}
-                onValueChange={(value) =>
+                onValueChange={value =>
                   setNewTask({ ...newTask, assignee: value })
                 }
               >
@@ -341,7 +343,7 @@ const ProjectDetails = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {departmentEmployees
-                    .filter((employee: any) => employee.role === "EMPLOYEE")
+                    .filter((employee: any) => employee.role === 'EMPLOYEE')
                     .map((employee: any) => (
                       <SelectItem key={employee._id} value={employee._id}>
                         {employee.name}
@@ -360,8 +362,8 @@ const ProjectDetails = () => {
               <Input
                 type="date"
                 value={newTask.deadline}
-                min={new Date().toISOString().split("T")[0]}
-                onChange={(e) =>
+                min={new Date().toISOString().split('T')[0]}
+                onChange={e =>
                   setNewTask({ ...newTask, deadline: e.target.value })
                 }
               />
@@ -381,7 +383,7 @@ const ProjectDetails = () => {
       {/* Edit Task Dialog */}
       <Dialog
         open={isEditDialogOpen}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           setIsEditDialogOpen(open);
           if (!open) setFormErrors({});
         }}
@@ -395,7 +397,7 @@ const ProjectDetails = () => {
               <Label>Task Title</Label>
               <Input
                 value={editTask.title}
-                onChange={(e) =>
+                onChange={e =>
                   setEditTask({ ...editTask, title: e.target.value })
                 }
               />
@@ -407,7 +409,7 @@ const ProjectDetails = () => {
               <Label>Description</Label>
               <Input
                 value={editTask.description}
-                onChange={(e) =>
+                onChange={e =>
                   setEditTask({ ...editTask, description: e.target.value })
                 }
               />
@@ -421,7 +423,7 @@ const ProjectDetails = () => {
               <Label>Assign To</Label>
               <Select
                 value={editTask.assignee}
-                onValueChange={(value) =>
+                onValueChange={value =>
                   setEditTask({ ...editTask, assignee: value })
                 }
               >
@@ -430,7 +432,7 @@ const ProjectDetails = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {departmentEmployees
-                    .filter((employee: any) => employee.role === "EMPLOYEE")
+                    .filter((employee: any) => employee.role === 'EMPLOYEE')
                     .map((employee: any) => (
                       <SelectItem key={employee._id} value={employee._id}>
                         {employee.name}
@@ -449,8 +451,8 @@ const ProjectDetails = () => {
               <Input
                 type="date"
                 value={editTask.deadline}
-                min={new Date().toISOString().split("T")[0]}
-                onChange={(e) =>
+                min={new Date().toISOString().split('T')[0]}
+                onChange={e =>
                   setEditTask({ ...editTask, deadline: e.target.value })
                 }
               />

@@ -10,14 +10,40 @@ import {
   XCircle,
   AlertCircle,
 } from 'lucide-react';
-import api from '@/api/axios';
 import { RootState } from '@/redux/store';
+import { CompanyService } from '@/services/company.service';
+interface Plan {
+  planName: string;
+  description: string;
+  billingCycle?: string;
+  features?: string[];
+}
 
+interface PaymentInfo {
+  status: string;
+  amount: number;
+  paymentDate?: string;
+}
+
+interface CurrentPlan {
+  isFreePlan: boolean;
+  plan: Plan;
+  payment: PaymentInfo;
+  endDate?: string;
+}
+interface Payment {
+  _id: string;
+  paymentDate: string;
+  planName: string;
+  amount: number;
+  paymentMethod: string;
+  status: string;
+}
 const CompanyTransactionsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [paymentHistory, setPaymentHistory] = useState([]);
-  const [currentPlan, setCurrentPlan] = useState(null);
+  const [paymentHistory, setPaymentHistory] = useState<Payment[]>([]);
+  const [currentPlan, setCurrentPlan] = useState<CurrentPlan | null>(null);
   const [activeTab, setActiveTab] = useState('history');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -25,55 +51,34 @@ const CompanyTransactionsDashboard = () => {
   const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
-    const fetchCurrentPlan = async () => {
+    const fetchPlan = async () => {
       try {
-        const planData = await api.get('/company/current-plan');
-        if (planData.data.data) {
-          setCurrentPlan({ ...planData.data.data, isFreePlan: false });
-        } else {
-          setCurrentPlan({
-            isFreePlan: true,
-            plan: {
-              name: 'Free Plan',
-              description: 'Basic features for getting started',
-              features: ['Limited access', 'Basic support'],
-            },
-            payment: {
-              status: user.userData.subscriptionStatus || 'Active',
-              amount: 0,
-            },
-            endDate: user.userData.subscriptionEndDate,
-          });
-        }
-      } catch (err) {
-        console.error('Error fetching current plan:', err);
+        const plan = await CompanyService.getCurrentPlan(user);
+        setCurrentPlan(plan);
+      } catch (err:any) {
         setError(err.message);
       }
     };
-    fetchCurrentPlan();
+    fetchPlan();
   }, [user]);
+
   useEffect(() => {
-    const fetchPaymentHistory = async () => {
+    const fetchHistory = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const historyData = await api.get(
-          `/company/payment-history?page=${currentPage}&limit=10`
-        );
-        console.log('history', historyData);
-        setPaymentHistory(historyData.data.data.payments || []);
-        setTotalPages(historyData.data.data.totalPages || 1);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching payment history:', err);
+        const { payments, totalPages } = await CompanyService.getPaymentHistory(currentPage);
+        setPaymentHistory(payments);
+        setTotalPages(totalPages);
+      } catch (err:any) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchPaymentHistory();
+    fetchHistory();
   }, [currentPage]);
 
-  const formatDate = dateString => {
+  const formatDate =  (dateString?: string) => {
     if (!dateString || isNaN(Date.parse(dateString))) {
       return 'N/A';
     }
@@ -85,15 +90,15 @@ const CompanyTransactionsDashboard = () => {
     }).format(date);
   };
 
-  const formatCurrency = amount => {
+  const formatCurrency =  (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
   };
 
-  const StatusBadge = ({ status }) => {
-    const getStatusConfig = status => {
+  const StatusBadge = ({ status }: { status: string }) => {
+    const getStatusConfig = (status: string)  => {
       switch (status.toLowerCase()) {
         case 'succeeded':
           return {
@@ -303,7 +308,7 @@ const CompanyTransactionsDashboard = () => {
           </div>
         )}
 
-        {activeTab === 'plan' && (
+        {activeTab === 'plan' && currentPlan &&  (
           <div>
             <h1 className="text-xl font-semibold text-gray-900 mb-4">
               Current Subscription Plan
@@ -311,7 +316,7 @@ const CompanyTransactionsDashboard = () => {
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6 bg-gray-50">
                 <h3 className="text-lg leading-6 font-medium text-gray-900 ">
-                  {currentPlan.plan.planName}
+                  {currentPlan?.plan.planName}
                 </h3>
                 <p className="mt-1 max-w-2xl text-sm text-gray-500">
                   {currentPlan.plan.description}

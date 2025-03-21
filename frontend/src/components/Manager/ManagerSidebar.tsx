@@ -61,7 +61,7 @@ export function AppSidebar() {
                           isActive
                             ? // Active styles
                               "border-l-4 border-blue-600 bg-blue-50 text-blue-700 font-medium"
-                            : // Default & hover
+                            : 
                               "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                         }
                       `}

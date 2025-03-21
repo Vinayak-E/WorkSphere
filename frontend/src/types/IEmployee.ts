@@ -34,6 +34,8 @@ export interface IEmployee {
   address: Address;
   qualifications: Qualification[];
   companyName:string;
+  subscriptionEndDate?:string;
+  subscriptionStatus?:string;
 }
 
 export interface AuthState {

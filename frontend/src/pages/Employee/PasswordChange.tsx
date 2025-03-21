@@ -18,7 +18,6 @@ const PasswordChange: React.FC = () => {
     confirmPassword: "",
   });
   const { user } = useSelector((state: RootState) => state.auth);
-  console.log("user details from ", user);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -34,6 +33,7 @@ const PasswordChange: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      if(!user)return
       const response = await api.post("/employee/changePassword", {
         email: user.email,
         newPassword: formState.newPassword,

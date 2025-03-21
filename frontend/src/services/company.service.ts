@@ -138,4 +138,50 @@ export class CompanyService {
     return response.data.data;
   }
 
+
+  static async getCurrentPlan(user: any) {
+    try {
+      const response = await api.get('/company/current-plan', {
+        withCredentials: true,
+      });
+      if (response.data.data) {
+        return { ...response.data.data, isFreePlan: false };
+      } else {
+        return {
+          isFreePlan: true,
+          plan: {
+            planName: 'Free Plan',
+            description: 'Basic features for getting started',
+            features: ['Limited access', 'Basic support'],
+          },
+          payment: {
+            status: user?.userData?.subscriptionStatus || 'Active',
+            amount: 0,
+          },
+          endDate: user?.userData?.subscriptionEndDate,
+        };
+      }
+    } catch (error: any) {
+      console.error('Error fetching current plan:', error);
+      throw new Error(error.message || 'Failed to fetch current plan');
+    }
+  }
+
+
+  static async getPaymentHistory(currentPage: number) {
+    try {
+      const response = await api.get(
+        `/company/payment-history?page=${currentPage}&limit=10`,
+        { withCredentials: true }
+      );
+      return {
+        payments: response.data.data.payments || [],
+        totalPages: response.data.data.totalPages || 1,
+      };
+    } catch (error: any) {
+      console.error('Error fetching payment history:', error);
+      throw new Error(error.message || 'Failed to fetch payment history');
+    }
+  }
+
 }

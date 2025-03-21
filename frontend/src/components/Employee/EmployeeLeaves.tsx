@@ -19,9 +19,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import api from "@/api/axios";
+import { AxiosError } from "axios";
+
+type Leave = {
+  startDate: string;
+  endDate: string;
+  reason: string;
+  leaveType: string;
+  status: string;
+  appliedAt: string;
+};
 
 const EmployeeLeaves = () => {
-  const [leaves, setLeaves] = useState([]);
+  const [leaves, setLeaves] =  useState<Leave[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [startDate, setStartDate] = useState("");
@@ -62,7 +72,7 @@ const EmployeeLeaves = () => {
     fetchLeaves();
   }, [currentPage, startDate, endDate]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
@@ -71,7 +81,8 @@ const EmployeeLeaves = () => {
       if (response.data.success) {
         setIsOpen(false);
         fetchLeaves();
-        setLeaveForm({ startDate: "", endDate: "", reason: "" });
+        setLeaveForm({ startDate: "", endDate: "", reason: "", leaveType: "Full Day" });
+
       
       }else{
 
@@ -79,13 +90,16 @@ const EmployeeLeaves = () => {
           setError(response.data.message || "Failed to apply for leave");
 
       }
-    } catch (error) {
-      console.error("Error applying for leave:", error);
+    } catch (error:unknown) {
+      if (error instanceof AxiosError) {
       setError(error.response?.data?.message || "Failed to apply for leave")
+      }else{
+        setError("An unexpected error occurred.");
+      }
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status:string) => {
     switch (status) {
       case "Approved":
         return "bg-green-100 text-green-800";
@@ -95,7 +109,7 @@ const EmployeeLeaves = () => {
         return "bg-yellow-100 text-yellow-800";
     }
   };
-  const handleModalOpenChange = (open) => {
+  const handleModalOpenChange = (open :boolean) => {
     setIsOpen(open);
     if (!open) {
       setError("");

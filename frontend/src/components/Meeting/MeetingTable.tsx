@@ -266,14 +266,7 @@ const MeetingManagement: React.FC = () => {
     setFormErrors({});
     setIsOpen(true);
   };
-  const handleDialogChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      // Reset everything when dialog closes
-      resetForm();
-      setEditingMeeting(null);
-    }
-  };
+
 
   const handleDateFilterChange = (value: string) => {
     setDateFilter(value);
@@ -443,7 +436,7 @@ const MeetingManagement: React.FC = () => {
                         </div>
                       ))}
                       {employees.filter(
-                        (emp) => emp._id !== currentUser?.userData._id,
+                        (emp) => emp._id !== currentUser?.userData?._id,
                       ).length === 0 && (
                         <div className="text-gray-500 text-sm text-center py-2">
                           No members available

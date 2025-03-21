@@ -21,7 +21,7 @@ import {
 import { useSelector } from "react-redux";
 import { TimeTrackingSection } from "./TimeTrackingSection";
 
-const WORK_DAY_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+const WORK_DAY_DURATION = 8 * 60 * 60 * 1000; 
 
 function isEmployee(userData: unknown): userData is IEmployee {
   return !!userData && typeof userData === "object" && "role" in userData;
@@ -73,7 +73,6 @@ export default function EmployeeDashboard() {
   const [checkedIn, setCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState<Date | null>(null);
   const [totalWorkedTime, setTotalWorkedTime] = useState<number | null>(null);
-  const [currentTime, setCurrentTime] = useState(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
   const [remainingTime, setRemainingTime] = useState(WORK_DAY_DURATION);
 
@@ -98,7 +97,6 @@ export default function EmployeeDashboard() {
             const checkIn = new Date(serverCheckInTime);
             setCheckInTime(checkIn);
             setCheckedIn(true);
-            setCurrentTime(Date.now());
           }
 
           if (totalWorkedTime && !checkInStatus) {
@@ -125,7 +123,6 @@ export default function EmployeeDashboard() {
       const elapsed = now - checkInTime.getTime();
       setElapsedTime(elapsed);
       setRemainingTime(WORK_DAY_DURATION - elapsed);
-      setCurrentTime(now);
     }, 1000);
 
     return () => clearInterval(timer);
@@ -160,7 +157,6 @@ export default function EmployeeDashboard() {
             if (!isNaN(serverTime.getTime())) {
               setCheckInTime(serverTime);
               setCheckedIn(true);
-              setCurrentTime(Date.now());
               setTotalWorkedTime(null);
             }
           }

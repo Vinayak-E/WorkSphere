@@ -1,7 +1,6 @@
 import axios from "axios";
 import { store } from "../redux/store";
 import { logout } from "../redux/slices/authSlice";
-import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
   baseURL: "http://localhost:5000",

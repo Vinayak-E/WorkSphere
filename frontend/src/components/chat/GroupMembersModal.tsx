@@ -28,7 +28,7 @@ const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
   const nonMembers = allUsers.filter(
     (user :IChatUser | IUser) =>
       !groupChat.users.some((member) => {
-        const memberId = "userId" in member ? member.userId._id : member?._id;
+        const memberId = "userId" in member ? member.userId._id : (member as IUser)._id;;
         return memberId.toString() === user._id.toString();
       })
   ); 

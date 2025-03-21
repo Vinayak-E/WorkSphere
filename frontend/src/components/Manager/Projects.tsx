@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { ScaleLoader } from "react-spinners";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { ScaleLoader } from 'react-spinners';
+import { useNavigate } from 'react-router-dom';
 import {
   PlusCircle,
   X,
@@ -16,40 +16,40 @@ import {
   ArrowRight,
   CalendarIcon,
   CheckCircle,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectController } from "@/controllers/employee/project.controller";
-import { ICreateProject, IProject } from "@/types/IProject";
-import { useDebounce } from "@/hooks/useDebounce";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { IEmployee } from "@/types/IEmployee";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProjectController } from '@/controllers/employee/project.controller';
+import { ICreateProject, IProject } from '@/types/IProject';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { IEmployee } from '@/types/IEmployee';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 
 function isEmployee(userData: unknown): userData is IEmployee {
-  return !!userData && typeof userData === "object" && "role" in userData;
+  return !!userData && typeof userData === 'object' && 'role' in userData;
 }
 
 const ProjectList = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [projects, setProjects] = useState<IProject[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,14 +57,14 @@ const ProjectList = () => {
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
   const projectsPerPage = 6;
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useSelector((state: RootState) => state.auth.user);
   const employeeData = user?.userData;
   const employeeId = isEmployee(employeeData) ? employeeData._id : undefined;
   const [newProject, setNewProject] = useState<ICreateProject>({
-    name: "",
-    description: "",
-    status: "Pending",
-    deadline: "",
+    name: '',
+    description: '',
+    status: 'Pending',
+    deadline: '',
   });
 
   const debouncedSearch = useDebounce(searchQuery, 500);
@@ -83,7 +83,7 @@ const ProjectList = () => {
         setProjects(data);
         setTotalPages(totalPages);
       } catch (error) {
-        console.error("Error loading projects:", error);
+        console.error('Error loading projects:', error);
       } finally {
         setIsLoading(false);
       }
@@ -95,32 +95,34 @@ const ProjectList = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Clear previous errors
     setFormErrors({});
     try {
       if (editedProject) {
         const updatedProject = await ProjectController.updateProject(
           editedProject._id,
-          newProject,
+          newProject
         );
         setProjects(
-          projects.map((p) =>
-            p._id === updatedProject._id ? updatedProject : p,
-          ),
+          projects.map(p => (p._id === updatedProject._id ? updatedProject : p))
         );
       } else {
+        if (!employeeId) {
+          setFormErrors({ employeeId: 'Employee ID is required' });
+          return;
+        }
+
         const createdProject = await ProjectController.createProject(
           newProject,
-          employeeId,
+          employeeId
         );
         setProjects([createdProject, ...projects]);
       }
       setIsOpen(false);
       setNewProject({
-        name: "",
-        description: "",
-        status: "Pending",
-        deadline: "",
+        name: '',
+        description: '',
+        status: 'Pending',
+        deadline: '',
       });
       setEditedProject(null);
     } catch (error: any) {
@@ -133,7 +135,7 @@ const ProjectList = () => {
         });
         setFormErrors(newErrors);
       } catch {
-        console.error("Error saving project:", error);
+        console.error('Error saving project:', error);
       }
     }
   };
@@ -141,37 +143,37 @@ const ProjectList = () => {
   // Status change handlers
   const getStatusConfig = (status: string) => {
     switch (status) {
-      case "Completed":
+      case 'Completed':
         return {
           icon: CheckCircle,
           baseStyle:
-            "bg-green-50 hover:bg-green-100 text-green-700 border-green-200",
-          color: "green",
+            'bg-green-50 hover:bg-green-100 text-green-700 border-green-200',
+          color: 'green',
         };
-      case "In Progress":
+      case 'In Progress':
         return {
           icon: Clock,
           baseStyle:
-            "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200",
-          color: "blue",
+            'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200',
+          color: 'blue',
         };
       default:
         return {
           icon: AlertCircle,
           baseStyle:
-            "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200",
-          color: "orange",
+            'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200',
+          color: 'orange',
         };
     }
   };
 
   const getAvailableStatuses = (currentStatus: string) => {
     switch (currentStatus) {
-      case "Pending":
-        return ["In Progress"];
-      case "In Progress":
-        return ["Completed"];
-      case "Completed":
+      case 'Pending':
+        return ['In Progress'];
+      case 'In Progress':
+        return ['Completed'];
+      case 'Completed':
         return [];
       default:
         return [];
@@ -185,14 +187,14 @@ const ProjectList = () => {
         projectId,
         newStatus
       );
-      
-      setProjects((prevProjects) =>
-        prevProjects.map((p) =>
+
+      setProjects(prevProjects =>
+        prevProjects.map(p =>
           p._id === updatedProject._id ? updatedProject : p
         )
       );
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error('Error updating status:', error);
     } finally {
       setUpdatingStatusId(null);
     }
@@ -202,10 +204,10 @@ const ProjectList = () => {
     if (!isOpen) {
       setEditedProject(null);
       setNewProject({
-        name: "",
-        description: "",
-        status: "Pending",
-        deadline: "",
+        name: '',
+        description: '',
+        status: 'Pending',
+        deadline: '',
       });
       setFormErrors({});
     } else if (editedProject) {
@@ -214,8 +216,8 @@ const ProjectList = () => {
         description: editedProject.description,
         status: editedProject.status,
         deadline: editedProject.deadline
-          ? new Date(editedProject.deadline).toISOString().split("T")[0]
-          : "",
+          ? new Date(editedProject.deadline).toISOString().split('T')[0]
+          : '',
       });
       setFormErrors({});
     }
@@ -253,7 +255,7 @@ const ProjectList = () => {
               Track and manage your projects effectively
             </p>
           </div>
-          
+
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button className="shadow-md hover:shadow-lg transition-shadow">
@@ -263,8 +265,8 @@ const ProjectList = () => {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="text-lg">
-                  {" "}
-                  {editedProject ? "Edit Project" : "Create New Project"}{" "}
+                  {' '}
+                  {editedProject ? 'Edit Project' : 'Create New Project'}{' '}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -274,7 +276,7 @@ const ProjectList = () => {
                   </label>
                   <Input
                     value={newProject.name}
-                    onChange={(e) =>
+                    onChange={e =>
                       setNewProject({ ...newProject, name: e.target.value })
                     }
                     required
@@ -292,7 +294,7 @@ const ProjectList = () => {
                   </label>
                   <Input
                     value={newProject.description}
-                    onChange={(e) =>
+                    onChange={e =>
                       setNewProject({
                         ...newProject,
                         description: e.target.value,
@@ -315,12 +317,12 @@ const ProjectList = () => {
                   <Input
                     type="date"
                     value={newProject.deadline}
-                    onChange={(e) =>
+                    onChange={e =>
                       setNewProject({ ...newProject, deadline: e.target.value })
                     }
                     required
                     className="focus:ring-2 focus:ring-blue-500"
-                    min={new Date().toISOString().split("T")[0]}
+                    min={new Date().toISOString().split('T')[0]}
                   />
                   {newProject.deadline &&
                     new Date(newProject.deadline) < new Date() && (
@@ -336,7 +338,7 @@ const ProjectList = () => {
                   )}
                 </div>
                 <Button type="submit" className="w-full">
-                  {editedProject ? "Update Project" : "Create Project"}
+                  {editedProject ? 'Update Project' : 'Create Project'}
                 </Button>
               </form>
             </DialogContent>
@@ -352,13 +354,13 @@ const ProjectList = () => {
               <Input
                 placeholder="Search projects..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="pl-10 w-full bg-white border-gray-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <Button
               variant="outline"
-              onClick={() => setSearchQuery("")}
+              onClick={() => setSearchQuery('')}
               className="flex items-center gap-2 w-full md:w-auto"
             >
               <X className="w-4 h-4" /> Clear
@@ -366,7 +368,7 @@ const ProjectList = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {projects.map((project) => {
+          {projects.map(project => {
             const statusConfig = getStatusConfig(project.status);
             const Icon = statusConfig.icon;
             const availableStatuses = getAvailableStatuses(project.status);
@@ -393,35 +395,56 @@ const ProjectList = () => {
                             <Button
                               variant="ghost"
                               className="p-0 hover:bg-transparent"
-                              disabled={availableStatuses.length === 0 || isUpdating}
+                              disabled={
+                                availableStatuses.length === 0 || isUpdating
+                              }
                             >
-                              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${statusConfig.baseStyle} transition-all duration-200 ${availableStatuses.length === 0 ? "opacity-70" : "hover:shadow-sm"}`}>
+                              <div
+                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${statusConfig.baseStyle} transition-all duration-200 ${availableStatuses.length === 0 ? 'opacity-70' : 'hover:shadow-sm'}`}
+                              >
                                 {isUpdating ? (
-                                  <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: `${statusConfig.color} transparent ${statusConfig.color} ${statusConfig.color}` }}></div>
+                                  <div
+                                    className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin"
+                                    style={{
+                                      borderColor: `${statusConfig.color} transparent ${statusConfig.color} ${statusConfig.color}`,
+                                    }}
+                                  ></div>
                                 ) : (
                                   <Icon className="w-4 h-4" />
                                 )}
-                                <span className="text-sm font-medium">{project.status}</span>
+                                <span className="text-sm font-medium">
+                                  {project.status}
+                                </span>
                               </div>
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
                             className="w-48 p-1.5 bg-white rounded-lg shadow-lg border animate-in fade-in-80 zoom-in-95"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={e => e.stopPropagation()}
                           >
-                            {availableStatuses.map((statusOption) => {
-                              const optionConfig = getStatusConfig(statusOption);
+                            {availableStatuses.map(statusOption => {
+                              const optionConfig =
+                                getStatusConfig(statusOption);
                               const OptionIcon = optionConfig.icon;
-                              
+
                               return (
                                 <DropdownMenuItem
                                   key={statusOption}
-                                  onSelect={() => handleStatusChange(project._id, statusOption)}
+                                  onSelect={() =>
+                                    handleStatusChange(
+                                      project._id,
+                                      statusOption
+                                    )
+                                  }
                                   className="cursor-pointer flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md transition-colors duration-150"
                                 >
-                                  <div className={`flex items-center w-full gap-2 ${optionConfig.baseStyle.replace("border", "")} rounded-md px-3 py-1.5`}>
+                                  <div
+                                    className={`flex items-center w-full gap-2 ${optionConfig.baseStyle.replace('border', '')} rounded-md px-3 py-1.5`}
+                                  >
                                     <OptionIcon className="w-4 h-4" />
-                                    <span className="text-sm font-medium">{statusOption}</span>
+                                    <span className="text-sm font-medium">
+                                      {statusOption}
+                                    </span>
                                   </div>
                                 </DropdownMenuItem>
                               );
@@ -433,7 +456,7 @@ const ProjectList = () => {
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
-                        
+
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -461,7 +484,10 @@ const ProjectList = () => {
                       <div className="flex items-center gap-2">
                         <Building className="w-4 h-4 text-gray-400" />
                         <span className="truncate">
-                          {project.department?.name || "No Department"}
+                          {typeof project.department === 'object' &&
+                          project.department !== null
+                            ? project.department.name
+                            : 'No Department'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -475,14 +501,14 @@ const ProjectList = () => {
                             <span
                               className={
                                 getDaysRemaining(project.deadline) < 0
-                                  ? "text-red-600 font-medium"
+                                  ? 'text-red-600 font-medium'
                                   : getDaysRemaining(project.deadline) < 7
-                                    ? "text-yellow-600 font-medium"
-                                    : "text-gray-600"
+                                    ? 'text-yellow-600 font-medium'
+                                    : 'text-gray-600'
                               }
                             >
                               {getDaysRemaining(project.deadline) < 0
-                                ? "Overdue"
+                                ? 'Overdue'
                                 : `${getDaysRemaining(project.deadline)} days remaining`}
                             </span>
                           </div>
@@ -490,7 +516,7 @@ const ProjectList = () => {
                             <CalendarIcon className="w-4 h-4 text-gray-400" />
                             <span>
                               {new Date(project.deadline).toLocaleDateString(
-                                "en-GB",
+                                'en-GB'
                               )}
                             </span>
                           </div>
@@ -527,7 +553,7 @@ const ProjectList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="min-w-[100px]"
               >
@@ -536,9 +562,7 @@ const ProjectList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="min-w-[100px]"
               >

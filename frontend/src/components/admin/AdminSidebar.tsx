@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Inbox, Settings, Users, FileText, BarChart } from "lucide-react";
+import { Home, Users, FileText, BarChart } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -67,11 +67,8 @@ export function AdminSidebar() {
                     >
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
-                      {item.badge && (
-                        <span className="ml-auto rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-600">
-                          {item.badge}
-                        </span>
-                      )}
+                   
+
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

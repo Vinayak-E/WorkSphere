@@ -11,7 +11,11 @@ export interface Meeting {
   meetTime: string;
   members: Member[];
   meetId: string;
-  createdBy: string;
+  createdBy: {
+    name?: string;
+    companyName?: string;
+    _id: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

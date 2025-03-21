@@ -11,7 +11,7 @@ import {
   createSubscription, 
   fetchSubscriptions, 
   updateSubscription 
-} from "@/services/admin/subscription";
+} from "@/services/admin/subscription.service";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus, Search, Edit, Trash, ChevronLeft, ChevronRight, Check } from "lucide-react";
@@ -21,15 +21,26 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ITEMS_PER_PAGE = 6;
-
+interface SubscriptionPlan {
+  _id?: string;
+  planName: string;
+  description: string;
+  price: number;
+  durationInMonths: number;
+  planType: "Trial" | "Basic" | "Premium"; 
+  features: string[];
+  employeeCount: number | null;
+  projectCount: number | null;
+  isActive: boolean;
+}
 const SubscriptionAdmin = () => {
-  const [plans, setPlans] = useState([]);
-  const [filteredPlans, setFilteredPlans] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [filteredPlans, setFilteredPlans] = useState<SubscriptionPlan[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchQuery, setSearchQuery] =useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [formData, setFormData] = useState<SubscriptionPlan>({
     planName: "", 
     description: "", 
     price: 0, 
@@ -40,8 +51,8 @@ const SubscriptionAdmin = () => {
     projectCount: null,
     isActive: true
   });
-  const [featureInput, setFeatureInput] = useState("");
-  const [editId, setEditId] = useState(null);
+  const [featureInput, setFeatureInput] = useState<string>("");
+  const [editId, setEditId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
@@ -73,7 +84,7 @@ const SubscriptionAdmin = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e:React.FormEvent) => {
     e.preventDefault();
     try {
       if (editId) {
@@ -100,7 +111,7 @@ const SubscriptionAdmin = () => {
     }
   };
 
-  const removeFeature = (index) => {
+  const removeFeature = (index:number) => {
     const updatedFeatures = [...formData.features];
     updatedFeatures.splice(index, 1);
     setFormData({...formData, features: updatedFeatures});
@@ -237,7 +248,7 @@ const SubscriptionAdmin = () => {
                       variant="outline"
                       onClick={() => {
                         setFormData(plan);
-                        setEditId(plan._id);
+                        setEditId(plan._id ?? null);
                         setModalOpen(true);
                       }}
                     >
@@ -314,7 +325,11 @@ const SubscriptionAdmin = () => {
                 <select
                   id="planType"
                   value={formData.planType}
-                  onChange={(e) => setFormData({...formData, planType: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      planType: e.target.value as SubscriptionPlan["planType"],
+                    })}    
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="Trial">Trial</option>

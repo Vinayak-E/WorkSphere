@@ -45,6 +45,12 @@ interface Company {
   email: string;
   isActive: boolean;
   isApproved: ApprovalStatus;
+  businessRegNo:string;
+  industry:string;
+  city:string;
+  state:string;
+  country:string;
+  zipcode:string;
   phone: string;
   createdAt: string;
   role: string;

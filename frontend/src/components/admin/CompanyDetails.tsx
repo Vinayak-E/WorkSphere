@@ -54,7 +54,7 @@ interface Company {
   zipcode: string;
   subscriptionPlan: {
     _id: string;
-    name: string;
+    planName: string;
     price: number;
   };
   subscriptionStatus: "Active" | "Inactive" | "Expired";
@@ -82,7 +82,7 @@ const CompanyDetailView = () => {
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 10; // Number of payments per page
+  const limit = 10; 
 
   useEffect(() => {
     fetchCompanyDetails();

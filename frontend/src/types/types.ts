@@ -76,4 +76,6 @@ export interface Icompany {
   country: string;
   zipcode: string;
   profilePicture?:string;
+  subscriptionStatus?:string;
+  subscriptionEndDate?:string;
 }

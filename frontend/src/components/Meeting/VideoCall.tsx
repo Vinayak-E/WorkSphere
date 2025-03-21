@@ -8,13 +8,13 @@ const VideoCall = () => {
   const roomID = searchParams.get("roomID") || "defaultRoom";
   const callContainer = useRef(null);
   const [isReady, setIsReady] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!callContainer.current) return;
 
-    let zp = null;
+    let zp : ZegoUIKitPrebuilt | null = null;
 
     const initializeCall = async () => {
       try {
@@ -63,13 +63,10 @@ const VideoCall = () => {
           },
           onLeaveRoom: () => {
             console.log("Left room:", roomID);
-          },
-          onError: (err) => {
-            console.error("Zego error:", err);
-            setError(`Error: ${err.message || "Failed to join meeting"}`);
-          },
+          }
+          
         });
-      } catch (err) {
+      } catch (err : any) {
         console.error("Failed to initialize video call:", err);
         setError(`Error: ${err.message || "Failed to initialize meeting"}`);
         setIsReady(false);

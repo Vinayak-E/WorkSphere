@@ -1,3 +1,4 @@
+import { IEmployee } from "./IEmployee";
 
 export interface IProject {
   _id: string;
@@ -9,7 +10,7 @@ export interface IProject {
     _id: string;
     name: string;
   };
- manager: string | {  // Allow both string and object
+ manager: string | {  
     _id: string;
     name: string;
   };
@@ -40,9 +41,10 @@ export interface ITask {
   _id?: string;
   title: string;
   description: string;
-  assignee: string;
+  assignee: string | IEmployee;
   deadline: string;
   status?: "Pending" | "In Progress" | "Completed";
+  statusHistory?:{ status: string; timestamp: string; comment?: string }[];
 }
 
 

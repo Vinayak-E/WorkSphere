@@ -1,85 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { loadStripe } from '@stripe/stripe-js';
 import api from '@/api/axios';
-import { fetchSubscriptions } from '@/services/admin/subscription';
+import { useState, useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { fetchSubscriptions } from '@/services/admin/subscription.service';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+interface SubscriptionPlan {
+  _id: string;
+  planName: string;
+  description: string;
+  price: number;
+  durationInMonths: number;
+  planType: string;
+  isActive: boolean;
+  features: string[];
+  employeeCount?: number;
+  projectCount?: number;
+}
 
 const SelectPlanPage = () => {
-  const [subscriptions, setSubscriptions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [billingInterval, setBillingInterval] = useState('monthly');
-  const navigate = useNavigate();
+  const [subscriptions, setSubscriptions] =useState<SubscriptionPlan[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] =useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
 
   useEffect(() => {
     const getSubscriptions = async () => {
       try {
         setLoading(true);
         const response = await fetchSubscriptions();
-  
-        // Exclude plans with planType "Trial" and keep only active plans
-        const activePlans = response.data.filter(
-          (plan) => plan.isActive && plan.planType !== "Trial"
+        const activePlans: SubscriptionPlan[] = response.data.filter(
+          (plan: SubscriptionPlan) => plan.isActive && plan.planType !== 'Trial'
         );
         setSubscriptions(activePlans);
-      } catch (err) {
-        setError("Failed to load subscription plans. Please try again later.");
-        console.error("Error fetching subscriptions:", err);
+      } catch (err: unknown) {
+        setError('Failed to load subscription plans. Please try again later.');
+        console.error('Error fetching subscriptions:', err);
       } finally {
         setLoading(false);
       }
     };
-  
+
     getSubscriptions();
   }, []);
   
 
-  const handleSelectPlan = (plan) => {
+  const handleSelectPlan = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
   };
 
-  const handleProceedToPayment = async () => {
+   const handleProceedToPayment = async () => {
     if (!selectedPlan) return;
 
     try {
-      // Create a checkout session
       const response = await api.post('/company/checkout/create-session', {
         planId: selectedPlan._id,
-        billingInterval
+        billingInterval,
       });
 
       const stripe = await stripePromise;
-      
-      // Redirect to Stripe Checkout
+
+      if (!stripe) {
+        setError('Stripe initialization failed. Please try again.');
+        return;
+      }
+
       const { error } = await stripe.redirectToCheckout({
-        sessionId: response.data.sessionId
+        sessionId: response.data.sessionId,
       });
 
       if (error) {
         console.error('Stripe checkout error:', error);
         setError('Payment processing failed. Please try again.');
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error creating checkout session:', err);
       setError('Failed to process payment. Please try again later.');
     }
   };
 
-  // Calculate price based on billing interval
-  const calculatePrice = (plan) => {
+
+  const calculatePrice = (plan:SubscriptionPlan) => {
     if (billingInterval === 'yearly') {
-      // Apply 10% discount for yearly billing
       return (plan.price * plan.durationInMonths * 0.9).toFixed(2);
     }
     return plan.price.toFixed(2);
   };
 
-  // Get duration text based on billing interval
-  const getDurationText = (plan) => {
+  const getDurationText = (plan : SubscriptionPlan) => {
     if (billingInterval === 'yearly') {
       return `${plan.durationInMonths} months`;
     }

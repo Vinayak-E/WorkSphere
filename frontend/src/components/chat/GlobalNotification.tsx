@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useSocket } from "@/contexts/SocketContest";
@@ -12,11 +12,18 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { RootState } from "@/redux/store";
-
+interface Notification {
+  id: string;
+  chatId: string;
+  sender: string;
+  content: string;
+  timestamp: string;
+  read: boolean;
+}
 const GlobalNotification = () => {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] =useState<Notification[]>([]);
   const [showToast, setShowToast] = useState(false);
-  const [latestNotification, setLatestNotification] = useState(null);
+  const [latestNotification, setLatestNotification] = useState<Notification | null>(null);
   const currentUser = useSelector((state :RootState) => state.auth.user);
   const navigate = useNavigate();
   const socket = useSocket();
@@ -24,12 +31,12 @@ const GlobalNotification = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleNotification = (newMessage) => {
+    const handleNotification = (newMessage :any) => {
       const messageData = newMessage._doc || newMessage;
       console.log("Notification received:", messageData);
 
-      if (messageData.sender._id !== currentUser.userData._id) {
-        const notification = {
+      if (messageData.sender._id !== currentUser?.userData?._id) {
+        const notification: Notification = {
           id: messageData._id,
           chatId: messageData.chat,
           sender: messageData.sender.name,
@@ -47,7 +54,10 @@ const GlobalNotification = () => {
         }, 5000);
       }
     };
-    const handleMessageReadUpdate = ({ messageId, chatId }) => {
+    const handleMessageReadUpdate = ({ messageId , chatId  }: {
+      messageId: string;
+      chatId: string;
+    }) => {
       setNotifications((prev) =>
         prev.filter(
           (notification) =>
@@ -71,9 +81,9 @@ const GlobalNotification = () => {
       socket.off("new_notification", handleNotification);
       socket.off("message read update", handleMessageReadUpdate);
     };
-  }, [socket, currentUser.userData._id, latestNotification]);
+  }, [socket, currentUser?.userData?._id, latestNotification]);
 
-  const handleNotificationClick = (notification) => {
+  const handleNotificationClick = (notification:Notification) => {
     setNotifications((prev) =>
       prev.filter((n) => n.chatId !== notification.chatId),
     );
