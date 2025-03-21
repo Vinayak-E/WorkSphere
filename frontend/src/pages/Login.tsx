@@ -38,7 +38,7 @@ const Login = () => {
   const validateField = (
     name: FieldName,
     value: string,
-    allValues: FormState
+
   ): FieldState => {
     let error = '';
     let isValid = true;
@@ -76,7 +76,7 @@ const Login = () => {
 
       setFormState(prev => ({
         ...prev,
-        [name]: validateField(name, value, prev),
+        [name]: validateField(name, value),
       }));
     };
 
@@ -88,11 +88,10 @@ const Login = () => {
     ).reduce<FormState>(
       (acc, key) => ({
         ...acc,
-        [key]: validateField(key, formState[key].value, formState),
+        [key]: validateField(key, formState[key].value), 
       }),
       formState
-    );
-
+    )
     setFormState(validatedState);
 
     const isValid = Object.values(validatedState).every(field => field.isValid);

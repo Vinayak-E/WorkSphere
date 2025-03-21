@@ -1,13 +1,6 @@
-import { Home, BackpackIcon } from "lucide-react";
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
 
 export default function NotFound() {
-  const navigate = useNavigate();
-  const handleBackButton = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate(-1);
-  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="text-center">

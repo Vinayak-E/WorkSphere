@@ -18,14 +18,13 @@ export const meetService = {
       console.log("response", response.data);
       return response.data;
     } catch (error) {
-      // Add error handling
       throw new Error(
         `Failed to fetch meetings: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   },
 
-  createMeeting: async (meetingData) => {
+  createMeeting: async (meetingData :any) => {
     const response = await api.post("/meetings", meetingData);
     return response.data;
   },

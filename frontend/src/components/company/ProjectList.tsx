@@ -43,7 +43,6 @@ const ProjectList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
   const projectsPerPage = 6;
 
   const debouncedSearch = useDebounce(searchQuery, 500);
@@ -57,8 +56,6 @@ const ProjectList = () => {
           limit: projectsPerPage,
           search: debouncedSearch,
           status: selectedStatus !== 'all' ? selectedStatus : undefined,
-          department:
-            selectedDepartment !== 'all' ? selectedDepartment : undefined,
         });
         console.log('data', data);
         setProjects(data);
@@ -70,7 +67,7 @@ const ProjectList = () => {
       }
     };
     loadProjects();
-  }, [currentPage, debouncedSearch, selectedStatus, selectedDepartment]);
+  }, [currentPage, debouncedSearch, selectedStatus]);
 
   const getStatusDetails = (status: string) => {
     const statusMap: {

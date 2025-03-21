@@ -397,7 +397,6 @@ const Dashboard = () => {
           />
         </Grid>
 
-        {/* Best Performers Card */}
         <Grid item xs={12} md={6}>
           <Card
             sx={{
@@ -466,10 +465,10 @@ const Dashboard = () => {
                   outerRadius={80}
                   paddingAngle={2}
                 >
-                  {(projects.statusChart || []).map((entry, index) => (
+                  {(projects.statusChart || []).map((item, i) => (
                     <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
+                      key={`cell-${item._id}`}
+                      fill={COLORS[i % COLORS.length]}
                     />
                   ))}
                 </Pie>
@@ -510,10 +509,10 @@ const Dashboard = () => {
                     `${name || 'Unknown'}: ${(percent * 100).toFixed(0)}%`
                   }
                 >
-                  {(employees.byDepartment || []).map((entry, index) => (
+                  {(employees.byDepartment || []).map((item, i) => (
                     <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
+                      key={`cell-${item.name}`}
+                      fill={COLORS[i % COLORS.length]}
                     />
                   ))}
                 </Pie>
@@ -528,7 +527,6 @@ const Dashboard = () => {
           </ChartCard>
         </Grid>
 
-        {/* Employee Workload */}
         <Grid item xs={12}>
           <Card
             sx={{

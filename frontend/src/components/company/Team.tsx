@@ -257,7 +257,7 @@ const MyTeam = () => {
       role: "EMPLOYEE",
       salary: "",
       workMode: "",
-      profilePicture: "" || null,
+      profilePicture:  "",
       address: {
         city: "",
         state: "",

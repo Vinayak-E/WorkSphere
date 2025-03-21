@@ -125,7 +125,7 @@ export class ProjectController {
       throw error;
     }
   }
-  static async updateProjectStatus(projectId, status) {
+  static async updateProjectStatus(projectId:string, status:string) {
     return ProjectService.updateProjectStatus(projectId, status);
   }
 }
