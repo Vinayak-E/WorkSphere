@@ -47,8 +47,8 @@ export function registerContainer() {
   
    container.register('MainConnection', { useValue: mongoose.connection });
 
-   container.register('AuthController', { useClass: AuthController });
    container.register('CheckoutController', { useClass: CheckoutController });
+   container.register('AuthController', { useClass: AuthController });
    container.register('AuthService', { useClass: AuthService });
 
    container.register('JwtService', { useClass: JwtService });

@@ -22,6 +22,7 @@ export const tenantMiddleware = async (
   next: NextFunction
 ) => {
   try {
+    console.log('tenantmidleware')
     let token = req.cookies?.accessToken;
     const refreshToken = req.cookies?.refreshToken;
 
@@ -32,7 +33,7 @@ export const tenantMiddleware = async (
 
     try {
       const decoded = jwt.verify(token, jwtSecret) as { tenantId: string };
-
+console.log('token',decoded)
       if (!decoded?.tenantId) {
         res
           .status(403)

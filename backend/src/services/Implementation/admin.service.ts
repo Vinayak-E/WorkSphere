@@ -11,6 +11,7 @@ import { IAdminRepository } from '../../repositories/Interface/IAdminRepository'
 import { ICompanyRepository } from '../../repositories/Interface/ICompanyRepository';
 import { ICompanyRequestRepository } from '../../repositories/Interface/ICompanyRequestRepository';
 import { ISubscriptionRepository } from '../../repositories/Interface/ISubscriptionRepository';
+import { Connection } from 'mongoose';
 
 @injectable()
 export class AdminService implements AdminService {
@@ -35,7 +36,7 @@ export class AdminService implements AdminService {
     const isValidPassword = await bcrypt.compare(password, admin.password);
     if (!isValidPassword) return null;
 
-    const tenantId = 'ADMIN';
+    const tenantId = 'WorkSphere';
     const data = { tenantId, email: admin.email, role: admin.role };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -82,7 +83,7 @@ export class AdminService implements AdminService {
       if (!tempCompany) throw new Error('Temp company not found');
 
       const tenantId = generateCompanySlug(company.companyName);
-      const tenantConnection = await connectTenantDB(tenantId);
+      const tenantConnection:Connection = await connectTenantDB(tenantId);
 
       const trialPlan = await this.subscriptionRepository.findOne({
         planType: 'Trial',
@@ -108,11 +109,14 @@ export class AdminService implements AdminService {
         subscriptionEndDate: endDate,
       };
       await this.adminRepository.createCompany(newCompany);
+      console.log('adminside company created')
 
       await this.companyRepository.createTenantCompany(
         newCompany,
         tenantConnection
       );
+      console.log('Tenant company created')
+
       await this.companyRequestRepository.delete(companyId);
 
       const subject =

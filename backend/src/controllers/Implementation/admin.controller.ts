@@ -51,6 +51,7 @@ export class AdminController {
 
   companiesList: RequestHandler = async (req, res, next) => {
     try {
+      console.log('companieslist')
       const companies = await this.adminService.getCompanies();
       res.status(HttpStatus.OK).json(companies);
     } catch (error) {

@@ -15,7 +15,8 @@ export default async () => {
   }
 };
 export const connectTenantDB = async (tenantId: string) => {
-  const tenantDBURI = `${MONGO_URI.replace('WorkShere', tenantId)}`;
+  const tenantDBURI = `${MONGO_URI.replace('WorkSphere', tenantId)}`;
+  console.log('tenat',tenantDBURI)
   const tenantConnection = mongoose.createConnection(tenantDBURI);
 
   tenantConnection.on('connected', () =>
