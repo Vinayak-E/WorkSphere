@@ -185,7 +185,8 @@ export class AuthService {
         resetToken,
         resetTokenExpiry,
       );
-      const resetLink = `http://localhost:5173/resetPassword?token=${resetToken}`;
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173"; 
+      const resetLink = `${frontendUrl}/resetPassword?token=${resetToken}`; 
       await sendResetEmail(
         email,
         'Password Reset',

@@ -115,8 +115,8 @@ export class CheckoutController {
           },
         ],
         mode: billingInterval === 'yearly' ? 'payment' : 'subscription',
-        success_url: `${process.env.CLIENT_URL}/company/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.CLIENT_URL}/company/select-plan`,
+        success_url: `${process.env.FRONTEND_URL}/company/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.FRONTEND_URL}/company/select-plan`,
         customer_email: company.email,
         metadata: {
           companyId: companyId.toString(),

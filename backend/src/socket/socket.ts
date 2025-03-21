@@ -14,7 +14,12 @@ const chatService = new ChatService(chatRepository, employeeRepository);
 export const initializeSocket = (server: http.Server) => {
   const io = new Server(server, {
     cors: {
-      origin: ['http://localhost:5000', 'http://localhost:5173'],
+      origin:  [
+        'http://localhost:5000', 
+        'http://localhost:5173',
+        'https://worksphere.store',
+        'https://www.worksphere.store'
+      ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization'],

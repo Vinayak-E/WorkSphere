@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 type SocketContextType = Socket | null;
 
 const SocketContext = createContext<SocketContextType>(null);
+const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL || "http://localhost:5000";
 
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -14,10 +15,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (currentUser) {
-      const newSocket = io("http://localhost:5000", {
+      const newSocket = io(SOCKET_SERVER_URL, {
         withCredentials: true,
       });
-
       newSocket.on("connect", () => {
         console.log("Socket connected:", newSocket.id);
         if (currentUser?.userData) {
