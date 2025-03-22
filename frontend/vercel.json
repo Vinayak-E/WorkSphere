@@ -1,15 +1,5 @@
 {
-    "builds": [
-      {
-        "src": "package.json",
-        "use": "@vercel/static-build",
-        "config": { "distDir": "dist" }
-      }
-    ],
     "rewrites": [
-      { "source": "/admin", "destination": "/" },
-      { "source": "/admin/:path*", "destination": "/" },
-      { "source": "/:path*", "destination": "/" }
-    ]
+      { "source": "/(.*)", "destination":"/"}
+]
   }
-  
