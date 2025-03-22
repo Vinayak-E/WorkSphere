@@ -1,0 +1,10 @@
+{
+    "rewrites": [
+      { "source": "/admin", "destination": "/" },
+      { "source": "/admin/:path*", "destination": "/" },
+      { "source": "/company/:path*", "destination": "/" },
+      { "source": "/employee/:path*", "destination": "/" },
+      { "source": "/:path*", "destination": "/" }
+    ]
+  }
+  
