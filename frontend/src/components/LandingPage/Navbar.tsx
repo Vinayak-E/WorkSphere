@@ -70,21 +70,23 @@ const Navbar = () => {
       <div ref={navRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="flex justify-between h-18 mt-2 mb-2 items-center">
           <div className="flex-shrink-0">
-            <img
-              className="h-14 w-auto mt-1 transition-transform duration-300 hover:scale-105"
-              src={IMAGES.navBarLogoDark}
-              alt="WorkSphere Logo"
-            />
+            <Link to="/home">
+              <img
+                className="h-14 w-auto mt-1 transition-transform duration-300 hover:scale-105"
+                src={IMAGES.navBarLogoDark}
+                alt="WorkSphere Logo"
+              />
+            </Link>
           </div>
           <div className="hidden md:flex space-x-8">
             {['Home', 'Pricing', 'Contact', 'About'].map(item => (
-              <a
+              <Link
                 key={item}
-                href={`#${item.toLowerCase()}`}
+                to={`/${item.toLowerCase()}`}
                 className="menu-item text-lg text-foreground hover:text-primary  hover:scale-110 transition-colors duration-300 font-medium"
               >
                 {item}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -126,13 +128,13 @@ const Navbar = () => {
       >
         <div className="px-4 pt-2 pb-3 space-y-3 bg-card">
           {['Home', 'Pricing', 'Contact', 'About'].map(item => (
-            <a
+            <Link
               key={item}
-              href={`#${item.toLowerCase()}`}
+              to={`/${item.toLowerCase()}`}
               className="mobile-menu-item block px-3 py-2 text-foreground hover:text-primary hover:bg-muted rounded-md transition-colors duration-300"
             >
               {item}
-            </a>
+            </Link>
           ))}
           <Link
             to="/login"

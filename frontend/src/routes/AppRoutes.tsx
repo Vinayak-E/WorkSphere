@@ -11,6 +11,7 @@ import CompanyRoutes from "./CompanyRoutes";
 import EmployeeRoutes from "./EmployeeRoutes";
 import AdminLogin from "@/pages/Admin/AdminLogin";
 import PasswordChange from "@/pages/Employee/PasswordChange";
+import ContactPage from "@/pages/Common/ContactPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/resetPassword" element={<ResetPassword />} />
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/passwordChange" element={<PasswordChange />} />
+      <Route path="/contact" element={<ContactPage />} />
 
       <Route
         path="/admin/*"
