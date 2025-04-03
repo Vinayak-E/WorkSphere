@@ -52,7 +52,7 @@ export class AdminService implements AdminService {
   }
 
   async getCompanies(): Promise<any> {
-    return await this.userRepository.findAll({ role: 'COMPANY' });
+    return await this.userRepository.findAll({ role: 'COMPANY' ,isApproved:"Approved"});
   }
 
   async getCompanyRequests(): Promise<any> {
