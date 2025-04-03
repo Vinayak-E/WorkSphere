@@ -87,7 +87,11 @@ export class CompanyService {
   }
 
   async getCompanyByEmail(email: string, tenantConnection: Connection): Promise<ICompanyDocument | null> {
-    return await this.companyRepository.findByEmail(email, tenantConnection);
+    const companyData = await this.companyRepository.findByEmail(email, tenantConnection);
+    const userData = await this.userRepository.findByEmail(email); 
+    if (!companyData || !userData) return null;
+    (companyData as ICompanyDocument).isActive = userData.isActive;
+    return companyData;
   }
 
   async getCompanyById(companyId: string, tenantConnection: Connection): Promise<ICompanyDocument | null> {

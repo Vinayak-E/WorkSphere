@@ -93,7 +93,17 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
             decoded!.email,
             tenantConnection
             );
-
+            if (!userData) {
+              res.status(404).json({ message: 'User not found' });
+              return;
+            }
+            if ('isActive' in userData && !userData.isActive) {
+              res.status(403).json({
+                message: 'Your account has been blocked. Please contact support.',
+                redirectTo: '/login',
+              });
+              return;
+            }
             if (userData && userData.subscriptionEndDate && new Date() > userData.subscriptionEndDate) {
               console.log('subscription expired')
               console.log('first called')
@@ -114,6 +124,19 @@ export const verifyAuth: RequestHandler = async (req, res, next) => {
             tenantConnection,
             decoded!.email
           );
+          if (!userData) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+          }
+         
+          if (userData && userData.status == 'Inactive') {
+            res.status(403).json({
+              message: 'Your account has been blocked. Please contact support.',
+              redirectTo: '/login',
+            });
+            return;
+          }
+          
           console.log("userData at middleware for employee",userData)
           break;
         case 'ADMIN':
