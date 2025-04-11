@@ -8,7 +8,6 @@ import { IEmployee } from "@/types/IEmployee";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import {
-  Bell,
   Clock,
   Briefcase,
   CalendarCheck,
@@ -364,51 +363,6 @@ export default function EmployeeDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      <Card className="bg-white dark:bg-gray-800 shadow-sm rounded-xl">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center">
-              <Bell className="w-5 h-5 text-blue-500 mr-2" />
-              <h3 className="text-xl font-semibold">Latest Updates</h3>
-            </div>
-            <Button
-              variant="ghost"
-              className="text-blue-500 hover:text-blue-600"
-            >
-              View All
-            </Button>
-          </div>
-          <div className="space-y-4">
-            <div className="p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
-              <div className="flex items-start">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                <div className="ml-4">
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                    Company Event This Friday! 🎉
-                  </h4>
-                  <p className="text-gray-500 dark:text-gray-400 mt-1">
-                    Join us for the annual team building event at Central Park
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
-              <div className="flex items-start">
-                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
-                <div className="ml-4">
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                    Q4 Reports Due 📊
-                  </h4>
-                  <p className="text-gray-500 dark:text-gray-400 mt-1">
-                    Please submit your quarterly reports by next Monday
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

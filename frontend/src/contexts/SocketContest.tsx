@@ -5,7 +5,8 @@ import { useSelector } from "react-redux";
 type SocketContextType = Socket | null;
 
 const SocketContext = createContext<SocketContextType>(null);
-const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL || "http://localhost:5000";
+const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL ;
+console.log("socket url",SOCKET_SERVER_URL)
 
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
