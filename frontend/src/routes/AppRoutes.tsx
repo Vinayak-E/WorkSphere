@@ -12,6 +12,8 @@ import EmployeeRoutes from "./EmployeeRoutes";
 import AdminLogin from "@/pages/Admin/AdminLogin";
 import PasswordChange from "@/pages/Employee/PasswordChange";
 import ContactPage from "@/pages/Common/ContactPage";
+import AboutPage from "@/pages/Common/AboutPage";
+import PricingPage from "@/pages/Common/PrincingPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -24,6 +26,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/passwordChange" element={<PasswordChange />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
 
       <Route
         path="/admin/*"

@@ -131,7 +131,7 @@ const Login = () => {
         isOpen={showForgotModal}
         onClose={() => setShowForgotModal(false)}
       />
-      <div className="min-h-screen bg-background p-3 md:p-6 lg:p-8 relative">
+      <div className="min-h-screen bg-gradient-to-tr from-primary/10 to-primary/30 p-3 md:p-6 lg:p-8 relative">
         <div className="top-0 left-0">
           <Link to="/">
             <img

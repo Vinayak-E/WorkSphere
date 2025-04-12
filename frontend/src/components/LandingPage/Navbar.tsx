@@ -70,7 +70,7 @@ const Navbar = () => {
       <div ref={navRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="flex justify-between h-18 mt-2 mb-2 items-center">
           <div className="flex-shrink-0">
-            <Link to="/home">
+            <Link to="/">
               <img
                 className="h-14 w-auto mt-1 transition-transform duration-300 hover:scale-105"
                 src={IMAGES.navBarLogoDark}
@@ -82,7 +82,7 @@ const Navbar = () => {
             {['Home', 'Pricing', 'Contact', 'About'].map(item => (
               <Link
                 key={item}
-                to={`/${item.toLowerCase()}`}
+                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
                 className="menu-item text-lg text-foreground hover:text-primary  hover:scale-110 transition-colors duration-300 font-medium"
               >
                 {item}
@@ -130,7 +130,7 @@ const Navbar = () => {
           {['Home', 'Pricing', 'Contact', 'About'].map(item => (
             <Link
               key={item}
-              to={`/${item.toLowerCase()}`}
+              to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
               className="mobile-menu-item block px-3 py-2 text-foreground hover:text-primary hover:bg-muted rounded-md transition-colors duration-300"
             >
               {item}

@@ -89,7 +89,7 @@ const Register = () => {
   `;
 
   return (
-    <div className="min-h-screen bg-background p-2 md:p-6 lg:p-8 relative">
+    <div className="min-h-screen bg-gradient-to-tr from-primary/10 to-primary/30 p-2 md:p-6 lg:p-8 relative">
       <Link to="/">
         <img
           src={IMAGES.navBarLogoDark}
