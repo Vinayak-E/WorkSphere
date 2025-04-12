@@ -104,7 +104,7 @@ const Navbar = () => {
               Get Started
             </Link>
             <div className="menu-item bg-transparent">
-              <ModeToggle />
+              {/* <ModeToggle /> */}
             </div>
           </div>
 
