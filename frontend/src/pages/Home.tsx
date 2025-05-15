@@ -8,6 +8,7 @@ import Hero from '@/components/LandingPage/Hero';
 import HeroSecond from '../components/LandingPage/HeroSecond';
 import Footer from '@/components/LandingPage/Footer';
 import { CustomCursor } from '@/hooks/customCursor';
+import ChatBot from '@/components/ChatBot'; 
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -76,13 +77,14 @@ const Home = () => {
     }
   }, []);
 
+
   return (
     <div className="min-h-screen bg-background">
       <CustomCursor />
       <Navbar />
       <Hero />
       <HeroSecond />
-      <div className=" pb-36">
+      <div className="pb-36">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div
             ref={pricingRef}
@@ -129,7 +131,7 @@ const Home = () => {
                       Free
                     </span>
                     <span className="text-sm font-semibold leading-6 tracking-wide text-[#6C7A89]">
-                      Trail
+                      Trial
                     </span>
                   </p>
                   <Link
@@ -187,6 +189,9 @@ const Home = () => {
         </div>
       </div>
       <Footer />
+      
+      {/* Add the ChatBot component */}
+      <ChatBot />
     </div>
   );
 };

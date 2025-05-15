@@ -1,6 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
-import { ThemeProvider } from "./components/LandingPage/themeProvider";
+// import { ThemeProvider } from "./components/LandingPage/themeProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "react-hot-toast";
@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 function App() {
   return (
     <>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      {/* <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme"> */}
         <BrowserRouter>
           <AppRoutes />
           <ToastContainer
@@ -25,7 +25,7 @@ function App() {
           />
           <Toaster position="top-right" />
         </BrowserRouter>
-      </ThemeProvider>
+      {/* </ThemeProvider> */}
     </>
   );
 }

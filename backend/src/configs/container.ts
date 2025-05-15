@@ -41,6 +41,7 @@ import { PaymentService } from '../services/Implementation/payment.service';
 import { DepartmentRepository } from '../repositories/Implementation/department.repository';
 import { DepartmentService } from '../services/Implementation/department.service';
 import { DepartmentController } from '../controllers/Implementation/department.controller';
+import { ChatbotController } from '../controllers/Implementation/chatbot.controller';
 
 export function registerContainer() {
   console.log('Registering dependencies...');
@@ -102,6 +103,8 @@ export function registerContainer() {
     container.register('SubscriptionRepository', { useClass: SubscriptionRepository });
     container.register('SubscriptionService', { useClass: SubscriptionService });
     container.register('SubscriptionController', { useClass: SubscriptionController });
+    
+    container.register('ChatbotController', { useClass: ChatbotController });
     
     console.log('Dependencies registered.');
   }

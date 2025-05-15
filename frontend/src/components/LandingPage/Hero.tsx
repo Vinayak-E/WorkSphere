@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import IMAGES from '@/assets/images/image';
 import { Link } from 'react-router-dom';
@@ -7,12 +7,13 @@ const Hero = () => {
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
   const imageRef = useRef(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const tl = gsap.timeline();
 
     tl.fromTo(
-      [titleRef.current, subtitleRef.current, imageRef.current],
+      [titleRef.current, subtitleRef.current],
       {
         opacity: 0,
         y: 50,
@@ -24,6 +25,29 @@ const Hero = () => {
         ease: 'power2.out',
       }
     );
+
+    const img = new Image();
+    img.src = IMAGES.man;
+    img.onload = () => {
+      setImageLoaded(true);
+      gsap.fromTo(
+        imageRef.current,
+        {
+          opacity: 0,
+          y: 50,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: 'power2.out',
+        }
+      );
+    };
+
+    return () => {
+      img.onload = null;
+    };
   }, []);
 
   return (
@@ -57,16 +81,25 @@ const Hero = () => {
 
             <div
               ref={imageRef}
-              className="relative lg:h-[400px] mt-8 lg:mt-10 pt-10 md:h-[400px] sm:h-[400px]"
+              className="relative lg:h-96 mt-8 lg:mt-10 pt-10 md:h-96 sm:h-96"
             >
               <div className="relative w-full h-full group">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-white/10 rounded-md z-10" />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent rounded-md z-10" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-primary/5 to-transparent rounded-md z-10 transition-opacity duration-300" />
+                
+                {!imageLoaded && (
+                  <div className="absolute inset-0 bg-blue-200 animate-pulse rounded-xl" />
+                )}
+                
                 <img
-                  src={IMAGES.man}
+                  src={IMAGES.manNew}
                   alt="Dashboard Analytics"
-                  className="object-cover w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-[1.02]"
+                  loading="lazy"
+                  className={`object-cover w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-105 ${
+                    imageLoaded ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  onLoad={() => setImageLoaded(true)}
                 />
               </div>
             </div>

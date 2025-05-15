@@ -10,6 +10,7 @@ const IMAGES = {
   heroSecond2: new URL("../landingPage/heroSecond2.png", import.meta.url).href,
   heroSecond3: new URL("../landingPage/heroSecond3.png", import.meta.url).href,
   man: new URL("../landingPage/man.jpg", import.meta.url).href,
+  manNew: new URL("../landingPage/manNew.webp", import.meta.url).href,
   login: new URL("../landingPage/loginBackground.jpg", import.meta.url).href,
   teamImage: new URL("./aboutPage/teamImage.jpg", import.meta.url).href,
   teamCollaboration: new URL("./aboutPage/teamCollaboration.jpg", import.meta.url).href,

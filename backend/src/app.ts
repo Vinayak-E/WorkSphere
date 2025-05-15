@@ -10,6 +10,7 @@ import companyRouter from './routes/company/companyRoutes';
 import emloyeeRouter from './routes/employee/employeeRoutes';
 import chatRouter from './routes/employee/chatRoutes';
 import meetRouter from './routes/employee/meetRoutes';
+import chatbotRouter from './routes/employee/chatbotRoutes';
 import { errorHandler } from './middlewares/errorMiddleware';
 import { container } from "tsyringe";
 import { CheckoutController } from "./controllers/Implementation/checkout.controller";
@@ -43,9 +44,10 @@ app.use(express.urlencoded({ limit: '10mb', extended: false }));
 app.use('/auth', indexRouter);
 app.use('/admin', adminRoter);
 
- app.use('/meetings', meetRouter);
+app.use('/meetings', meetRouter);
 app.use('/company', companyRouter);
 app.use('/employee', emloyeeRouter);
+app.use('/chatbot', chatbotRouter);
 app.use('/chat', chatRouter);
 
 app.use(errorHandler);
