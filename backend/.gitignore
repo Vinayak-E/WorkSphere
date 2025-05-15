@@ -72,10 +72,6 @@ config/local.json
 # If using Sequelize:
 sequelize-config.js
 
-# Docker
-.dockerignore
-docker-compose.yml
-Dockerfile
 
 # Next.js specific (if used in frontend)
 .next/

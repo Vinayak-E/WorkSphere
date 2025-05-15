@@ -1,0 +1,37 @@
+
+services:
+  server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: worksphere-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+ 
+    depends_on:
+      - redis
+    volumes:
+      - ./backend/node_modules:/app/node_modules  
+    networks:
+      - worksphere-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      -  worksphere-network
+
+volumes:
+  redis_data:
+
+networks:
+  worksphere-network:
+    driver: bridge
